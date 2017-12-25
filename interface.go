@@ -66,7 +66,7 @@ type PathItem struct {
 	Patch       Operation
 	Trace       Operation
 	Servers     []Server
-	Parameters  Parameter
+	Parameters  []Parameter
 }
 
 // Operation Object
@@ -157,7 +157,7 @@ type Schema struct {
 	OneOf                      *Schema `yaml:"oneOf"`
 	AnyOf                      *Schema `yaml:"anyOf"`
 	Not                        *Schema
-	Items                      []*Schema
+	Items                      *Schema
 	Properties                 map[string]*Schema
 	EnableAdditionalProperties bool `yaml:"additionalProperties"`
 	Description                string
@@ -295,7 +295,7 @@ type OAuthFlow struct {
 }
 
 // SecurityRequirement Object
-type SecurityRequirement map[string][]string
+type SecurityRequirement []map[string][]string
 
 // Tag Object
 type Tag struct {
