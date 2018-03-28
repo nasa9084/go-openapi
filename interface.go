@@ -149,7 +149,7 @@ type Schema struct {
 	MinItems         int `yaml:"minItems"`
 	MaxProperties    int `yaml:"maxProperties"`
 	MinProperties    int `yaml:"minProperties"`
-	Required         bool
+	Required         []string
 	Enum             []string
 
 	Type                       string
