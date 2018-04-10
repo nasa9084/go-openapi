@@ -109,7 +109,7 @@ type Parameter struct {
 // RequestBody Object
 type RequestBody struct {
 	Description string
-	Content     map[string]MediaType
+	Content     map[string]*MediaType
 	Required    bool
 
 	Ref string `yaml:"$ref"`
@@ -206,7 +206,7 @@ type Header struct {
 	Style         string
 	Explode       bool
 	AllowReserved bool `yaml:"allowReserved"`
-	Schema        Schema
+	Schema        *Schema
 	Example       interface{}
 	Examples      map[string]*Example
 
