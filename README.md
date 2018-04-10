@@ -1,5 +1,18 @@
 OpenAPI Specification object model
 
-**only model definition**.
+## SYNOPSIS
 
-to use, unmarshal yaml to Document object.
+``` go
+package main
+
+import (
+    "fmt"
+
+    "github.com/nasa9084/go-openapi"
+)
+
+func main() {
+    doc, _ := openapi.Load("path/to/spec")
+    fmt.Print(doc.Version)
+}
+```
