@@ -1,5 +1,7 @@
 package openapi
 
+// codebeat:disable[TOO_MANY_IVARS]
+
 // Document represents a OpenAPI Specification document.
 type Document struct {
 	Version      string `yaml:"openapi"`
