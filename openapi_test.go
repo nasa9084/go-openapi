@@ -6,8 +6,8 @@ import (
 	openapi "github.com/nasa9084/go-openapi"
 )
 
-func TestLoad(t *testing.T) {
-	doc, err := openapi.Load("test/testspec.yaml")
+func TestLoadFile(t *testing.T) {
+	doc, err := openapi.LoadFile("test/testspec.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
