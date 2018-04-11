@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-    doc, _ := openapi.Load("path/to/spec")
+    doc, _ := openapi.LoadFile("path/to/spec")
     fmt.Print(doc.Version)
 }
 ```
