@@ -8,8 +8,8 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// Load OpenAPI Specification v3.0.0 spec file.
-func Load(filename string) (*Document, error) {
+// LoadFile OpenAPI Specification v3.0 spec file.
+func LoadFile(filename string) (*Document, error) {
 	f, err := os.Open(filename)
 	if err != nil {
 		return nil, err
@@ -22,10 +22,11 @@ func Load(filename string) (*Document, error) {
 		panic(err)
 	}
 
-	return parse(b)
+	return Load(b)
 }
 
-func parse(b []byte) (*Document, error) {
+// Load OpenAPI Specification v3.0 spec.
+func Load(b []byte) (*Document, error) {
 	doc := Document{}
 	if err := yaml.Unmarshal(b, &doc); err != nil {
 		return nil, err
