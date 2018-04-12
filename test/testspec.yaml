@@ -8,3 +8,55 @@ paths:
       responses:
         '200':
           description:  ok
+components:
+  schemas:
+    definition:
+      title: schemaTitle
+      type: string
+  responses:
+    notFound:
+      description: not found
+      content:
+        application/json:
+          schema:
+            type: string
+  parameters:
+    pathParam:
+      name: id
+      in: path
+      description: user id
+      required: true
+      schema:
+        type: string
+  examples:
+    eg:
+      summary: a simple example
+      value: {"foo": "bar"}
+  requestBodies:
+    user:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+              password:
+                type: string
+                format: password
+  headers:
+    x-session:
+      description: session token
+      type: string
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+  links:
+    someLink:
+      description: a link
+  callbacks:
+    cb:
+      "http://example.com":
+        get:
+          description: callback
