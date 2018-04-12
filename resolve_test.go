@@ -76,7 +76,7 @@ func TestResolveParameter(t *testing.T) {
 		t.Errorf("%s != user id", parameter.Description)
 		return
 	}
-	if parameter.Required != true {
+	if !parameter.Required {
 		t.Errorf("%t != true", parameter.Required)
 		return
 	}
