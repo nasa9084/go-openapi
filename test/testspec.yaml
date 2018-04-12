@@ -47,7 +47,8 @@ components:
   headers:
     x-session:
       description: session token
-      type: string
+      schema:
+        type: string
   securitySchemes:
     basicAuth:
       type: http
