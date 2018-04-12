@@ -56,7 +56,8 @@ type Paths map[string]*PathItem
 
 // PathItem Object
 type PathItem struct {
-	Ref         string
+	Ref string `yaml:"$ref"`
+
 	Summary     string
 	Description string
 	Get         *Operation
