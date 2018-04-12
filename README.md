@@ -6,7 +6,11 @@ OpenAPI Specification object model
 
 ---
 
-## SYNOPSIS
+## Overview
+
+This is an implementation of [OpenAPI Specification 3.0](https://github.com/OAI/OpenAPI-Specification) object model.
+
+## Synopsis
 
 ``` go
 package main
@@ -22,3 +26,11 @@ func main() {
     fmt.Print(doc.Version)
 }
 ```
+
+## Status
+
+* [x] Model definition
+* [x] Load OpenAPI 3.0 spec file
+* [ ] Validation
+  * [ ] Validate HTTP Request
+  * [ ] Validate HTTP Response
