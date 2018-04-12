@@ -2,6 +2,7 @@ OpenAPI Specification object model
 ===
 
 [![GoDoc](https://godoc.org/github.com/nasa9084/go-openapi?status.svg)](https://godoc.org/github.com/nasa9084/go-openapi)
+[![Build Status](https://travis-ci.org/nasa9084/go-openapi.svg?branch=master)](https://travis-ci.org/nasa9084/go-openapi)
 
 ---
 
