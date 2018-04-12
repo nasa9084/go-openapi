@@ -1,4 +1,9 @@
 OpenAPI Specification object model
+===
+
+[![GoDoc](https://godoc.org/github.com/nasa9084/go-openapi?status.svg)](https://godoc.org/github.com/nasa9084/go-openapi)
+
+---
 
 ## SYNOPSIS
 
