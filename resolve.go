@@ -35,30 +35,31 @@ func (components *Components) resolve(path []string) (interface{}, error) {
 	}
 	var ret interface{}
 	var ok bool
+	next := car(cdr(path))
 	switch s := car(path); s {
 	case "schemas":
-		ret, ok = components.Schemas[car(cdr(path))]
+		ret, ok = components.Schemas[next]
 	case "responses":
-		ret, ok = components.Responses[car(cdr(path))]
+		ret, ok = components.Responses[next]
 	case "parameters":
-		ret, ok = components.Parameters[car(cdr(path))]
+		ret, ok = components.Parameters[next]
 	case "examples":
-		ret, ok = components.Examples[car(cdr(path))]
+		ret, ok = components.Examples[next]
 	case "requestBodies":
-		ret, ok = components.RequestBodies[car(cdr(path))]
+		ret, ok = components.RequestBodies[next]
 	case "headers":
-		ret, ok = components.Headers[car(cdr(path))]
+		ret, ok = components.Headers[next]
 	case "securitySchemes":
-		ret, ok = components.SecuritySchemes[car(cdr(path))]
+		ret, ok = components.SecuritySchemes[next]
 	case "links":
-		ret, ok = components.Links[car(cdr(path))]
+		ret, ok = components.Links[next]
 	case "callbacks":
-		ret, ok = components.Callbacks[car(cdr(path))]
+		ret, ok = components.Callbacks[next]
 	default:
 		return nil, errors.New("unknown reference path: " + s)
 	}
 	if !ok {
-		return nil, errors.New("not found: " + car(cdr(path)))
+		return nil, errors.New("not found: " + next)
 	}
 	return ret, nil
 }
