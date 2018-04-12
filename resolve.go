@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// ErrTypeAssertion is raised when the type assertion error is occurred.
 var ErrTypeAssertion = errors.New("type assertion error")
 
 func resolve(root *Document, ref string) (interface{}, error) {
