@@ -195,8 +195,6 @@ type MediaType struct {
 	Example  interface{}
 	Examples map[string]*Example
 	Encoding map[string]*Encoding
-
-	Ref string `yaml:"$ref"`
 }
 
 // Header Object
