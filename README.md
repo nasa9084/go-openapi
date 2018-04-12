@@ -31,6 +31,9 @@ func main() {
 
 * [x] Model definition
 * [x] Load OpenAPI 3.0 spec file
+* [ ] Resolve Reference object
+  * [x] Resolve #/component reference
+  * [ ] Resolve other file reference
 * [ ] Validation
   * [ ] Validate HTTP Request
   * [ ] Validate HTTP Response
