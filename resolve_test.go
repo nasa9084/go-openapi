@@ -7,8 +7,6 @@ import (
 	openapi "github.com/nasa9084/go-openapi"
 )
 
-var doc, _ = openapi.LoadFile("test/testspec.yaml")
-
 func TestResolveSchema(t *testing.T) {
 	schema, err := openapi.ResolveSchema(doc, "#/components/schemas/definition")
 	if err != nil {

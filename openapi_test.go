@@ -1,10 +1,22 @@
 package openapi_test
 
 import (
+	"os"
 	"testing"
 
 	openapi "github.com/nasa9084/go-openapi"
 )
+
+var doc *openapi.Document
+
+func TestMain(m *testing.M) {
+	var err error
+	doc, err = openapi.LoadFile("test/testspec.yaml")
+	if err != nil {
+		panic(err)
+	}
+	os.Exit(m.Run())
+}
 
 func TestLoadFile(t *testing.T) {
 	doc, err := openapi.LoadFile("test/testspec.yaml")
