@@ -8,7 +8,7 @@ func TestSuccessResponse(t *testing.T) {
 		t.Error("cannot find success response")
 	}
 	if status != 200 {
-		t.Error("%d != 200", status)
+		t.Errorf("%d != 200", status)
 	}
 	if resp == nil {
 		t.Error("resp is error")
