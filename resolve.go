@@ -15,16 +15,16 @@ func resolve(root *Document, ref string) (interface{}, error) {
 		if len(path) < 2 {
 			return nil, errors.New("ref string length invalid")
 		}
-		return root.resolve(cdr(path))
+		return root.resolve(path[1:])
 	default:
 		return nil, errors.New("cannot resolve relative document")
 	}
 }
 
 func (doc *Document) resolve(path []string) (interface{}, error) {
-	switch s := car(path); s {
+	switch s := path[0]; s {
 	case "components":
-		return doc.Components.resolve(cdr(path))
+		return doc.Components.resolve(path[1:])
 	default:
 		return nil, errors.New("unknown reference path: " + s)
 	}
@@ -36,8 +36,8 @@ func (components *Components) resolve(path []string) (interface{}, error) {
 	}
 	var ret interface{}
 	var ok bool
-	next := car(cdr(path))
-	switch s := car(path); s {
+	next := path[1]
+	switch s := path[0]; s {
 	case "schemas":
 		ret, ok = components.Schemas[next]
 	case "responses":
