@@ -35,5 +35,6 @@ func main() {
   * [x] Resolve #/component reference
   * [ ] Resolve other file reference
 * [ ] Validation
+  * [ ] Validate spec values
   * [ ] Validate HTTP Request
   * [ ] Validate HTTP Response
