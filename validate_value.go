@@ -300,7 +300,7 @@ func (operation Operation) Validate() error {
 
 // Validate the values of ExternalDocumentaion object.
 func (externalDocumentation ExternalDocumentation) Validate() error {
-	return mustUrl("externalDocumentation.url", externalDocumentation.URL)
+	return mustURL("externalDocumentation.url", externalDocumentation.URL)
 }
 
 // Validate the values of Parameter object.
