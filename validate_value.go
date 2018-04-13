@@ -117,10 +117,7 @@ func (license License) Validate() error {
 
 // Validate the values of Server object.
 func (server Server) Validate() error {
-	if server.URL == "" {
-		return errors.New("server.url is required")
-	}
-	if _, err := url.Parse(server.URL); err != nil {
+	if err := mustURL("server.url", server.URL); err != nil {
 		return err
 	}
 	validaters := []validater{}
@@ -303,11 +300,7 @@ func (operation Operation) Validate() error {
 
 // Validate the values of ExternalDocumentaion object.
 func (externalDocumentation ExternalDocumentation) Validate() error {
-	if externalDocumentation.URL == "" {
-		return errors.New("externalDocumentation.url is required")
-	}
-	_, err := url.Parse(externalDocumentation.URL)
-	return err
+	return mustUrl("externalDocumentation.url", externalDocumentation.URL)
 }
 
 // Validate the values of Parameter object.
@@ -557,11 +550,7 @@ func (secScheme SecurityScheme) validateFieldForOAuth2() error {
 }
 
 func (secScheme SecurityScheme) validateFieldForOpenIDConnect() error {
-	if secScheme.OpenIDConnectURL == "" {
-		return errors.New("securityScheme.openIdConnectUrl is required")
-	}
-	_, err := url.Parse(secScheme.OpenIDConnectURL)
-	return err
+	return mustURL("securityScheme.openIdConnectUrl is required", secScheme.OpenIDConnectURL)
 }
 
 // Validate the values of OAuthFlows Object.
