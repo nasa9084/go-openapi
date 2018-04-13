@@ -84,7 +84,7 @@ type Operation struct {
 	Responses    Responses
 	Callbacks    map[string]*Callback
 	Deprecated   bool
-	Security     *SecurityRequirement
+	Security     []*SecurityRequirement
 	Servers      []*Server
 }
 
