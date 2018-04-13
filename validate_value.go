@@ -80,10 +80,8 @@ func (info Info) Validate() error {
 	if info.Title == "" {
 		return errors.New("info.title is required")
 	}
-	if info.TermsOfService != "" {
-		if _, err := url.Parse(info.TermsOfService); err != nil {
-			return err
-		}
+	if _, err := url.Parse(info.TermsOfService); err != nil {
+		return err
 	}
 	validaters := []validater{info.Contact, info.License}
 	if err := validateAll(validaters); err != nil {
@@ -97,10 +95,8 @@ func (info Info) Validate() error {
 
 // Validate the values of Contact object.
 func (contact Contact) Validate() error {
-	if contact.URL != "" {
-		if _, err := url.Parse(contact.URL); err != nil {
-			return err
-		}
+	if _, err := url.Parse(contact.URL); err != nil {
+		return err
 	}
 	if contact.Email != "" {
 		if !emailRegexp.MatchString(contact.Email) {
@@ -114,9 +110,6 @@ func (contact Contact) Validate() error {
 func (license License) Validate() error {
 	if license.Name == "" {
 		return errors.New("license.Name is required")
-	}
-	if license.URL == "" {
-		return nil
 	}
 	_, err := url.Parse(license.URL)
 	return err
