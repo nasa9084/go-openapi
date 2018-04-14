@@ -582,6 +582,9 @@ func (oauthFlows OAuthFlows) Validate() error {
 
 // Validate the values of OAuthFlow object.
 func (oauthFlow OAuthFlow) Validate(typ string) error {
+	if typ != "implicit" && typ != "password" && typ != "clientCredentials" && typ != "authorizationCode" {
+		return errors.New("invalid type name")
+	}
 	if typ == "implicit" || typ == "authorizationCode" {
 		if err := mustURL("oauthFlow.authorizationUrl", oauthFlow.AuthorizationURL); err != nil {
 			return err
