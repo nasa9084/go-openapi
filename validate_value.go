@@ -80,7 +80,7 @@ func (info Info) Validate() error {
 	if info.Title == "" {
 		return errors.New("info.title is required")
 	}
-	if _, err := url.Parse(info.TermsOfService); err != nil {
+	if err := mustURL("info.termsOfService", info.TermsOfService); err != nil {
 		return err
 	}
 	validaters := []validater{info.Contact, info.License}
@@ -95,7 +95,7 @@ func (info Info) Validate() error {
 
 // Validate the values of Contact object.
 func (contact Contact) Validate() error {
-	if _, err := url.Parse(contact.URL); err != nil {
+	if err := mustURL("contact.url", contact.URL); err != nil {
 		return err
 	}
 	if contact.Email != "" {
@@ -111,8 +111,7 @@ func (license License) Validate() error {
 	if license.Name == "" {
 		return errors.New("license.Name is required")
 	}
-	_, err := url.Parse(license.URL)
-	return err
+	return mustURL("license.url", license.URL)
 }
 
 // Validate the values of Server object.
@@ -501,8 +500,7 @@ func (discriminator Discriminator) Validate() error {
 
 // Validate the values of XML object.
 func (xml XML) Validate() error {
-	_, err := url.Parse(xml.Namespace)
-	return err
+	return mustURL("xml.namespace", xml.Namespace)
 }
 
 // Validate the values of SecurityScheme object.
@@ -590,7 +588,7 @@ func (oauthFlow OAuthFlow) Validate(typ string) error {
 			return err
 		}
 	}
-	if _, err := url.Parse(oauthFlow.RefreshURL); err != nil {
+	if err := mustURL("oauthFlow.refreshUrl", oauthFlow.RefreshURL); err != nil {
 		return err
 	}
 	if oauthFlow.Scopes == nil || len(oauthFlow.Scopes) == 0 {
