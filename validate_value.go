@@ -116,7 +116,11 @@ func (license License) Validate() error {
 
 // Validate the values of Server object.
 func (server Server) Validate() error {
-	if err := mustURL("server.url", server.URL); err != nil {
+	if server.URL == "" {
+		return errors.New("server.url is required")
+	}
+	// use url.Parse because relative URL is allowed
+	if _, err := url.Parse(server.URL); err != nil {
 		return err
 	}
 	validaters := []validater{}
@@ -602,7 +606,7 @@ func mustURL(name, urlStr string) error {
 	if urlStr == "" {
 		return errors.New(name + " is required")
 	}
-	_, err := url.Parse(urlStr)
+	_, err := url.ParseRequestURI(urlStr)
 	return err
 }
 
