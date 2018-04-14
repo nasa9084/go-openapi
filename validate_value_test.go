@@ -76,6 +76,8 @@ func TestOAuthFlowValidate(t *testing.T) {
 	arURLscopes := OAuthFlow{AuthorizationURL: exampleCom, RefreshURL: exampleCom, Scopes: mockScopes}
 	trURLscopes := OAuthFlow{TokenURL: exampleCom, RefreshURL: exampleCom, Scopes: mockScopes}
 	atrURLscopes := OAuthFlow{AuthorizationURL: exampleCom, TokenURL: exampleCom, RefreshURL: exampleCom, Scopes: mockScopes}
+	invalidURL := OAuthFlow{AuthorizationURL: "foobar", TokenURL: "foobar", RefreshURL: "foobar", Scopes: mockScopes}
+	zeroMap := OAuthFlow{AuthorizationURL: exampleCom, TokenURL: exampleCom, RefreshURL: exampleCom, Scopes: map[string]string{}}
 
 	candidates := []struct {
 		label   string
@@ -98,6 +100,9 @@ func TestOAuthFlowValidate(t *testing.T) {
 		{"aURL/rURL/scopes", arURLscopes, [4]bool{false, true, true, true}},
 		{"tURL/rURL/scopes", trURLscopes, [4]bool{true, false, false, true}},
 		{"aURL/tURL/rURL/scopes", atrURLscopes, [4]bool{false, false, false, false}},
+
+		{"invalidURL", invalidURL, [4]bool{true, true, true, true}},
+		{"zero length map", zeroMap, [4]bool{true, true, true, true}},
 	}
 	for _, c := range candidates {
 		testOAuthFlowValidate(t, c.label, c.in, c.haveErr)
