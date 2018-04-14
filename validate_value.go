@@ -592,8 +592,10 @@ func (oauthFlow OAuthFlow) Validate(typ string) error {
 			return err
 		}
 	}
-	if err := mustURL("oauthFlow.refreshUrl", oauthFlow.RefreshURL); err != nil {
-		return err
+	if oauthFlow.RefreshURL != "" {
+		if _, err := url.ParseRequestURI(oauthFlow.RefreshURL); err != nil {
+			return err
+		}
 	}
 	if oauthFlow.Scopes == nil || len(oauthFlow.Scopes) == 0 {
 		return errors.New("oauthFlow.scopes is required")
