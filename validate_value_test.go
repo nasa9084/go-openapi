@@ -4,6 +4,8 @@ import (
 	"testing"
 )
 
+const exampleCom = "https://example.com"
+
 func TestHasDuplicatedParameter(t *testing.T) {
 	t.Run("no duplicated param", testHasDuplicatedParameterFalse)
 	t.Run("there's duplicated param", testHasDuplicatedParameterTrue)
@@ -55,11 +57,9 @@ func TestMustURL(t *testing.T) {
 	}
 }
 
-const exampleCom = "https://example.com"
-
-var mockScopes = map[string]string{"foo": "bar"}
-
 func TestOAuthFlowValidate(t *testing.T) {
+	mockScopes := map[string]string{"foo": "bar"}
+
 	empty := OAuthFlow{}
 	aURL := OAuthFlow{AuthorizationURL: exampleCom}
 	tURL := OAuthFlow{TokenURL: exampleCom}
