@@ -5,8 +5,6 @@ OpenAPI Specification object model
 [![Build Status](https://travis-ci.org/nasa9084/go-openapi.svg?branch=master)](https://travis-ci.org/nasa9084/go-openapi)
 [![codecov](https://codecov.io/gh/nasa9084/go-openapi/branch/master/graph/badge.svg)](https://codecov.io/gh/nasa9084/go-openapi)
 
-
-
 ---
 
 ## Overview
