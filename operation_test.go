@@ -23,6 +23,8 @@ func TestSuccessResponse(t *testing.T) {
 		{"have200", &openapi.Operation{Responses: openapi.Responses{"200": &openapi.Response{}}}, &openapi.Response{}, 200, true},
 		{"haveDefault", &openapi.Operation{Responses: openapi.Responses{"default": &openapi.Response{}}}, &openapi.Response{}, 0, true},
 		{"have200andDefault", &openapi.Operation{Responses: openapi.Responses{"200": &openapi.Response{}, "default": &openapi.Response{}}}, &openapi.Response{}, 200, true},
+		{"have2XX", &openapi.Operation{Responses: openapi.Responses{"2XX": &openapi.Response{}}}, &openapi.Response{}, 0, true},
+		{"have1XX", &openapi.Operation{Responses: openapi.Responses{"1XX": &openapi.Response{}}}, nil, 0, false},
 	}
 	for _, c := range candidates {
 		resp, status, ok := c.in.SuccessResponse()
