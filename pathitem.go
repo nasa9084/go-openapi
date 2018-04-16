@@ -47,7 +47,9 @@ func (pathItem *PathItem) GetOperation(method string) *Operation {
 func (pathItem PathItem) Operations() map[string]*Operation {
 	ops := map[string]*Operation{}
 	for _, method := range methods {
-		ops[method] = pathItem.GetOperation(method)
+		if op := pathItem.GetOperation(method); op != nil {
+			ops[method] = op
+		}
 	}
 	return ops
 }
