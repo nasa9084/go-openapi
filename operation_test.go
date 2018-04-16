@@ -18,7 +18,7 @@ func TestSuccessResponse(t *testing.T) {
 		{"nil", nil, nil, -1, false},
 		{"empty", &openapi.Operation{}, nil, -1, false},
 		{"haveInvalid", &openapi.Operation{Responses: openapi.Responses{"foo": &openapi.Response{}}}, nil, 0, false},
-		{"haveNilResp", &openapi.Operation{Responses: openapi.Responses{"200": nil}}, nil, 200, true},
+		{"haveNilResp", &openapi.Operation{Responses: openapi.Responses{"200": nil}}, nil, 0, false},
 		{"have100", &openapi.Operation{Responses: openapi.Responses{"100": &openapi.Response{}}}, nil, 0, false},
 		{"have200", &openapi.Operation{Responses: openapi.Responses{"200": &openapi.Response{}}}, &openapi.Response{}, 200, true},
 		{"haveDefault", &openapi.Operation{Responses: openapi.Responses{"default": &openapi.Response{}}}, &openapi.Response{}, 0, true},
