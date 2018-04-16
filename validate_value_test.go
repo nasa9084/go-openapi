@@ -4,7 +4,10 @@ import (
 	"testing"
 )
 
-const exampleCom = "https://example.com"
+const (
+	exampleCom  = "https://example.com"
+	exampleMail = "foo@example.com"
+)
 
 func TestHasDuplicatedParameter(t *testing.T) {
 	t.Run("no duplicated param", testHasDuplicatedParameterFalse)
@@ -53,6 +56,33 @@ func TestMustURL(t *testing.T) {
 			}
 			t.Error("error should not occurred, but occurred")
 			return
+		}
+	}
+}
+
+func TestContactValidate(t *testing.T) {
+	candidates := []struct {
+		label  string
+		in     Contact
+		hasErr bool
+	}{
+		{"empty", Contact{}, true},
+		{"withURL", Contact{URL: exampleCom}, false},
+		{"invalidURL", Contact{URL: "foobar"}, true},
+		{"withEmail", Contact{Email: exampleMail}, true},
+		{"valid", Contact{URL: exampleCom, Email: exampleMail}, false},
+		{"invalidEmail", Contact{URL: exampleCom, Email: "foobar"}, true},
+	}
+
+	for _, c := range candidates {
+		if err := c.in.Validate(); (err != nil) != c.hasErr {
+			t.Log(c.label)
+			if c.hasErr {
+				t.Error("error should be occurred, but not")
+				continue
+			}
+			t.Error("error should not be occurred, but occurred")
+			t.Log(err)
 		}
 	}
 }
