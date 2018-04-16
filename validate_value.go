@@ -283,11 +283,15 @@ func hasDuplicatedParameter(parameters []*Parameter) bool {
 // Validate the values of Operation object.
 func (operation Operation) Validate() error {
 	validaters := []validater{}
-	validaters = append(validaters, operation.ExternalDocs)
+	if operation.ExternalDocs != nil {
+		validaters = append(validaters, operation.ExternalDocs)
+	}
 	if hasDuplicatedParameter(operation.Parameters) {
 		return errors.New("some parameter is duplicated")
 	}
-	validaters = append(validaters, operation.RequestBody)
+	if operation.RequestBody != nil {
+		validaters = append(validaters, operation.RequestBody)
+	}
 	if operation.Responses == nil {
 		return errors.New("operation.responses is required")
 	}
