@@ -161,14 +161,23 @@ func TestPathsValidate(t *testing.T) {
 	t.Run("duplicate pathItem", testPathItemDuplicate)
 }
 
+func getPaths(id1, id2 string) Paths {
+	return Paths{
+		"/foo/bar": &PathItem{
+			Get:  &Operation{OperationID: id1, Responses: Responses{"200": &Response{Description: "foo"}}},
+			Post: &Operation{OperationID: id2, Responses: Responses{"200": &Response{Description: "foo"}}},
+		},
+	}
+}
+
 func testPathItemDuplicate(t *testing.T) {
 	candidates := []struct {
 		label  string
 		in     Paths
 		hasErr bool
 	}{
-		{"invalid", Paths{"/foo/bar": &PathItem{Get: &Operation{OperationID: "foobar"}, Post: &Operation{OperationID: "foobar"}}}, true},
-		{"valid", Paths{"/foo/bar": &PathItem{Get: &Operation{OperationID: "foobarGet"}, Post: &Operation{OperationID: "foobarPost"}}}, false},
+		{"invalid", getPaths("foobar", "foobar"), true},
+		{"valid", getPaths("foo", "bar"), false},
 	}
 	for _, c := range candidates {
 		if err := c.in.Validate(); (err != nil) != c.hasErr {
