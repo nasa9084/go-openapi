@@ -1,17 +1,46 @@
 package openapi_test
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+
+	openapi "github.com/nasa9084/go-openapi"
+)
 
 func TestSuccessResponse(t *testing.T) {
-	// TODO: more test
-	resp, status, ok := doc.Paths["/"].Get.SuccessResponse()
-	if !ok {
-		t.Error("cannot find success response")
+	candidates := []struct {
+		label  string
+		in     *openapi.Operation
+		resp   *openapi.Response
+		status int
+		ok     bool
+	}{
+		{"nil", nil, nil, -1, false},
+		{"empty", &openapi.Operation{}, nil, -1, false},
+		{"haveInvalid", &openapi.Operation{Responses: openapi.Responses{"foo": &openapi.Response{}}}, nil, 0, false},
+		{"haveNilResp", &openapi.Operation{Responses: openapi.Responses{"200": nil}}, nil, 200, true},
+		{"have100", &openapi.Operation{Responses: openapi.Responses{"100": &openapi.Response{}}}, nil, 0, false},
+		{"have200", &openapi.Operation{Responses: openapi.Responses{"200": &openapi.Response{}}}, &openapi.Response{}, 200, true},
+		{"haveDefault", &openapi.Operation{Responses: openapi.Responses{"default": &openapi.Response{}}}, &openapi.Response{}, 0, true},
+		{"have200andDefault", &openapi.Operation{Responses: openapi.Responses{"200": &openapi.Response{}, "default": &openapi.Response{}}}, &openapi.Response{}, 200, true},
 	}
-	if status != 200 {
-		t.Errorf("%d != 200", status)
-	}
-	if resp == nil {
-		t.Error("resp is error")
+	for _, c := range candidates {
+		resp, status, ok := c.in.SuccessResponse()
+		if c.resp != nil && resp == nil {
+			t.Error("resp should not be nil")
+			return
+		}
+		if !reflect.DeepEqual(c.resp, resp) {
+			t.Errorf("%+v != %+v", c.resp, resp)
+			return
+		}
+		if status != c.status {
+			t.Errorf("%d != %d", status, c.status)
+			return
+		}
+		if ok != c.ok {
+			t.Errorf("%t != %t", ok, c.ok)
+			return
+		}
 	}
 }
