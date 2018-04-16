@@ -142,17 +142,17 @@ func TestOAuthFlowValidate(t *testing.T) {
 var flowTypes = []string{"implicit", "password", "clientCredentials", "authorizationCode"}
 
 func testOAuthFlowValidate(t *testing.T, label string, oauthFlow OAuthFlow, haveErr [4]bool) {
-	t.Logf("%s-empty", label)
 	if err := oauthFlow.Validate(""); err == nil {
+		t.Logf("%s-empty", label)
 		t.Error("error should be occurred, but not")
 	}
-	t.Logf("%s-wrongtype", label)
 	if err := oauthFlow.Validate("foobar"); err == nil {
+		t.Logf("%s-wrongtype", label)
 		t.Error("error should be occurred, but not")
 	}
 	for i, flowType := range flowTypes {
-		t.Logf("%s-%s", label, flowType)
 		if err := oauthFlow.Validate(flowType); (err != nil) != haveErr[i] {
+			t.Logf("%s-%s", label, flowType)
 			if haveErr[i] {
 				t.Error("error should be occurred, but not")
 				continue
