@@ -45,3 +45,20 @@ func TestGetOperation(t *testing.T) {
 		}
 	}
 }
+
+func TestOperations(t *testing.T) {
+	pathItem := openapi.PathItem{
+		Get:     &openapi.Operation{OperationID: "get"},
+		Put:     &openapi.Operation{OperationID: "put"},
+		Post:    &openapi.Operation{OperationID: "post"},
+		Delete:  &openapi.Operation{OperationID: "delete"},
+		Options: &openapi.Operation{OperationID: "options"},
+		Head:    &openapi.Operation{OperationID: "head"},
+		Patch:   &openapi.Operation{OperationID: "patch"},
+		Trace:   &openapi.Operation{OperationID: "trace"},
+	}
+	ops := pathItem.Operations()
+	if len(ops) != 8 {
+		t.Errorf("size of operations is invalid: %d != 8", len(ops))
+	}
+}

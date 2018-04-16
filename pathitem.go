@@ -5,6 +5,17 @@ import (
 	"strings"
 )
 
+var methods = []string{
+	http.MethodGet,
+	http.MethodPut,
+	http.MethodPost,
+	http.MethodDelete,
+	http.MethodOptions,
+	http.MethodHead,
+	http.MethodPatch,
+	http.MethodTrace,
+}
+
 // GetOperation returns a operation object associated with given method.
 // The method is case-insensitive, converted to upper case in this function.
 // If the method is invalid, this function will return nil.
@@ -29,4 +40,14 @@ func (pathItem *PathItem) GetOperation(method string) *Operation {
 	default:
 		return nil
 	}
+}
+
+// Operations returns a map containing operation object as a
+// value associated with a HTTP method as a key.
+func (pathItem PathItem) Operations() map[string]*Operation {
+	ops := map[string]*Operation{}
+	for _, method := range methods {
+		ops[method] = pathItem.GetOperation(method)
+	}
+	return ops
 }
