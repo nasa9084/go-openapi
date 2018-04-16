@@ -42,10 +42,10 @@ func main() {
       * [ ] Info
       * [x] Contact
       * [x] License
-      * [ ] Server
-      * [ ] ServerVariable
-      * [ ] Paths
-      * [ ] PathItem
+      * [x] Server
+      * [x] ServerVariable
+      * [x] Paths
+      * [x] PathItem
       * [ ] Operation
       * [ ] Parameter
       * [ ] RequestBody
