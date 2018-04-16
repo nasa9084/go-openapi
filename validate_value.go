@@ -2,6 +2,7 @@ package openapi
 
 import (
 	"errors"
+	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -244,15 +245,9 @@ func hasDuplicatedOperationID(paths Paths) bool {
 
 // Validate the values of PathItem object.
 func (pathItem PathItem) Validate() error {
-	validaters := []validater{
-		pathItem.Get,
-		pathItem.Put,
-		pathItem.Post,
-		pathItem.Delete,
-		pathItem.Options,
-		pathItem.Head,
-		pathItem.Patch,
-		pathItem.Trace,
+	validaters := []validater{}
+	for _, op := range operations(pathItem) {
+		validaters = append(validaters, op)
 	}
 	for _, s := range pathItem.Servers {
 		validaters = append(validaters, s)
@@ -264,6 +259,26 @@ func (pathItem PathItem) Validate() error {
 		validaters = append(validaters, p)
 	}
 	return validateAll(validaters)
+}
+
+func operations(pathItem PathItem) []Operation {
+	var ret []Operation
+	methods := []string{
+		http.MethodGet,
+		http.MethodPut,
+		http.MethodPost,
+		http.MethodDelete,
+		http.MethodOptions,
+		http.MethodHead,
+		http.MethodPatch,
+		http.MethodTrace,
+	}
+	for _, method := range methods {
+		if op := pathItem.GetOperation(method); op != nil {
+			ret = append(ret, *op)
+		}
+	}
+	return ret
 }
 
 func hasDuplicatedParameter(parameters []*Parameter) bool {
