@@ -25,6 +25,9 @@ func (op *Operation) SuccessResponse() (*Response, int, bool) {
 			continue
 		}
 		if statusInt/100 == 2 {
+			if resp == nil {
+				continue
+			}
 			return resp, statusInt, true
 		}
 	}
