@@ -38,5 +38,35 @@ func main() {
 * [ ] Validation
   * [x] Validate spec values
     * [ ] test for validation
+      * [ ] Document
+      * [ ] Info
+      * [x] Contact
+      * [x] License
+      * [ ] Server
+      * [ ] ServerVariable
+      * [ ] Paths
+      * [ ] PathItem
+      * [ ] Operation
+      * [ ] Parameter
+      * [ ] RequestBody
+      * [ ] Responses
+      * [ ] Response
+      * [ ] Callbacks
+      * [ ] Callback
+      * [ ] Schema
+      * [ ] Example
+      * [ ] MediaType
+      * [ ] Header
+      * [ ] Link
+      * [ ] Encoding
+      * [ ] Discriminator
+      * [ ] XML
+      * [ ] Components
+      * [ ] SecurityScheme
+      * [ ] OAuthFlows
+      * [x] OAuthFlow
+      * [ ] SecurityRequirement
+      * [ ] Tag
+      * [ ] ExternalDocumentation
   * [ ] Validate HTTP Request
   * [ ] Validate HTTP Response
