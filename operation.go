@@ -28,5 +28,5 @@ func (op *Operation) SuccessResponse() (*Response, int, bool) {
 			return resp, statusInt, true
 		}
 	}
-	return defaultResponse, 0, false
+	return defaultResponse, 0, (defaultResponse != nil)
 }
