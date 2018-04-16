@@ -7,7 +7,7 @@ import "strconv"
 // it's not sure which is returned.
 // If only match the default response or 2XX response, returned status code will be 0.
 func (op *Operation) SuccessResponse() (*Response, int, bool) {
-	if op.Responses == nil {
+	if op == nil || op.Responses == nil {
 		return nil, -1, false
 	}
 	var defaultResponse *Response
