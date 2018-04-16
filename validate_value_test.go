@@ -156,6 +156,31 @@ func TestServerVariableValidate(t *testing.T) {
 		}
 	}
 }
+
+func TestPathsValidate(t *testing.T) {
+	t.Run("duplicate pathItem", testPathItemDuplicate)
+}
+
+func testPathItemDuplicate(t *testing.T) {
+	candidates := []struct {
+		label  string
+		in     Paths
+		hasErr bool
+	}{
+		{"invalid", Paths{"/foo/bar": &PathItem{Get: &Operation{OperationID: "foobar"}, Post: &Operation{OperationID: "foobar"}}}, true},
+		{"valid", Paths{"/foo/bar": &PathItem{Get: &Operation{OperationID: "foobarGet"}, Post: &Operation{OperationID: "foobarPost"}}}, false},
+	}
+	for _, c := range candidates {
+		if err := c.in.Validate(); (err != nil) != c.hasErr {
+			if c.hasErr {
+				t.Error("error should be occurred, but not")
+				continue
+			}
+			t.Error("error should not be occurred, but occurred")
+		}
+	}
+}
+
 func TestOAuthFlowValidate(t *testing.T) {
 	mockScopes := map[string]string{"foo": "bar"}
 
