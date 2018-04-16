@@ -87,6 +87,31 @@ func TestContactValidate(t *testing.T) {
 	}
 }
 
+func TestLicenseValidate(t *testing.T) {
+	candidates := []struct {
+		label  string
+		in     License
+		hasErr bool
+	}{
+		{"empty", License{}, true},
+		{"withName", License{Name: "foobar"}, true},
+		{"withURL", License{URL: exampleCom}, true},
+		{"invalidURL", License{Name: "foobar", URL: "foobar"}, true},
+		{"valid", License{Name: "foobar", URL: exampleCom}, false},
+	}
+	for _, c := range candidates {
+		if err := c.in.Validate(); (err != nil) != c.hasErr {
+			t.Log(c.label)
+			if c.hasErr {
+				t.Error("error should occurred, but not")
+				continue
+			}
+			t.Error("error should not be occurred, but occurred")
+			t.Log(err)
+		}
+	}
+}
+
 func TestOAuthFlowValidate(t *testing.T) {
 	mockScopes := map[string]string{"foo": "bar"}
 
