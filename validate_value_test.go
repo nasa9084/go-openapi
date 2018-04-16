@@ -112,6 +112,28 @@ func TestLicenseValidate(t *testing.T) {
 	}
 }
 
+func TestServerValidate(t *testing.T) {
+	candidates := []struct {
+		label  string
+		in     Server
+		hasErr bool
+	}{
+		{"empty", Server{}, true},
+		{"invalidURL", Server{URL: "foobar%"}, true},
+		{"withURL", Server{URL: exampleCom}, false},
+	}
+	for _, c := range candidates {
+		if err := c.in.Validate(); (err != nil) != c.hasErr {
+			t.Log(c.label)
+			if c.hasErr {
+				t.Error("error should be occurred, but not")
+				continue
+			}
+			t.Error("error should not be occurred, but occurred")
+			t.Log(err)
+		}
+	}
+}
 func TestOAuthFlowValidate(t *testing.T) {
 	mockScopes := map[string]string{"foo": "bar"}
 
