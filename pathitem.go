@@ -44,6 +44,8 @@ func (pathItem *PathItem) GetOperation(method string) *Operation {
 
 // Operations returns a map containing operation object as a
 // value associated with a HTTP method as a key.
+// If an operation is nil, it won't be added returned map, so
+// the size of returned map is not same always.
 func (pathItem PathItem) Operations() map[string]*Operation {
 	ops := map[string]*Operation{}
 	for _, method := range methods {
