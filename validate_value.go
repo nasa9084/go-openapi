@@ -239,7 +239,16 @@ func (paths Paths) Validate() error {
 }
 
 func hasDuplicatedOperationID(paths Paths) bool {
-	// TODO
+	opIDs := map[string]struct{}{}
+	for _, pathItem := range paths {
+		for _, op := range operations(*pathItem) {
+			if _, ok := opIDs[op.OperationID]; ok {
+				return true
+			}
+			opIDs[op.OperationID] = struct{}{}
+		}
+	}
+
 	return false
 }
 
