@@ -186,6 +186,7 @@ func testPathItemDuplicate(t *testing.T) {
 				continue
 			}
 			t.Error("error should not be occurred, but occurred")
+			t.Log(err)
 		}
 	}
 }
