@@ -204,6 +204,24 @@ func TestReduceComponentKeys(t *testing.T) {
 		}
 	}
 }
+
+func TestReduceComponentObjects(t *testing.T) {
+	candidates := []struct {
+		label    string
+		in       Components
+		expected []validater
+	}{
+		{"empty", Components{}, []validater{}},
+	}
+	for _, c := range candidates {
+		objects := reduceComponentObjects(c.in)
+		if !reflect.DeepEqual(objects, c.expected) {
+			t.Log(c.label)
+			t.Errorf("%+v != %+v", objects, c.expected)
+		}
+	}
+}
+
 func TestPathsValidate(t *testing.T) {
 	t.Run("duplicate pathItem", testPathItemDuplicate)
 }
