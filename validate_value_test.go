@@ -194,6 +194,13 @@ func TestTagValidate(t *testing.T) {
 	testValidater(t, candidates)
 }
 
+func TestSchemaValidate(t *testing.T) {
+	candidates := []candidate{
+		{"empty", Schema{}, false},
+	}
+	testValidater(t, candidates)
+}
+
 func TestDiscriminatorValidate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", Discriminator{}, true},
