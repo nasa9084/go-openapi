@@ -160,6 +160,12 @@ func TestServerVariableValidate(t *testing.T) {
 	testValidater(t, candidates)
 }
 
+func TestComponents(t *testing.T) {
+	candidates := []candidate{
+		{"empty", Components{}, true},
+	}
+	testValidater(t, candidates)
+}
 func TestPathsValidate(t *testing.T) {
 	t.Run("duplicate pathItem", testPathItemDuplicate)
 }
