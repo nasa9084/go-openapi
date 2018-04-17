@@ -141,7 +141,7 @@ func testPathItemDuplicate(t *testing.T) {
 	testValidater(t, candidates)
 }
 
-func TestExternalDocumentation(t *testing.T) {
+func TestExternalDocumentationValidate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", ExternalDocumentation{}, true},
 		{"invalidURL", ExternalDocumentation{URL: "foobar"}, true},
@@ -150,7 +150,7 @@ func TestExternalDocumentation(t *testing.T) {
 	testValidater(t, candidates)
 }
 
-func TestTag(t *testing.T) {
+func TestTagValidate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", Tag{}, true},
 		{"withEmptyExternalDocs", Tag{ExternalDocs: &ExternalDocumentation{}}, true},
