@@ -482,15 +482,30 @@ func (tag Tag) Validate() error {
 
 // Validate the values of Schema object.
 func (schema Schema) Validate() error {
-	validaters := []validater{
-		schema.AllOf,
-		schema.OneOf,
-		schema.AnyOf,
-		schema.Not,
-		schema.Items,
-		schema.Discriminator,
-		schema.XML,
-		schema.ExternalDocs,
+	validaters := []validater{}
+	if schema.AllOf != nil {
+		validaters = append(validaters, schema.AllOf)
+	}
+	if schema.OneOf != nil {
+		validaters = append(validaters, schema.OneOf)
+	}
+	if schema.AnyOf != nil {
+		validaters = append(validaters, schema.AnyOf)
+	}
+	if schema.Not != nil {
+		validaters = append(validaters, schema.Not)
+	}
+	if schema.Items != nil {
+		validaters = append(validaters, schema.Items)
+	}
+	if schema.Discriminator != nil {
+		validaters = append(validaters, schema.Discriminator)
+	}
+	if schema.XML != nil {
+		validaters = append(validaters, schema.XML)
+	}
+	if schema.ExternalDocs != nil {
+		validaters = append(validaters, schema.ExternalDocs)
 	}
 	for _, property := range schema.Properties {
 		validaters = append(validaters, property)
