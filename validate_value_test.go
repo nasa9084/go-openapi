@@ -102,6 +102,7 @@ func TestValidateOASVersion(t *testing.T) {
 	}
 	for _, c := range candidates {
 		if err := validateOASVersion(c.in); (err != nil) != c.hasErr {
+			t.Log(c.label)
 			if c.hasErr {
 				t.Error("error should be occurred, but not")
 				continue
