@@ -60,7 +60,7 @@ func main() {
       * [ ] Link
       * [ ] Encoding
       * [ ] Discriminator
-      * [ ] XML
+      * [x] XML
       * [ ] Components
       * [ ] SecurityScheme
       * [ ] OAuthFlows

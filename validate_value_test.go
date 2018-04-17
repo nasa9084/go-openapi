@@ -161,6 +161,15 @@ func TestTagValidate(t *testing.T) {
 	testValidater(t, candidates)
 }
 
+func TestXMLValidate(t *testing.T) {
+	candidates := []candidate{
+		{"empty", XML{}, true},
+		{"invalidURLNamespace", XML{Namespace: "foobar"}, true},
+		{"withNamespace", XML{Namespace: exampleCom}, false},
+	}
+	testValidater(t, candidates)
+}
+
 func TestOAuthFlowValidate(t *testing.T) {
 	mockScopes := map[string]string{"foo": "bar"}
 
