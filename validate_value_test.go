@@ -163,7 +163,7 @@ func TestServerVariableValidate(t *testing.T) {
 
 func TestComponents(t *testing.T) {
 	candidates := []candidate{
-		{"empty", Components{}, true},
+		{"empty", Components{}, false},
 	}
 	testValidater(t, candidates)
 }
