@@ -174,7 +174,7 @@ func TestComponentsValidateKeys(t *testing.T) {
 		in     Components
 		hasErr bool
 	}{
-		{"empty", Components{}, true},
+		{"empty", Components{}, false},
 	}
 	for _, c := range candidates {
 		if err := c.in.validateKeys(); (err != nil) != c.hasErr {
