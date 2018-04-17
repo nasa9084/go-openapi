@@ -66,7 +66,7 @@ func main() {
       * [ ] OAuthFlows
       * [x] OAuthFlow
       * [ ] SecurityRequirement
-      * [ ] Tag
+      * [x] Tag
       * [x] ExternalDocumentation
   * [ ] Validate HTTP Request
   * [ ] Validate HTTP Response
