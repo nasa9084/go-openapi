@@ -9,6 +9,25 @@ const (
 	exampleMail = "foo@example.com"
 )
 
+type candidate struct {
+	label  string
+	in     validater
+	hasErr bool
+}
+
+func testValidater(t *testing.T, candidates []candidate) {
+	t.Helper()
+	for _, c := range candidates {
+		if err := c.in.Validate(); (err != nil) != c.hasErr {
+			if c.hasErr {
+				t.Error("error should be occurred, but not")
+				continue
+			}
+			t.Errorf("error is occurred: %s", err)
+		}
+	}
+}
+
 func TestHasDuplicatedParameter(t *testing.T) {
 	t.Run("no duplicated param", testHasDuplicatedParameterFalse)
 	t.Run("there's duplicated param", testHasDuplicatedParameterTrue)
@@ -61,11 +80,7 @@ func TestMustURL(t *testing.T) {
 }
 
 func TestContactValidate(t *testing.T) {
-	candidates := []struct {
-		label  string
-		in     Contact
-		hasErr bool
-	}{
+	candidates := []candidate{
 		{"empty", Contact{}, true},
 		{"withURL", Contact{URL: exampleCom}, false},
 		{"invalidURL", Contact{URL: "foobar"}, true},
@@ -74,87 +89,35 @@ func TestContactValidate(t *testing.T) {
 		{"invalidEmail", Contact{URL: exampleCom, Email: "foobar"}, true},
 	}
 
-	for _, c := range candidates {
-		if err := c.in.Validate(); (err != nil) != c.hasErr {
-			t.Log(c.label)
-			if c.hasErr {
-				t.Error("error should be occurred, but not")
-				continue
-			}
-			t.Error("error should not be occurred, but occurred")
-			t.Log(err)
-		}
-	}
+	testValidater(t, candidates)
 }
 
 func TestLicenseValidate(t *testing.T) {
-	candidates := []struct {
-		label  string
-		in     License
-		hasErr bool
-	}{
+	candidates := []candidate{
 		{"empty", License{}, true},
 		{"withName", License{Name: "foobar"}, true},
 		{"withURL", License{URL: exampleCom}, true},
 		{"invalidURL", License{Name: "foobar", URL: "foobar"}, true},
 		{"valid", License{Name: "foobar", URL: exampleCom}, false},
 	}
-	for _, c := range candidates {
-		if err := c.in.Validate(); (err != nil) != c.hasErr {
-			t.Log(c.label)
-			if c.hasErr {
-				t.Error("error should occurred, but not")
-				continue
-			}
-			t.Error("error should not be occurred, but occurred")
-			t.Log(err)
-		}
-	}
+	testValidater(t, candidates)
 }
 
 func TestServerValidate(t *testing.T) {
-	candidates := []struct {
-		label  string
-		in     Server
-		hasErr bool
-	}{
+	candidates := []candidate{
 		{"empty", Server{}, true},
 		{"invalidURL", Server{URL: "foobar%"}, true},
 		{"withURL", Server{URL: exampleCom}, false},
 	}
-	for _, c := range candidates {
-		if err := c.in.Validate(); (err != nil) != c.hasErr {
-			t.Log(c.label)
-			if c.hasErr {
-				t.Error("error should be occurred, but not")
-				continue
-			}
-			t.Error("error should not be occurred, but occurred")
-			t.Log(err)
-		}
-	}
+	testValidater(t, candidates)
 }
 
 func TestServerVariableValidate(t *testing.T) {
-	candidates := []struct {
-		label  string
-		in     ServerVariable
-		hasErr bool
-	}{
+	candidates := []candidate{
 		{"empty", ServerVariable{}, true},
 		{"withDefault", ServerVariable{Default: "default"}, false},
 	}
-	for _, c := range candidates {
-		if err := c.in.Validate(); (err != nil) != c.hasErr {
-			t.Log(c.label)
-			if c.hasErr {
-				t.Error("error should be occurred, but not")
-				continue
-			}
-			t.Error("error should not be occurred, but occurred")
-			t.Log(err)
-		}
-	}
+	testValidater(t, candidates)
 }
 
 func TestPathsValidate(t *testing.T) {
@@ -171,24 +134,20 @@ func getPaths(id1, id2 string) Paths {
 }
 
 func testPathItemDuplicate(t *testing.T) {
-	candidates := []struct {
-		label  string
-		in     Paths
-		hasErr bool
-	}{
+	candidates := []candidate{
 		{"invalid", getPaths("foobar", "foobar"), true},
 		{"valid", getPaths("foo", "bar"), false},
 	}
-	for _, c := range candidates {
-		if err := c.in.Validate(); (err != nil) != c.hasErr {
-			if c.hasErr {
-				t.Error("error should be occurred, but not")
-				continue
-			}
-			t.Error("error should not be occurred, but occurred")
-			t.Log(err)
-		}
+	testValidater(t, candidates)
+}
+
+func TestExternalDocumentation(t *testing.T) {
+	candidates := []candidate{
+		{"empty", ExternalDocumentation{}, true},
+		{"invalidURL", ExternalDocumentation{URL: "foobar"}, true},
+		{"valid", ExternalDocumentation{URL: exampleCom}, false},
 	}
+	testValidater(t, candidates)
 }
 
 func TestOAuthFlowValidate(t *testing.T) {
