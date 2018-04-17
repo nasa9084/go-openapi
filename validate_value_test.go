@@ -79,6 +79,16 @@ func TestMustURL(t *testing.T) {
 	}
 }
 
+func TestDocumentValidate(t *testing.T) {
+	candidates := []candidate{
+		{"empty", Document{}, true},
+		{"withInvalidVersion", Document{Version: "1.0"}, true},
+		{"withVersion", Document{Version: "3.0.0"}, true},
+		{"valid", Document{Version: "3.0.0", Info: &Info{Title: "foo", TermsOfService: exampleCom, Version: "1.0"}, Paths: Paths{}}, false},
+	}
+	testValidater(t, candidates)
+}
+
 func TestValidateOASVersion(t *testing.T) {
 	candidates := []struct {
 		label  string

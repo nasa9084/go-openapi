@@ -38,7 +38,7 @@ func main() {
 * [ ] Validation
   * [x] Validate spec values
     * [ ] test for validation
-      * [ ] Document
+      * [x] Document
       * [ ] Info
       * [x] Contact
       * [x] License
