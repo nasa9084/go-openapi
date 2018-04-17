@@ -112,6 +112,13 @@ func TestValidateOASVersion(t *testing.T) {
 	}
 }
 
+func TestInfoValidate(t *testing.T) {
+	candidates := []candidate{
+		{"empty", Info{}, true},
+	}
+	testValidater(t, candidates)
+}
+
 func TestContactValidate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", Contact{}, true},
