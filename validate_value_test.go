@@ -1,6 +1,7 @@
 package openapi
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -183,6 +184,23 @@ func TestComponentsValidateKeys(t *testing.T) {
 				continue
 			}
 			t.Errorf("error should not be occurred: %s", err)
+		}
+	}
+}
+
+func TestReduceComponentKeys(t *testing.T) {
+	candidates := []struct {
+		label    string
+		in       Components
+		expected []string
+	}{
+		{"empty", Components{}, []string{}},
+	}
+	for _, c := range candidates {
+		keys := reduceComponentKeys(c.in)
+		if !reflect.DeepEqual(keys, c.expected) {
+			t.Log(c.label)
+			t.Errorf("%+v != %+v", keys, c.expected)
 		}
 	}
 }
