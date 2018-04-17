@@ -79,6 +79,28 @@ func TestMustURL(t *testing.T) {
 	}
 }
 
+func TestValidateOASVersion(t *testing.T) {
+	candidates := []struct {
+		label  string
+		in     string
+		hasErr bool
+	}{
+		{"empty", "", true},
+		{"invalidVersion", "foobar", true},
+		{"swagger", "2.0", true},
+		{"valid", "3.0.0", false},
+	}
+	for _, c := range candidates {
+		if err := validateOASVersion(c.in); (err != nil) != c.hasErr {
+			if c.hasErr {
+				t.Error("error should be occurred, but not")
+				continue
+			}
+			t.Errorf("error should not be occured: %s", err)
+		}
+	}
+}
+
 func TestContactValidate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", Contact{}, true},
