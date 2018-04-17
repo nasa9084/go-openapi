@@ -161,6 +161,14 @@ func TestTagValidate(t *testing.T) {
 	testValidater(t, candidates)
 }
 
+func TestDiscriminatorValidate(t *testing.T) {
+	candidates := []candidate{
+		{"empty", Discriminator{}, true},
+		{"withPropertyName", Discriminator{PropertyName: "foobar"}, false},
+	}
+	testValidater(t, candidates)
+}
+
 func TestXMLValidate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", XML{}, true},

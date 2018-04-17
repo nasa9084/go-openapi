@@ -59,7 +59,7 @@ func main() {
       * [ ] Header
       * [ ] Link
       * [ ] Encoding
-      * [ ] Discriminator
+      * [x] Discriminator
       * [x] XML
       * [ ] Components
       * [ ] SecurityScheme
