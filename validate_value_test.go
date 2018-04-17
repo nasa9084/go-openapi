@@ -166,6 +166,26 @@ func TestComponents(t *testing.T) {
 	}
 	testValidater(t, candidates)
 }
+
+func TestComponentsValidateKeys(t *testing.T) {
+	candidates := []struct {
+		label  string
+		in     Components
+		hasErr bool
+	}{
+		{"empty", Components{}, true},
+	}
+	for _, c := range candidates {
+		if err := c.in.validateKeys(); (err != nil) != c.hasErr {
+			t.Log(c.label)
+			if c.hasErr {
+				t.Error("error should be occurred, but not")
+				continue
+			}
+			t.Errorf("error should not be occurred: %s", err)
+		}
+	}
+}
 func TestPathsValidate(t *testing.T) {
 	t.Run("duplicate pathItem", testPathItemDuplicate)
 }
