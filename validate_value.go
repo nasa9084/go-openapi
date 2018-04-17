@@ -39,17 +39,23 @@ func (doc Document) Validate() error {
 		return err
 	}
 	var validaters []validater
-	validaters = append(validaters, doc.Info)
+	validaters = append(validaters, doc.Info) // doc.Info nil check has done
 	for _, s := range doc.Servers {
 		validaters = append(validaters, s)
 	}
-	validaters = append(validaters, doc.Paths)
-	validaters = append(validaters, doc.Components)
-	validaters = append(validaters, doc.Security)
+	validaters = append(validaters, doc.Paths) // doc.Paths nil check has done
+	if doc.Components != nil {
+		validaters = append(validaters, doc.Components)
+	}
+	if doc.Security != nil {
+		validaters = append(validaters, doc.Security)
+	}
 	for _, t := range doc.Tags {
 		validaters = append(validaters, t)
 	}
-	validaters = append(validaters, doc.ExternalDocs)
+	if doc.ExternalDocs != nil {
+		validaters = append(validaters, doc.ExternalDocs)
+	}
 	return validateAll(validaters)
 }
 
@@ -83,7 +89,13 @@ func (info Info) Validate() error {
 	if err := mustURL("info.termsOfService", info.TermsOfService); err != nil {
 		return err
 	}
-	validaters := []validater{info.Contact, info.License}
+	validaters := []validater{}
+	if info.Contact != nil {
+		validaters = append(validaters, info.Contact)
+	}
+	if info.License != nil {
+		validaters = append(validaters, info.License)
+	}
 	if err := validateAll(validaters); err != nil {
 		return err
 	}
