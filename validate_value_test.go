@@ -319,6 +319,17 @@ func TestXMLValidate(t *testing.T) {
 	testValidater(t, candidates)
 }
 
+func TestOAuthFlowsValidate(t *testing.T) {
+	candidates := []candidate{
+		{"empty", OAuthFlows{}, false},
+		{"invalidImplicit", OAuthFlows{Implicit: &OAuthFlow{}}, true},
+		{"invalidPassword", OAuthFlows{Password: &OAuthFlow{}}, true},
+		{"invalidClientCredentials", OAuthFlows{ClientCredentials: &OAuthFlow{}}, true},
+		{"invalidAuthorizationCode", OAuthFlows{AuthorizationCode: &OAuthFlow{}}, true},
+	}
+	testValidater(t, candidates)
+}
+
 func TestOAuthFlowValidate(t *testing.T) {
 	mockScopes := map[string]string{"foo": "bar"}
 
