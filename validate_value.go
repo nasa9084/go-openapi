@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/nasa9084/go-openapi/oauth"
 )
 
 var (
@@ -592,39 +594,59 @@ func (secScheme SecurityScheme) validateFieldForOpenIDConnect() error {
 // Validate the values of OAuthFlows Object.
 func (oauthFlows OAuthFlows) Validate() error {
 	if oauthFlows.Implicit != nil {
-		if err := oauthFlows.Implicit.Validate("implicit"); err != nil {
+		if err := oauthFlows.Implicit.Validate(oauth.ImplicitFlow); err != nil {
 			return err
 		}
 	}
 	if oauthFlows.Password != nil {
-		if err := oauthFlows.Password.Validate("password"); err != nil {
+		if err := oauthFlows.Password.Validate(oauth.PasswordFlow); err != nil {
 			return err
 		}
 	}
 	if oauthFlows.ClientCredentials != nil {
-		if err := oauthFlows.ClientCredentials.Validate("clientCredentials"); err != nil {
+		if err := oauthFlows.ClientCredentials.Validate(oauth.ClientCredentialsFlow); err != nil {
 			return err
 		}
 	}
 	if oauthFlows.AuthorizationCode != nil {
-		if err := oauthFlows.AuthorizationCode.Validate("authorizationCode"); err != nil {
+		if err := oauthFlows.AuthorizationCode.Validate(oauth.AuthorizationCodeFlow); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
+var defined = struct{}{}
+
+var validFlowTypes = map[string]struct{}{
+	oauth.ImplicitFlow:          defined,
+	oauth.PasswordFlow:          defined,
+	oauth.ClientCredentialsFlow: defined,
+	oauth.AuthorizationCodeFlow: defined,
+}
+
+var requireAuthorizationURL = map[string]struct{}{
+	oauth.ImplicitFlow:          defined,
+	oauth.AuthorizationCodeFlow: defined,
+}
+
+var requireTokenURL = map[string]struct{}{
+	oauth.PasswordFlow:          defined,
+	oauth.ClientCredentialsFlow: defined,
+	oauth.AuthorizationCodeFlow: defined,
+}
+
 // Validate the values of OAuthFlow object.
 func (oauthFlow OAuthFlow) Validate(typ string) error {
-	if typ != "implicit" && typ != "password" && typ != "clientCredentials" && typ != "authorizationCode" {
+	if _, ok := validFlowTypes[typ]; !ok {
 		return errors.New("invalid type name")
 	}
-	if typ == "implicit" || typ == "authorizationCode" {
+	if _, ok := requireAuthorizationURL[typ]; ok {
 		if err := mustURL("oauthFlow.authorizationUrl", oauthFlow.AuthorizationURL); err != nil {
 			return err
 		}
 	}
-	if typ == "password" || typ == "clientCredentials" || typ == "authorizationCode" {
+	if _, ok := requireTokenURL[typ]; ok {
 		if err := mustURL("oauthFlow.tokenUrl", oauthFlow.TokenURL); err != nil {
 			return err
 		}
