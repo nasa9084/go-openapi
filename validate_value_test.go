@@ -1,6 +1,7 @@
 package openapi
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 )
@@ -25,6 +26,37 @@ func testValidater(t *testing.T, candidates []candidate) {
 				continue
 			}
 			t.Errorf("error is occurred: %s", err)
+		}
+	}
+}
+
+type mockValidater struct {
+	err error
+}
+
+func (v mockValidater) Validate() error {
+	return v.err
+}
+
+func TestValidateAll(t *testing.T) {
+	valid := mockValidater{}
+	invalid := mockValidater{errors.New("err")}
+
+	candidates := []struct {
+		label  string
+		in     []validater
+		hasErr bool
+	}{
+		{"nil", nil, false},
+		{"empty", []validater{}, false},
+		{"all valid", []validater{valid, valid, valid}, false},
+		{"have invalid", []validater{valid, invalid, valid}, true},
+		{"have nil", []validater{valid, nil, valid, valid}, false},
+	}
+	for _, c := range candidates {
+		if err := validateAll(c.in); (err != nil) != c.hasErr {
+			t.Log(c.label)
+			t.Errorf("error: %s", err)
 		}
 	}
 }
