@@ -65,7 +65,7 @@ func validateOASVersion(version string) error {
 	if err != nil {
 		return errors.New("minor part of openapi version is invalid format")
 	}
-	_, err := strconv.Atoi(splited[2])
+	_, err = strconv.Atoi(splited[2])
 	if err != nil {
 		return errors.New("patch part of openapi version is invalid format")
 	}
