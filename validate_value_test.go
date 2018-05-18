@@ -284,17 +284,6 @@ func TestExternalDocumentationValidate(t *testing.T) {
 	testValidater(t, candidates)
 }
 
-func TestTagValidate(t *testing.T) {
-	candidates := []candidate{
-		{"empty", Tag{}, true},
-		{"withEmptyExternalDocs", Tag{ExternalDocs: &ExternalDocumentation{}}, true},
-		{"withValidExternalDocs", Tag{ExternalDocs: &ExternalDocumentation{URL: exampleCom}}, true},
-
-		{"withName", Tag{Name: "foo"}, false},
-	}
-	testValidater(t, candidates)
-}
-
 func TestSchemaValidate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", Schema{}, false},
