@@ -8,7 +8,7 @@ import (
 // codebeat:disable[TOO_MANY_IVARS]
 
 // Responses Object
-type Responses map[string]*Respons
+type Responses map[string]*Response
 
 // Validate the values of Responses object.
 func (responses Responses) Validate() error {
