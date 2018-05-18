@@ -1,9 +1,30 @@
 package openapi
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 )
+
+// codebeat:disable[TOO_MANY_IVARS]
+
+// PathItem Object
+type PathItem struct {
+	Ref string `yaml:"$ref"`
+
+	Summary     string
+	Description string
+	Get         *Operation
+	Put         *Operation
+	Post        *Operation
+	Delete      *Operation
+	Options     *Operation
+	Head        *Operation
+	Patch       *Operation
+	Trace       *Operation
+	Servers     []*Server
+	Parameters  []*Parameter
+}
 
 var methods = []string{
 	http.MethodGet,
@@ -54,4 +75,33 @@ func (pathItem PathItem) Operations() map[string]*Operation {
 		}
 	}
 	return ops
+}
+
+// Validate the values of PathItem object.
+func (pathItem PathItem) Validate() error {
+	validaters := []validater{}
+	for _, op := range pathItem.Operations() {
+		validaters = append(validaters, op)
+	}
+	for _, s := range pathItem.Servers {
+		validaters = append(validaters, s)
+	}
+	if hasDuplicatedParameter(pathItem.Parameters) {
+		return errors.New("some parameter is duplicated")
+	}
+	for _, p := range pathItem.Parameters {
+		validaters = append(validaters, p)
+	}
+	return validateAll(validaters)
+}
+
+func hasDuplicatedParameter(parameters []*Parameter) bool {
+	for i, p := range parameters {
+		for _, q := range parameters[i+1:] {
+			if p.Name == q.Name && p.In == q.In {
+				return true
+			}
+		}
+	}
+	return false
 }
