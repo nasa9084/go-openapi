@@ -1,6 +1,10 @@
 package openapi
 
-import "errors"
+import (
+	"errors"
+	"strconv"
+	"strings"
+)
 
 // codebeat:disable[TOO_MANY_IVARS]
 
@@ -49,10 +53,24 @@ func validateOASVersion(version string) error {
 	if version == "" {
 		return errors.New("openapi is required")
 	}
-	for _, v := range compatibleVersions {
-		if version == v {
-			return nil
-		}
+	splited := strings.Split(version, ".")
+	if len(splited) != 3 {
+		return errors.New("openapi version is not valid: version format should be X.Y.Z")
+	}
+	major, err := strconv.Atoi(splited[0])
+	if err != nil {
+		return errors.New("major part of openapi version is invalid format")
+	}
+	minor, err := strconv.Atoi(splited[1])
+	if err != nil {
+		return errors.New("minor part of openapi version is invalid format")
+	}
+	_, err := strconv.Atoi(splited[2])
+	if err != nil {
+		return errors.New("patch part of openapi version is invalid format")
+	}
+	if major == 3 && 0 <= minor {
+		return nil
 	}
 	return errors.New("the OAS version is not supported")
 }

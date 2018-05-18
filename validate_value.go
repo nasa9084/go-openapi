@@ -7,9 +7,8 @@ import (
 )
 
 var (
-	compatibleVersions = []string{"3.0.0", "3.0.1"}
-	emailRegexp        = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-	mapKeyRegexp       = regexp.MustCompile("^[a-zA-Z0-9\\.\\-_]+$")
+	emailRegexp  = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	mapKeyRegexp = regexp.MustCompile("^[a-zA-Z0-9\\.\\-_]+$")
 )
 
 type validater interface {
