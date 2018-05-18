@@ -1,6 +1,9 @@
 package openapi
 
-import "errors"
+import (
+	"errors"
+	"net/url"
+)
 
 // codebeat:disable[TOO_MANY_IVARS]
 
@@ -19,8 +22,10 @@ func (info Info) Validate() error {
 	if info.Title == "" {
 		return errors.New("info.title is required")
 	}
-	if err := mustURL("info.termsOfService", info.TermsOfService); err != nil {
-		return err
+	if info.TermsOfService != "" {
+		if _, err := url.ParseRequestURI(info.TermsOfService); err != nil {
+			return err
+		}
 	}
 	validaters := []validater{}
 	if info.Contact != nil {
