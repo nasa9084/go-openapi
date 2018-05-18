@@ -254,27 +254,6 @@ func TestReduceComponentObjects(t *testing.T) {
 	}
 }
 
-func TestPathsValidate(t *testing.T) {
-	t.Run("duplicate pathItem", testPathItemDuplicate)
-}
-
-func getPaths(id1, id2 string) Paths {
-	return Paths{
-		"/foo/bar": &PathItem{
-			Get:  &Operation{OperationID: id1, Responses: Responses{"200": &Response{Description: "foo"}}},
-			Post: &Operation{OperationID: id2, Responses: Responses{"200": &Response{Description: "foo"}}},
-		},
-	}
-}
-
-func testPathItemDuplicate(t *testing.T) {
-	candidates := []candidate{
-		{"invalid", getPaths("foobar", "foobar"), true},
-		{"valid", getPaths("foo", "bar"), false},
-	}
-	testValidater(t, candidates)
-}
-
 func TestExternalDocumentationValidate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", ExternalDocumentation{}, true},
