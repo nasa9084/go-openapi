@@ -62,7 +62,7 @@ func main() {
       * [x] Discriminator
       * [x] XML
       * [ ] Components
-      * [ ] SecurityScheme
+      * [x] SecurityScheme
       * [ ] OAuthFlows
       * [x] OAuthFlow
       * [ ] SecurityRequirement
