@@ -27,9 +27,12 @@ func LoadFile(filename string) (*Document, error) {
 
 // Load OpenAPI Specification v3.0 spec.
 func Load(b []byte) (*Document, error) {
-	doc := Document{}
-	if err := yaml.Unmarshal(b, &doc); err != nil {
+	doc := &Document{}
+	if err := yaml.Unmarshal(b, doc); err != nil {
 		return nil, err
 	}
-	return &doc, nil
+	for i := range doc.Security {
+		doc.Security[i].setDocument(doc)
+	}
+	return doc, nil
 }

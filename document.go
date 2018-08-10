@@ -15,7 +15,7 @@ type Document struct {
 	Servers      []*Server
 	Paths        Paths
 	Components   *Components
-	Security     *SecurityRequirement
+	Security     []*SecurityRequirement
 	Tags         []*Tag
 	ExternalDocs *ExternalDocumentation `yaml:"externalDocs"`
 }
@@ -37,8 +37,8 @@ func (doc Document) Validate() error {
 	if doc.Components != nil {
 		validaters = append(validaters, doc.Components)
 	}
-	if doc.Security != nil {
-		validaters = append(validaters, doc.Security)
+	for _, securityRequirement := range doc.Security {
+		validaters = append(validaters, securityRequirement)
 	}
 	for _, t := range doc.Tags {
 		validaters = append(validaters, t)
