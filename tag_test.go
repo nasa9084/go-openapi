@@ -1,16 +1,20 @@
-package openapi
+package openapi_test
 
-import "testing"
+import (
+	"testing"
+
+	openapi "github.com/nasa9084/go-openapi"
+)
 
 func TestTagValidate(t *testing.T) {
 	candidates := []candidate{
-		{"empty", Tag{}, true},
-		{"withEmptyExternalDocs", Tag{ExternalDocs: &ExternalDocumentation{}}, true},
-		{"withValidExternalDocs", Tag{ExternalDocs: &ExternalDocumentation{URL: exampleCom}}, true},
+		{"empty", openapi.Tag{}, true},
+		{"withEmptyExternalDocs", openapi.Tag{ExternalDocs: &openapi.ExternalDocumentation{}}, true},
+		{"withValidExternalDocs", openapi.Tag{ExternalDocs: &openapi.ExternalDocumentation{URL: exampleCom}}, true},
 
-		{"withName", Tag{Name: "foo"}, false},
-		{"withNameAndEmptyExternalDocs", Tag{Name: "foo", ExternalDocs: &ExternalDocumentation{}}, true},
-		{"withNameAndValidExternalDocs", Tag{Name: "foo", ExternalDocs: &ExternalDocumentation{URL: exampleCom}}, false},
+		{"withName", openapi.Tag{Name: "foo"}, false},
+		{"withNameAndEmptyExternalDocs", openapi.Tag{Name: "foo", ExternalDocs: &openapi.ExternalDocumentation{}}, true},
+		{"withNameAndValidExternalDocs", openapi.Tag{Name: "foo", ExternalDocs: &openapi.ExternalDocumentation{URL: exampleCom}}, false},
 	}
 	testValidater(t, candidates)
 }

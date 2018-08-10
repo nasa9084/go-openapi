@@ -19,14 +19,14 @@ type Components struct {
 
 // Validate the values of Components object.
 func (components Components) Validate() error {
-	if err := components.validateKeys(); err != nil {
+	if err := validateComponentKeys(components); err != nil {
 		return err
 	}
 	validaters := reduceComponentObjects(components)
 	return validateAll(validaters)
 }
 
-func (components Components) validateKeys() error {
+func validateComponentKeys(components Components) error {
 	keys := reduceComponentKeys(components)
 	for _, k := range keys {
 		if !mapKeyRegexp.MatchString(k) {

@@ -1,17 +1,21 @@
-package openapi
+package openapi_test
 
-import "testing"
+import (
+	"testing"
+
+	openapi "github.com/nasa9084/go-openapi"
+)
 
 func TestPathsValidate(t *testing.T) {
 	t.Run("duplicate pathItem", testPathItemDuplicate)
 	t.Run("test path", testPaths)
 }
 
-func getPaths(path, id1, id2 string) Paths {
-	return Paths{
-		path: &PathItem{
-			Get:  &Operation{OperationID: id1, Responses: Responses{"200": &Response{Description: "foo"}}},
-			Post: &Operation{OperationID: id2, Responses: Responses{"200": &Response{Description: "foo"}}},
+func getPaths(path, id1, id2 string) openapi.Paths {
+	return openapi.Paths{
+		path: &openapi.PathItem{
+			Get:  &openapi.Operation{OperationID: id1, Responses: openapi.Responses{"200": &openapi.Response{Description: "foo"}}},
+			Post: &openapi.Operation{OperationID: id2, Responses: openapi.Responses{"200": &openapi.Response{Description: "foo"}}},
 		},
 	}
 }
