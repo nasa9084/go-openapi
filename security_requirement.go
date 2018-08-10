@@ -28,6 +28,9 @@ func (secReq SecurityRequirement) Validate() error {
 	if len(secReq.mp) == 0 {
 		return nil
 	}
+	if secReq.document == nil {
+		return errors.New("missing root document for security requirement")
+	}
 	components := secReq.document.Components
 	if components == nil {
 		return errors.New("components object in parent document is nil")
