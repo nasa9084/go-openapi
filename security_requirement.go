@@ -1,6 +1,7 @@
 package openapi
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 )
@@ -11,6 +12,16 @@ import (
 type SecurityRequirement struct {
 	document *Document
 	mp       map[string][]string
+}
+
+// UnmarshalJSON implements json.Unmarshaler
+func (secReq *SecurityRequirement) UnmarshalJSON(data []byte) error {
+	v := map[string][]string{}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	secReq.mp = v
+	return nil
 }
 
 // Get returns required security schemes. If there is not given name,
