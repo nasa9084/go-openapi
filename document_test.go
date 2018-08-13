@@ -26,6 +26,10 @@ func TestValidateOASVersion(t *testing.T) {
 		{"invalidVersion", "foobar", true},
 		{"swagger", "2.0", true},
 		{"valid", "3.0.0", false},
+		{"unsupportedVersion", "4.0.0", true},
+		{"invalidMajorVersion", "foo.0.0", true},
+		{"invalidMinorVersion", "0.bar.0", true},
+		{"invalidPatchVersion", "0.0.baz", true},
 	}
 	for _, c := range candidates {
 		if err := openapi.ValidateOASVersion(c.in); (err != nil) != c.hasErr {
