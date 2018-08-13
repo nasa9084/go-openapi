@@ -25,6 +25,8 @@ func (link Link) Validate() error {
 	if v, ok := link.RequestBody.(validater); ok {
 		validaters = append(validaters, v)
 	}
-	validaters = append(validaters, link.Server)
+	if link.Server != nil {
+		validaters = append(validaters, link.Server)
+	}
 	return validateAll(validaters)
 }

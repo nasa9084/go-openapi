@@ -20,17 +20,17 @@ type Schema struct {
 	Required         []string
 	Enum             []string
 
-	Type                       string
-	AllOf                      []*Schema `yaml:"allOf"`
-	OneOf                      []*Schema `yaml:"oneOf"`
-	AnyOf                      []*Schema `yaml:"anyOf"`
-	Not                        *Schema
-	Items                      *Schema
-	Properties                 map[string]*Schema
-	EnableAdditionalProperties bool `yaml:"additionalProperties"`
-	Description                string
-	Format                     string
-	Default                    string
+	Type                 string
+	AllOf                []*Schema `yaml:"allOf"`
+	OneOf                []*Schema `yaml:"oneOf"`
+	AnyOf                []*Schema `yaml:"anyOf"`
+	Not                  *Schema
+	Items                *Schema
+	Properties           map[string]*Schema
+	AdditionalProperties *Schema `yaml:"additionalProperties"`
+	Description          string
+	Format               string
+	Default              string
 
 	Nullable      bool
 	Discriminator *Discriminator

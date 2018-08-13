@@ -13,7 +13,10 @@ type MediaType struct {
 // Validate the values of MediaType object.
 // This function DOES NOT check whether the encoding object is in schema or not.
 func (mediaType MediaType) Validate() error {
-	validaters := []validater{mediaType.Schema}
+	validaters := []validater{}
+	if mediaType.Schema != nil {
+		validaters = append(validaters, mediaType.Schema)
+	}
 	if v, ok := mediaType.Example.(validater); ok {
 		validaters = append(validaters, v)
 	}
