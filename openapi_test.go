@@ -24,6 +24,9 @@ func TestLoadFile(t *testing.T) {
 	t.Run("petstore.yaml", testPetStore)
 	t.Run("petstore-expanded.yaml", testPetStoreExpanded)
 	t.Run("callback-example.yaml", testCallBackExample)
+	t.Run("link-example.yaml", testLinkExample)
+	t.Run("api-with-example.yaml", testAPIWithExample)
+	t.Run("upsto.yaml", testUpsto)
 }
 
 func testTestSpec(t *testing.T) {
@@ -649,6 +652,39 @@ in further updates
 		if !reflect.DeepEqual(doc.ExternalDocs, expect.ExternalDocs) {
 			t.Error("document.ExternalDocs is not valid")
 		}
+		return
+	}
+}
+
+func testLinkExample(t *testing.T) {
+	doc, err := openapi.LoadFile("test/link-example.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := doc.Validate(); err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+func testAPIWithExample(t *testing.T) {
+	doc, err := openapi.LoadFile("test/api-with-example.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := doc.Validate(); err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+func testUpsto(t *testing.T) {
+	doc, err := openapi.LoadFile("test/upsto.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := doc.Validate(); err != nil {
+		t.Error(err)
 		return
 	}
 }
