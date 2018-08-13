@@ -23,6 +23,7 @@ func TestLoadFile(t *testing.T) {
 	t.Run("testspec.yaml", testTestSpec)
 	t.Run("petstore.yaml", testPetStore)
 	t.Run("petstore-expanded.yaml", testPetStoreExpanded)
+	t.Run("callback-example.yaml", testCallBackExample)
 }
 
 func testTestSpec(t *testing.T) {
@@ -490,6 +491,132 @@ Sed tempus felis lobortis leo pulvinar rutrum. Nam mattis velit nisl, eu condime
 						},
 						"message": &openapi.Schema{
 							Type: "string",
+						},
+					},
+				},
+			},
+		},
+	}
+	if !reflect.DeepEqual(*doc, expect) {
+		t.Errorf("document is not valid: %+v != %+v", doc, expect)
+		if !reflect.DeepEqual(doc.Version, expect.Version) {
+			t.Error("document.Version is not valid")
+		}
+		if !reflect.DeepEqual(doc.Info, expect.Info) {
+			t.Error("document.Info is not valid")
+		}
+		if !reflect.DeepEqual(doc.Servers, expect.Servers) {
+			t.Error("document.Servers is not valid")
+		}
+		if !reflect.DeepEqual(doc.Paths, expect.Paths) {
+			t.Error("document.Paths is not valid")
+		}
+		if !reflect.DeepEqual(doc.Components, expect.Components) {
+			t.Error("document.Components is not valid")
+		}
+		if !reflect.DeepEqual(doc.Security, expect.Security) {
+			t.Error("document.Security is not valid")
+		}
+		if !reflect.DeepEqual(doc.Tags, expect.Tags) {
+			t.Error("document.Tags is not valid")
+		}
+		if !reflect.DeepEqual(doc.ExternalDocs, expect.ExternalDocs) {
+			t.Error("document.ExternalDocs is not valid")
+		}
+		return
+	}
+}
+
+func testCallBackExample(t *testing.T) {
+	doc, err := openapi.LoadFile("test/callback-example.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := doc.Validate(); err != nil {
+		t.Error(err)
+		return
+	}
+	expect := openapi.Document{
+		Version: "3.0.0",
+		Info: &openapi.Info{
+			Title:   "Callback Example",
+			Version: "1.0.0",
+		},
+		Paths: openapi.Paths{
+			"/streams": &openapi.PathItem{
+				Post: &openapi.Operation{
+					Description: "subscribes a client to receive out-of-band data",
+					Parameters: []*openapi.Parameter{
+						&openapi.Parameter{
+							Name:     "callbackUrl",
+							In:       "query",
+							Required: true,
+							Description: `the location where data will be sent.  Must be network accessible
+by the source server
+`,
+							Schema: &openapi.Schema{
+								Type:    "string",
+								Format:  "uri",
+								Example: "https://tonys-server.com",
+							},
+						},
+					},
+					Responses: openapi.Responses{
+						"201": &openapi.Response{
+							Description: "subscription successfully created",
+							Content: map[string]*openapi.MediaType{
+								"application/json": &openapi.MediaType{
+									Schema: &openapi.Schema{
+										Description: "subscription information",
+										Required:    []string{"subscriptionId"},
+										Properties: map[string]*openapi.Schema{
+											"subscriptionId": &openapi.Schema{
+												Description: "this unique identifier allows management of the subscription",
+												Type:        "string",
+												Example:     "2531329f-fb09-4ef7-887e-84e648214436",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+					Callbacks: openapi.Callbacks{
+						"onData": &openapi.Callback{
+							"{$request.query.callbackUrl}/data": &openapi.PathItem{
+								Post: &openapi.Operation{
+									RequestBody: &openapi.RequestBody{
+										Description: "subscription payload",
+										Content: map[string]*openapi.MediaType{
+											"application/json": &openapi.MediaType{
+												Schema: &openapi.Schema{
+													Properties: map[string]*openapi.Schema{
+														"timestamp": &openapi.Schema{
+															Type:   "string",
+															Format: "date-time",
+														},
+														"userData": &openapi.Schema{
+															Type: "string",
+														},
+													},
+												},
+											},
+										},
+									},
+									Responses: openapi.Responses{
+										"202": &openapi.Response{
+											Description: `Your server implementation should return this HTTP status code
+if the data was received successfully
+`,
+										},
+										"204": &openapi.Response{
+											Description: `Your server should return this HTTP status code if no longer interested
+in further updates
+`,
+										},
+									},
+								},
+							},
 						},
 					},
 				},
