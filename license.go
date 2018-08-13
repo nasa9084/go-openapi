@@ -1,6 +1,9 @@
 package openapi
 
-import "errors"
+import (
+	"errors"
+	"net/url"
+)
 
 // codebeat:disable[TOO_MANY_IVARS]
 
@@ -15,5 +18,9 @@ func (license License) Validate() error {
 	if license.Name == "" {
 		return errors.New("license.name is required")
 	}
-	return mustURL("license.url", license.URL)
+	if license.URL != "" {
+		_, err := url.ParseRequestURI(license.URL)
+		return err
+	}
+	return nil
 }

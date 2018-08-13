@@ -9,10 +9,10 @@ import (
 func TestLicenseValidate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", openapi.License{}, true},
-		{"withName", openapi.License{Name: "foobar"}, true},
+		{"withName", openapi.License{Name: "foobar"}, false},
 		{"withURL", openapi.License{URL: exampleCom}, true},
 		{"invalidURL", openapi.License{Name: "foobar", URL: "foobar"}, true},
-		{"valid", openapi.License{Name: "foobar", URL: exampleCom}, false},
+		{"full", openapi.License{Name: "foobar", URL: exampleCom}, false},
 	}
 	testValidater(t, candidates)
 }
