@@ -54,6 +54,10 @@ func testPetStore(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if err := doc.Validate(); err != nil {
+		t.Error(err)
+		return
+	}
 	expect := openapi.Document{
 		Version: "3.0.0",
 		Info: &openapi.Info{
@@ -251,6 +255,10 @@ func testPetStoreExpanded(t *testing.T) {
 	doc, err := openapi.LoadFile("test/petstore-expanded.yaml")
 	if err != nil {
 		t.Fatal(err)
+		return
+	}
+	if err := doc.Validate(); err != nil {
+		t.Error(err)
 		return
 	}
 	expect := openapi.Document{
