@@ -494,8 +494,32 @@ func testPetStoreExpanded(t *testing.T) {
 			},
 		},
 	}
-	if !reflect.DeepEqual(doc, expect) {
+	if !reflect.DeepEqual(*doc, expect) {
 		t.Errorf("document is not valid: %+v != %+v", doc, expect)
+		if !reflect.DeepEqual(doc.Version, expect.Version) {
+			t.Error("document.Version is not valid")
+		}
+		if !reflect.DeepEqual(doc.Info, expect.Info) {
+			t.Error("document.Info is not valid")
+		}
+		if !reflect.DeepEqual(doc.Servers, expect.Servers) {
+			t.Error("document.Servers is not valid")
+		}
+		if !reflect.DeepEqual(doc.Paths, expect.Paths) {
+			t.Error("document.Paths is not valid")
+		}
+		if !reflect.DeepEqual(doc.Components, expect.Components) {
+			t.Error("document.Components is not valid")
+		}
+		if !reflect.DeepEqual(doc.Security, expect.Security) {
+			t.Error("document.Security is not valid")
+		}
+		if !reflect.DeepEqual(doc.Tags, expect.Tags) {
+			t.Error("document.Tags is not valid")
+		}
+		if !reflect.DeepEqual(doc.ExternalDocs, expect.ExternalDocs) {
+			t.Error("document.ExternalDocs is not valid")
+		}
 		return
 	}
 }
