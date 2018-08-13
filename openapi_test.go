@@ -50,7 +50,7 @@ func testTestSpec(t *testing.T) {
 }
 
 func testPetStore(t *testing.T) {
-	doc, err := openapi.LoadFile("test/petstore.yml")
+	doc, err := openapi.LoadFile("test/petstore.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
