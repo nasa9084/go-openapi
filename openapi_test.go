@@ -20,8 +20,9 @@ func TestMain(m *testing.M) {
 }
 
 func TestLoadFile(t *testing.T) {
-	t.Run("testspec.yml", testTestSpec)
-	t.Run("petstore.yml", testPetStore)
+	t.Run("testspec.yaml", testTestSpec)
+	t.Run("petstore.yaml", testPetStore)
+	t.Run("petstore-expanded.yaml", testPetStoreExpanded)
 }
 
 func testTestSpec(t *testing.T) {
