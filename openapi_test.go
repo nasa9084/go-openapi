@@ -268,7 +268,7 @@ func testPetStoreExpanded(t *testing.T) {
 			Version:        "1.0.0",
 			Title:          "Swagger Petstore",
 			Description:    "A sample API that uses a petstore as an example to demonstrate features in the OpenAPI 3.0 specification",
-			TermsOfService: "http://swagger.io/terms",
+			TermsOfService: "http://swagger.io/terms/",
 			Contact: &openapi.Contact{
 				Name:  "Swagger API Team",
 				Email: "apiteam@swagger.io",
@@ -285,10 +285,11 @@ func testPetStoreExpanded(t *testing.T) {
 		Paths: openapi.Paths{
 			"/pets": &openapi.PathItem{
 				Get: &openapi.Operation{
-					Description: ` Returns all pets from the system that the user has access to
-        Nam sed condimentum est. Maecenas tempor sagittis sapien, nec rhoncus sem sagittis sit amet. Aenean at gravida augue, ac iaculis sem. Curabitur odio lorem, ornare eget elementum nec, cursus id lectus. Duis mi turpis, pulvinar ac eros ac, tincidunt varius justo. In hac habitasse platea dictumst. Integer at adipiscing ante, a sagittis ligula. Aenean pharetra tempor ante molestie imperdiet. Vivamus id aliquam diam. Cras quis velit non tortor eleifend sagittis. Praesent at enim pharetra urna volutpat venenatis eget eget mauris. In eleifend fermentum facilisis. Praesent enim enim, gravida ac sodales sed, placerat id erat. Suspendisse lacus dolor, consectetur non augue vel, vehicula interdum libero. Morbi euismod sagittis libero sed lacinia.
+					Description: `Returns all pets from the system that the user has access to
+Nam sed condimentum est. Maecenas tempor sagittis sapien, nec rhoncus sem sagittis sit amet. Aenean at gravida augue, ac iaculis sem. Curabitur odio lorem, ornare eget elementum nec, cursus id lectus. Duis mi turpis, pulvinar ac eros ac, tincidunt varius justo. In hac habitasse platea dictumst. Integer at adipiscing ante, a sagittis ligula. Aenean pharetra tempor ante molestie imperdiet. Vivamus id aliquam diam. Cras quis velit non tortor eleifend sagittis. Praesent at enim pharetra urna volutpat venenatis eget eget mauris. In eleifend fermentum facilisis. Praesent enim enim, gravida ac sodales sed, placerat id erat. Suspendisse lacus dolor, consectetur non augue vel, vehicula interdum libero. Morbi euismod sagittis libero sed lacinia.
 
-        Sed tempus felis lobortis leo pulvinar rutrum. Nam mattis velit nisl, eu condimentum ligula luctus nec. Phasellus semper velit eget aliquet faucibus. In a mattis elit. Phasellus vel urna viverra, condimentum lorem id, rhoncus nibh. Ut pellentesque posuere elementum. Sed a varius odio. Morbi rhoncus ligula libero, vel eleifend nunc tristique vitae. Fusce et sem dui. Aenean nec scelerisque tortor. Fusce malesuada accumsan magna vel tempus. Quisque mollis felis eu dolor tristique, sit amet auctor felis gravida. Sed libero lorem, molestie sed nisl in, accumsan tempor nisi. Fusce sollicitudin massa ut lacinia mattis. Sed vel eleifend lorem. Pellentesque vitae felis pretium, pulvinar elit eu, euismod sapien.`,
+Sed tempus felis lobortis leo pulvinar rutrum. Nam mattis velit nisl, eu condimentum ligula luctus nec. Phasellus semper velit eget aliquet faucibus. In a mattis elit. Phasellus vel urna viverra, condimentum lorem id, rhoncus nibh. Ut pellentesque posuere elementum. Sed a varius odio. Morbi rhoncus ligula libero, vel eleifend nunc tristique vitae. Fusce et sem dui. Aenean nec scelerisque tortor. Fusce malesuada accumsan magna vel tempus. Quisque mollis felis eu dolor tristique, sit amet auctor felis gravida. Sed libero lorem, molestie sed nisl in, accumsan tempor nisi. Fusce sollicitudin massa ut lacinia mattis. Sed vel eleifend lorem. Pellentesque vitae felis pretium, pulvinar elit eu, euismod sapien.
+`,
 					OperationID: "findPets",
 					Parameters: []*openapi.Parameter{
 						&openapi.Parameter{
@@ -342,7 +343,7 @@ func testPetStoreExpanded(t *testing.T) {
 					},
 				},
 				Post: &openapi.Operation{
-					Description: "Creates a new pet in the store. Duplicates are allowed",
+					Description: "Creates a new pet in the store.  Duplicates are allowed",
 					OperationID: "addPet",
 					RequestBody: &openapi.RequestBody{
 						Description: "Pet to add to the store",
@@ -401,7 +402,7 @@ func testPetStoreExpanded(t *testing.T) {
 							Content: map[string]*openapi.MediaType{
 								"application/json": &openapi.MediaType{
 									Schema: &openapi.Schema{
-										Ref: "#/component/schemas/Pet",
+										Ref: "#/components/schemas/Pet",
 									},
 								},
 							},
@@ -442,7 +443,7 @@ func testPetStoreExpanded(t *testing.T) {
 							Content: map[string]*openapi.MediaType{
 								"application/json": &openapi.MediaType{
 									Schema: &openapi.Schema{
-										Ref: "#/componentes/schemas/Error",
+										Ref: "#/components/schemas/Error",
 									},
 								},
 							},
