@@ -21,9 +21,9 @@ type Schema struct {
 	Enum             []string
 
 	Type                       string
-	AllOf                      *Schema `yaml:"allOf"`
-	OneOf                      *Schema `yaml:"oneOf"`
-	AnyOf                      *Schema `yaml:"anyOf"`
+	AllOf                      []*Schema `yaml:"allOf"`
+	OneOf                      []*Schema `yaml:"oneOf"`
+	AnyOf                      []*Schema `yaml:"anyOf"`
 	Not                        *Schema
 	Items                      *Schema
 	Properties                 map[string]*Schema
@@ -47,14 +47,14 @@ type Schema struct {
 // Validate the values of Schema object.
 func (schema Schema) Validate() error {
 	validaters := []validater{}
-	if schema.AllOf != nil {
-		validaters = append(validaters, schema.AllOf)
+	for _, s := range schema.AllOf {
+		validaters = append(validaters, s)
 	}
-	if schema.OneOf != nil {
-		validaters = append(validaters, schema.OneOf)
+	for _, s := range schema.OneOf {
+		validaters = append(validaters, s)
 	}
-	if schema.AnyOf != nil {
-		validaters = append(validaters, schema.AnyOf)
+	for _, s := range schema.AnyOf {
+		validaters = append(validaters, s)
 	}
 	if schema.Not != nil {
 		validaters = append(validaters, schema.Not)
