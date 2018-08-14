@@ -7,6 +7,12 @@ import (
 	openapi "github.com/nasa9084/go-openapi"
 )
 
+type candidateBase struct {
+	label   string
+	in      openapi.OAuthFlow
+	haveErr [4]bool
+}
+
 func TestOAuthFlowValidate(t *testing.T) {
 	mockScopes := map[string]string{"foo": "bar"}
 
@@ -31,11 +37,7 @@ func TestOAuthFlowValidate(t *testing.T) {
 	invalidrURL := openapi.OAuthFlow{AuthorizationURL: exampleCom, TokenURL: exampleCom, RefreshURL: "foobar", Scopes: mockScopes}
 	zeroMap := openapi.OAuthFlow{AuthorizationURL: exampleCom, TokenURL: exampleCom, RefreshURL: exampleCom, Scopes: map[string]string{}}
 
-	candidatebase := []struct {
-		label   string
-		in      openapi.OAuthFlow
-		haveErr [4]bool
-	}{
+	candidatebases := []candidateBase{
 		{"empty", empty, [4]bool{true, true, true, true}},
 		{"aURL", aURL, [4]bool{true, true, true, true}},
 		{"tURL", tURL, [4]bool{true, true, true, true}},
@@ -58,23 +60,23 @@ func TestOAuthFlowValidate(t *testing.T) {
 		{"invalidrURL", invalidrURL, [4]bool{true, true, true, true}},
 		{"zero length map", zeroMap, [4]bool{true, true, true, true}},
 	}
-	for _, c := range candidatebase {
-		candidates := generateCandidates(t, c.label, c.in, c.haveErr)
-		testValidater(t, candidates)
-	}
+	candidates := generateCandidates(candidatebases)
+	testValidater(t, candidates)
 }
 
 var flowTypes = []string{"implicit", "password", "clientCredentials", "authorizationCode"}
 
-func generateCandidates(t *testing.T, label string, oauthFlow openapi.OAuthFlow, haveErr [4]bool) []candidate {
+func generateCandidates(base []candidateBase) []candidate {
 	candidates := []candidate{}
-	oauthFlow.SetFlowType("")
-	candidates = append(candidates, candidate{fmt.Sprintf("%s-empty", label), oauthFlow, true})
-	oauthFlow.SetFlowType("foobar")
-	candidates = append(candidates, candidate{fmt.Sprintf("%s-wrongtype", label), oauthFlow, true})
-	for i, flowType := range flowTypes {
-		oauthFlow.SetFlowType(flowType)
-		candidates = append(candidates, candidate{fmt.Sprintf("%s-%s", label, flowType), oauthFlow, haveErr[i]})
+	for _, c := range base {
+		c.in.SetFlowType("")
+		candidates = append(candidates, candidate{fmt.Sprintf("%s-empty", c.label), c.in, true})
+		c.in.SetFlowType("foobar")
+		candidates = append(candidates, candidate{fmt.Sprintf("%s-wrongtype", c.label), c.in, true})
+		for i, flowType := range flowTypes {
+			c.in.SetFlowType(flowType)
+			candidates = append(candidates, candidate{fmt.Sprintf("%s-%s", c.label, flowType), c.in, c.haveErr[i]})
+		}
 	}
 	return candidates
 }
