@@ -12,6 +12,7 @@ func TestDocumentValidate(t *testing.T) {
 		{"withInvalidVersion", openapi.Document{Version: "1.0"}, true},
 		{"withVersion", openapi.Document{Version: "3.0.0"}, true},
 		{"valid", openapi.Document{Version: "3.0.0", Info: &openapi.Info{Title: "foo", TermsOfService: exampleCom, Version: "1.0"}, Paths: openapi.Paths{}}, false},
+		{"noPaths", openapi.Document{Version: "3.0.0", Info: &openapi.Info{Title: "foo", TermsOfService: exampleCom, Version: "1.0"}}, true},
 	}
 	testValidater(t, candidates)
 }
