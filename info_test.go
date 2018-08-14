@@ -12,6 +12,7 @@ func TestInfoValidate(t *testing.T) {
 		{"withTitle", openapi.Info{Title: "foo"}, true},
 		{"withTitleAndVersion", openapi.Info{Title: "foo", Version: "1.0"}, false},
 		{"withInvalidToS", openapi.Info{Title: "foo", TermsOfService: "foobar", Version: "1.0"}, true},
+		{"withInvalidLicense", openapi.Info{Title: "foo", Version: "1.0", License: &openapi.License{URL: "foobar"}}, true},
 	}
 	testValidater(t, candidates)
 }
