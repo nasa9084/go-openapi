@@ -34,10 +34,21 @@ func (parameter Parameter) Validate() error {
 	if parameter.In == "" {
 		return errors.New("parameter.in is required")
 	}
+	switch parameter.In {
+	case "query", "header", "path", "cookie":
+	default:
+		return errors.New("parameter.in should be one of: query, header, path, cookie")
+	}
 	if parameter.In == "path" && !parameter.Required {
 		return errors.New("if parameter.in is path, required must be true")
 	}
-	validaters := []validater{parameter.Schema}
+	if parameter.In != "query" && parameter.AllowEmptyValue {
+		return errors.New("allowEmptyValue is valid only for query parameters")
+	}
+	validaters := []validater{}
+	if parameter.Schema != nil {
+		validaters = append(validaters, parameter.Schema)
+	}
 	if v, ok := parameter.Example.(validater); ok {
 		validaters = append(validaters, v)
 	}
