@@ -26,7 +26,7 @@ func TestLoadFile(t *testing.T) {
 	t.Run("callback-example.yaml", testCallBackExample)
 	t.Run("link-example.yaml", testLinkExample)
 	t.Run("api-with-example.yaml", testAPIWithExample)
-	t.Run("upsto.yaml", testUpsto)
+	t.Run("uspto.yaml", testUspto)
 }
 
 func testTestSpec(t *testing.T) {
@@ -1153,8 +1153,8 @@ func testAPIWithExample(t *testing.T) {
 	eqDocument(t, *doc, expect)
 }
 
-func testUpsto(t *testing.T) {
-	doc, err := openapi.LoadFile("test/upsto.yaml")
+func testUspto(t *testing.T) {
+	doc, err := openapi.LoadFile("test/uspto.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
