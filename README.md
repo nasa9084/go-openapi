@@ -47,7 +47,7 @@ func main() {
       * [x] Paths
       * [x] PathItem
       * [ ] Operation
-      * [ ] Parameter
+      * [x] Parameter
       * [ ] RequestBody
       * [ ] Responses
       * [ ] Response
