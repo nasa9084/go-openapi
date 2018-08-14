@@ -62,6 +62,7 @@ func TestSecurityRequirementUnmarshalYAML(t *testing.T) {
 }
 
 func TestSecurityRequirementUnmarshalJSON(t *testing.T) {
+	// empty list case
 	jsn := `{"apiKey": []}`
 	secReq := openapi.SecurityRequirement{}
 	if err := json.Unmarshal([]byte(jsn), &secReq); err != nil {
@@ -77,6 +78,7 @@ func TestSecurityRequirementUnmarshalJSON(t *testing.T) {
 		t.Error("securityRequirement.Get(`apiKey`) should be zero length array")
 		return
 	}
+	// not empty list case
 	jsn = `{"apiKey": ["foo", "bar"]}`
 	secReq = openapi.SecurityRequirement{}
 	if err := json.Unmarshal([]byte(jsn), &secReq); err != nil {
@@ -90,6 +92,13 @@ func TestSecurityRequirementUnmarshalJSON(t *testing.T) {
 	}
 	if !reflect.DeepEqual(ar, []string{"foo", "bar"}) {
 		t.Errorf("securityRequirement.Get(`apiKey`) should be [foo bar], but %v", ar)
+		return
+	}
+	// invalid case
+	jsn = `{"apiKey": "foo"}` // value should be array
+	secReq = openapi.SecurityRequirement{}
+	if err := json.Unmarshal([]byte(jsn), &secReq); err == nil {
+		t.Error("error should be occurred, but not")
 		return
 	}
 }
