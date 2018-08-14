@@ -11,6 +11,7 @@ import (
 
 // OAuthFlow Object
 type OAuthFlow struct {
+	flowType         string
 	AuthorizationURL string `yaml:"authorizationUrl"`
 	TokenURL         string `yaml:"tokenUrl"`
 	RefreshURL       string `yaml:"refreshUrl"`
@@ -37,17 +38,25 @@ var requireTokenURL = map[string]struct{}{
 	oauth.AuthorizationCodeFlow: defined,
 }
 
+// SetFlowType sets oauth flow type.
+func (oauthFlow *OAuthFlow) SetFlowType(typ string) {
+	oauthFlow.flowType = typ
+}
+
 // Validate the values of OAuthFlow object.
-func (oauthFlow OAuthFlow) Validate(typ string) error {
-	if _, ok := validFlowTypes[typ]; !ok {
+func (oauthFlow OAuthFlow) Validate() error {
+	if oauthFlow.flowType == "" {
+		return errors.New("flow type is not set")
+	}
+	if _, ok := validFlowTypes[oauthFlow.flowType]; !ok {
 		return errors.New("invalid type name")
 	}
-	if _, ok := requireAuthorizationURL[typ]; ok {
+	if _, ok := requireAuthorizationURL[oauthFlow.flowType]; ok {
 		if err := mustURL("oauthFlow.authorizationUrl", oauthFlow.AuthorizationURL); err != nil {
 			return err
 		}
 	}
-	if _, ok := requireTokenURL[typ]; ok {
+	if _, ok := requireTokenURL[oauthFlow.flowType]; ok {
 		if err := mustURL("oauthFlow.tokenUrl", oauthFlow.TokenURL); err != nil {
 			return err
 		}

@@ -15,22 +15,26 @@ type OAuthFlows struct {
 // Validate the values of OAuthFlows Object.
 func (oauthFlows OAuthFlows) Validate() error {
 	if oauthFlows.Implicit != nil {
-		if err := oauthFlows.Implicit.Validate(oauth.ImplicitFlow); err != nil {
+		oauthFlows.Implicit.SetFlowType(oauth.ImplicitFlow)
+		if err := oauthFlows.Implicit.Validate(); err != nil {
 			return err
 		}
 	}
 	if oauthFlows.Password != nil {
-		if err := oauthFlows.Password.Validate(oauth.PasswordFlow); err != nil {
+		oauthFlows.Password.SetFlowType(oauth.PasswordFlow)
+		if err := oauthFlows.Password.Validate(); err != nil {
 			return err
 		}
 	}
 	if oauthFlows.ClientCredentials != nil {
-		if err := oauthFlows.ClientCredentials.Validate(oauth.ClientCredentialsFlow); err != nil {
+		oauthFlows.ClientCredentials.SetFlowType(oauth.ClientCredentialsFlow)
+		if err := oauthFlows.ClientCredentials.Validate(); err != nil {
 			return err
 		}
 	}
 	if oauthFlows.AuthorizationCode != nil {
-		if err := oauthFlows.AuthorizationCode.Validate(oauth.AuthorizationCodeFlow); err != nil {
+		oauthFlows.AuthorizationCode.SetFlowType(oauth.AuthorizationCodeFlow)
+		if err := oauthFlows.AuthorizationCode.Validate(); err != nil {
 			return err
 		}
 	}
