@@ -10,19 +10,10 @@ import (
 )
 
 func TestSecurityRequirementValidate(t *testing.T) {
-	candidates := []struct {
-		label  string
-		in     openapi.SecurityRequirement
-		hasErr bool
-	}{
-		{"empty", openapi.SecurityRequirement{}, true},
+	candidates := []candidate{
+		{"empty", openapi.SecurityRequirement{}, false},
 	}
-	for _, c := range candidates {
-		if err := c.in.Validate(); (err != nil) == c.hasErr {
-			t.Error(err)
-			return
-		}
-	}
+	testValidater(t, candidates)
 }
 
 func TestSecurityRequirementUnmarshalYAML(t *testing.T) {
