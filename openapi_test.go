@@ -665,6 +665,357 @@ func testLinkExample(t *testing.T) {
 		t.Error(err)
 		return
 	}
+	expect := openapi.Document{
+		Version: "3.0.0",
+		Info: &openapi.Info{
+			Title:   "Link Example",
+			Version: "1.0.0",
+		},
+		Paths: openapi.Paths{
+			"/2.0/users/{username}": &openapi.PathItem{
+				Get: &openapi.Operation{
+					OperationID: "getUserByName",
+					Parameters: []*openapi.Parameter{
+						&openapi.Parameter{
+							Name:     "username",
+							In:       "path",
+							Required: true,
+							Schema: &openapi.Schema{
+								Type: "string",
+							},
+						},
+					},
+					Responses: openapi.Responses{
+						"200": &openapi.Response{
+							Description: "The User",
+							Content: map[string]*openapi.MediaType{
+								"application/json": &openapi.MediaType{
+									Schema: &openapi.Schema{
+										Ref: "#/components/schemas/user",
+									},
+								},
+							},
+							Links: map[string]*openapi.Link{
+								"userRepositories": &openapi.Link{
+									Ref: "#/components/links/UserRepositories",
+								},
+							},
+						},
+					},
+				},
+			},
+			"/2.0/repositories/{username}": &openapi.PathItem{
+				Get: &openapi.Operation{
+					OperationID: "getRepositoriesByOwner",
+					Parameters: []*openapi.Parameter{
+						&openapi.Parameter{
+							Name:     "username",
+							In:       "path",
+							Required: true,
+							Schema: &openapi.Schema{
+								Type: "string",
+							},
+						},
+					},
+					Responses: openapi.Responses{
+						"200": &openapi.Response{
+							Description: "repositories owned by the supplied user",
+							Content: map[string]*openapi.MediaType{
+								"application/json": &openapi.MediaType{
+									Schema: &openapi.Schema{
+										Type: "array",
+										Items: &openapi.Schema{
+											Ref: "#/components/schemas/repository",
+										},
+									},
+								},
+							},
+							Links: map[string]*openapi.Link{
+								"userRepository": &openapi.Link{
+									Ref: "#/components/links/UserRepository",
+								},
+							},
+						},
+					},
+				},
+			},
+			"/2.0/repositories/{username}/{slug}": &openapi.PathItem{
+				Get: &openapi.Operation{
+					OperationID: "getRepository",
+					Parameters: []*openapi.Parameter{
+						&openapi.Parameter{
+							Name:     "username",
+							In:       "path",
+							Required: true,
+							Schema: &openapi.Schema{
+								Type: "string",
+							},
+						},
+						&openapi.Parameter{
+							Name:     "slug",
+							In:       "path",
+							Required: true,
+							Schema: &openapi.Schema{
+								Type: "string",
+							},
+						},
+					},
+					Responses: openapi.Responses{
+						"200": &openapi.Response{
+							Description: "The repository",
+							Content: map[string]*openapi.MediaType{
+								"application/json": &openapi.MediaType{
+									Schema: &openapi.Schema{
+										Ref: "#/components/schemas/repository",
+									},
+								},
+							},
+							Links: map[string]*openapi.Link{
+								"repositoryPullRequests": &openapi.Link{
+									Ref: "#/components/links/RepositoryPullRequests",
+								},
+							},
+						},
+					},
+				},
+			},
+			"/2.0/repositories/{username}/{slug}/pullrequests": &openapi.PathItem{
+				Get: &openapi.Operation{
+					OperationID: "getPullRequestsByRepository",
+					Parameters: []*openapi.Parameter{
+						&openapi.Parameter{
+							Name:     "username",
+							In:       "path",
+							Required: true,
+							Schema: &openapi.Schema{
+								Type: "string",
+							},
+						},
+						&openapi.Parameter{
+							Name:     "slug",
+							In:       "path",
+							Required: true,
+							Schema: &openapi.Schema{
+								Type: "string",
+							},
+						},
+						&openapi.Parameter{
+							Name: "state",
+							In:   "query",
+							Schema: &openapi.Schema{
+								Type: "string",
+								Enum: []string{
+									"open",
+									"merged",
+									"declined",
+								},
+							},
+						},
+					},
+					Responses: openapi.Responses{
+						"200": &openapi.Response{
+							Description: "an array of pull request objects",
+							Content: map[string]*openapi.MediaType{
+								"application/json": &openapi.MediaType{
+									Schema: &openapi.Schema{
+										Type: "array",
+										Items: &openapi.Schema{
+											Ref: "#/components/schemas/pullrequest",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"/2.0/repositories/{username}/{slug}/pullrequests/{pid}": &openapi.PathItem{
+				Get: &openapi.Operation{
+					OperationID: "getPullRequestsById",
+					Parameters: []*openapi.Parameter{
+						&openapi.Parameter{
+							Name:     "username",
+							In:       "path",
+							Required: true,
+							Schema: &openapi.Schema{
+								Type: "string",
+							},
+						},
+						&openapi.Parameter{
+							Name:     "slug",
+							In:       "path",
+							Required: true,
+							Schema: &openapi.Schema{
+								Type: "string",
+							},
+						},
+						&openapi.Parameter{
+							Name:     "pid",
+							In:       "path",
+							Required: true,
+							Schema: &openapi.Schema{
+								Type: "string",
+							},
+						},
+					},
+					Responses: openapi.Responses{
+						"200": &openapi.Response{
+							Description: "a pull request object",
+							Content: map[string]*openapi.MediaType{
+								"application/json": &openapi.MediaType{
+									Schema: &openapi.Schema{
+										Ref: "#/components/schemas/pullrequest",
+									},
+								},
+							},
+							Links: map[string]*openapi.Link{
+								"pullRequestMerge": &openapi.Link{
+									Ref: "#/components/links/PullRequestMerge",
+								},
+							},
+						},
+					},
+				},
+			},
+			"/2.0/repositories/{username}/{slug}/pullrequests/{pid}/merge": &openapi.PathItem{
+				Post: &openapi.Operation{
+					OperationID: "mergePullRequest",
+					Parameters: []*openapi.Parameter{
+						&openapi.Parameter{
+							Name:     "username",
+							In:       "path",
+							Required: true,
+							Schema: &openapi.Schema{
+								Type: "string",
+							},
+						},
+						&openapi.Parameter{
+							Name:     "slug",
+							In:       "path",
+							Required: true,
+							Schema: &openapi.Schema{
+								Type: "string",
+							},
+						},
+						&openapi.Parameter{
+							Name:     "pid",
+							In:       "path",
+							Required: true,
+							Schema: &openapi.Schema{
+								Type: "string",
+							},
+						},
+					},
+					Responses: openapi.Responses{
+						"204": &openapi.Response{
+							Description: "the PR was successfully merged",
+						},
+					},
+				},
+			},
+		},
+		Components: &openapi.Components{
+			Links: map[string]*openapi.Link{
+				"UserRepositories": &openapi.Link{
+					OperationID: "getRepositoriesByOwner",
+					Parameters: map[string]interface{}{
+						"username": "$response.body#/username",
+					},
+				},
+				"UserRepository": &openapi.Link{
+					OperationID: "getRepository",
+					Parameters: map[string]interface{}{
+						"username": "$response.body#/owner/username",
+						"slug":     "$response.body#/slug",
+					},
+				},
+				"RepositoryPullRequests": &openapi.Link{
+					OperationID: "getPullRequestsByRepository",
+					Parameters: map[string]interface{}{
+						"username": "$response.body#/owner/username",
+						"slug":     "$response.body#/slug",
+					},
+				},
+				"PullRequestMerge": &openapi.Link{
+					OperationID: "mergePullRequest",
+					Parameters: map[string]interface{}{
+						"username": "$response.body#/author/username",
+						"slug":     "$response.body#/repository/slug",
+						"pid":      "$response.body#/id",
+					},
+				},
+			},
+			Schemas: map[string]*openapi.Schema{
+				"user": &openapi.Schema{
+					Type: "object",
+					Properties: map[string]*openapi.Schema{
+						"username": &openapi.Schema{
+							Type: "string",
+						},
+						"uuid": &openapi.Schema{
+							Type: "string",
+						},
+					},
+				},
+				"repository": &openapi.Schema{
+					Type: "object",
+					Properties: map[string]*openapi.Schema{
+						"slug": &openapi.Schema{
+							Type: "string",
+						},
+						"owner": &openapi.Schema{
+							Ref: "#/components/schemas/user",
+						},
+					},
+				},
+				"pullrequest": &openapi.Schema{
+					Type: "object",
+					Properties: map[string]*openapi.Schema{
+						"id": &openapi.Schema{
+							Type: "integer",
+						},
+						"title": &openapi.Schema{
+							Type: "string",
+						},
+						"repository": &openapi.Schema{
+							Ref: "#/components/schemas/repository",
+						},
+						"author": &openapi.Schema{
+							Ref: "#/components/schemas/user",
+						},
+					},
+				},
+			},
+		},
+	}
+	if !reflect.DeepEqual(*doc, expect) {
+		t.Errorf("document is not valid: %+v != %+v", doc, expect)
+		if !reflect.DeepEqual(doc.Version, expect.Version) {
+			t.Error("document.Version is not valid")
+		}
+		if !reflect.DeepEqual(doc.Info, expect.Info) {
+			t.Error("document.Info is not valid")
+		}
+		if !reflect.DeepEqual(doc.Servers, expect.Servers) {
+			t.Error("document.Servers is not valid")
+		}
+		if !reflect.DeepEqual(doc.Paths, expect.Paths) {
+			t.Error("document.Paths iS not valid")
+		}
+		if !reflect.DeepEqual(doc.Components, expect.Components) {
+			t.Error("document.Components is not valid")
+		}
+		if !reflect.DeepEqual(doc.Security, expect.Security) {
+			t.Error("document.Security is not valid")
+		}
+		if !reflect.DeepEqual(doc.Tags, expect.Tags) {
+			t.Error("document.Tags is not valid")
+		}
+		if !reflect.DeepEqual(doc.ExternalDocs, expect.ExternalDocs) {
+			t.Error("document.ExternalDocs is not valid")
+		}
+		return
+	}
 }
 
 func testAPIWithExample(t *testing.T) {
