@@ -25,7 +25,9 @@ func TestOAuthFlowValidate(t *testing.T) {
 	arURLscopes := openapi.OAuthFlow{AuthorizationURL: exampleCom, RefreshURL: exampleCom, Scopes: mockScopes}
 	trURLscopes := openapi.OAuthFlow{TokenURL: exampleCom, RefreshURL: exampleCom, Scopes: mockScopes}
 	atrURLscopes := openapi.OAuthFlow{AuthorizationURL: exampleCom, TokenURL: exampleCom, RefreshURL: exampleCom, Scopes: mockScopes}
-	invalidURL := openapi.OAuthFlow{AuthorizationURL: "foobar", TokenURL: "foobar", RefreshURL: "foobar", Scopes: mockScopes}
+	invalidaURL := openapi.OAuthFlow{AuthorizationURL: "foobar", TokenURL: exampleCom, RefreshURL: exampleCom, Scopes: mockScopes}
+	invalidtURL := openapi.OAuthFlow{AuthorizationURL: exampleCom, TokenURL: "foobar", RefreshURL: exampleCom, Scopes: mockScopes}
+	invalidrURL := openapi.OAuthFlow{AuthorizationURL: exampleCom, TokenURL: exampleCom, RefreshURL: "foobar", Scopes: mockScopes}
 	zeroMap := openapi.OAuthFlow{AuthorizationURL: exampleCom, TokenURL: exampleCom, RefreshURL: exampleCom, Scopes: map[string]string{}}
 
 	candidates := []struct {
@@ -50,7 +52,9 @@ func TestOAuthFlowValidate(t *testing.T) {
 		{"tURL/rURL/scopes", trURLscopes, [4]bool{true, false, false, true}},
 		{"aURL/tURL/rURL/scopes", atrURLscopes, [4]bool{false, false, false, false}},
 
-		{"invalidURL", invalidURL, [4]bool{true, true, true, true}},
+		{"invalidaURL", invalidaURL, [4]bool{true, false, false, true}},
+		{"invalidtURL", invalidtURL, [4]bool{false, true, true, true}},
+		{"invalidrURL", invalidrURL, [4]bool{true, true, true, true}},
 		{"zero length map", zeroMap, [4]bool{true, true, true, true}},
 	}
 	for _, c := range candidates {
