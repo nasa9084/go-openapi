@@ -1000,7 +1000,7 @@ func testLinkExample(t *testing.T) {
 			t.Error("document.Servers is not valid")
 		}
 		if !reflect.DeepEqual(doc.Paths, expect.Paths) {
-			t.Error("document.Paths iS not valid")
+			t.Error("document.Paths is not valid")
 		}
 		if !reflect.DeepEqual(doc.Components, expect.Components) {
 			t.Error("document.Components is not valid")
@@ -1025,6 +1025,228 @@ func testAPIWithExample(t *testing.T) {
 	}
 	if err := doc.Validate(); err != nil {
 		t.Error(err)
+		return
+	}
+	expect := openapi.Document{
+		Version: "3.0.0",
+		Info: &openapi.Info{
+			Title:   "Simple API overview",
+			Version: "v2",
+		},
+		Paths: openapi.Paths{
+			"/": &openapi.PathItem{
+				Get: &openapi.Operation{
+					OperationID: "listVersionsv2",
+					Summary:     "List API versions",
+					Responses: openapi.Responses{
+						"200": &openapi.Response{
+							Description: `200 response`,
+							Content: map[string]*openapi.MediaType{
+								"application/json": &openapi.MediaType{
+									Examples: map[string]*openapi.Example{
+										"foo": &openapi.Example{
+											Value: map[interface{}]interface{}{
+												"versions": []interface{}{
+													map[interface{}]interface{}{
+														"status":  "CURRENT",
+														"updated": "2011-01-21T11:33:21Z",
+														"id":      "v2.0",
+														"links": []interface{}{
+															map[interface{}]interface{}{
+																"href": "http://127.0.0.1:8774/v2/",
+																"rel":  "self",
+															},
+														},
+													},
+													map[interface{}]interface{}{
+														"status":  "EXPERIMENTAL",
+														"updated": "2013-07-23T11:33:21Z",
+														"id":      "v3.0",
+														"links": []interface{}{
+															map[interface{}]interface{}{
+																"href": "http://127.0.0.1:8774/v3/",
+																"rel":  "self",
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"300": &openapi.Response{
+							Description: `300 response`,
+							Content: map[string]*openapi.MediaType{
+								"application/json": &openapi.MediaType{
+									Examples: map[string]*openapi.Example{
+										"foo": &openapi.Example{
+											Value: `{
+ "versions": [
+       {
+         "status": "CURRENT",
+         "updated": "2011-01-21T11:33:21Z",
+         "id": "v2.0",
+         "links": [
+             {
+                 "href": "http://127.0.0.1:8774/v2/",
+                 "rel": "self"
+             }
+         ]
+     },
+     {
+         "status": "EXPERIMENTAL",
+         "updated": "2013-07-23T11:33:21Z",
+         "id": "v3.0",
+         "links": [
+             {
+                 "href": "http://127.0.0.1:8774/v3/",
+                 "rel": "self"
+             }
+         ]
+     }
+ ]
+}
+`,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"/v2": &openapi.PathItem{
+				Get: &openapi.Operation{
+					OperationID: "getVersionDetailsv2",
+					Summary:     "Show API version details",
+					Responses: openapi.Responses{
+						"200": &openapi.Response{
+							Description: `200 response`,
+							Content: map[string]*openapi.MediaType{
+								"application/json": &openapi.MediaType{
+									Examples: map[string]*openapi.Example{
+										"foo": &openapi.Example{
+											Value: map[interface{}]interface{}{
+												"version": map[interface{}]interface{}{
+													"status":  "CURRENT",
+													"updated": "2011-01-21T11:33:21Z",
+													"media-types": []interface{}{
+														map[interface{}]interface{}{
+															"base": "application/xml",
+															"type": "application/vnd.openstack.compute+xml;version=2",
+														},
+														map[interface{}]interface{}{
+															"base": "application/json",
+															"type": "application/vnd.openstack.compute+json;version=2",
+														},
+													},
+													"id": "v2.0",
+													"links": []interface{}{
+														map[interface{}]interface{}{
+															"href": "http://127.0.0.1:8774/v2/",
+															"rel":  "self",
+														},
+														map[interface{}]interface{}{
+															"href": "http://docs.openstack.org/api/openstack-compute/2/os-compute-devguide-2.pdf",
+															"type": "application/pdf",
+															"rel":  "describedby",
+														},
+														map[interface{}]interface{}{
+															"href": "http://docs.openstack.org/api/openstack-compute/2/wadl/os-compute-2.wadl",
+															"type": "application/vnd.sun.wadl+xml",
+															"rel":  "describedby",
+														},
+														map[interface{}]interface{}{
+															"href": "http://docs.openstack.org/api/openstack-compute/2/wadl/os-compute-2.wadl",
+															"type": "application/vnd.sun.wadl+xml",
+															"rel":  "describedby",
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						"203": &openapi.Response{
+							Description: `203 response`,
+							Content: map[string]*openapi.MediaType{
+								"application/json": &openapi.MediaType{
+
+									Examples: map[string]*openapi.Example{
+										"foo": &openapi.Example{
+											Value: map[interface{}]interface{}{
+												"version": map[interface{}]interface{}{
+													"status":  "CURRENT",
+													"updated": "2011-01-21T11:33:21Z",
+													"media-types": []interface{}{
+														map[interface{}]interface{}{
+															"base": "application/xml",
+															"type": "application/vnd.openstack.compute+xml;version=2",
+														},
+														map[interface{}]interface{}{
+															"base": "application/json",
+															"type": "application/vnd.openstack.compute+json;version=2",
+														},
+													},
+													"id": "v2.0",
+													"links": []interface{}{
+														map[interface{}]interface{}{
+															"href": "http://23.253.228.211:8774/v2/",
+															"rel":  "self",
+														},
+														map[interface{}]interface{}{
+															"href": "http://docs.openstack.org/api/openstack-compute/2/os-compute-devguide-2.pdf",
+															"type": "application/pdf",
+															"rel":  "describedby",
+														},
+														map[interface{}]interface{}{
+															"href": "http://docs.openstack.org/api/openstack-compute/2/wadl/os-compute-2.wadl",
+															"type": "application/vnd.sun.wadl+xml",
+															"rel":  "describedby",
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	if !reflect.DeepEqual(*doc, expect) {
+		t.Errorf("document is not valid: %+v != %+v", doc, expect)
+		if !reflect.DeepEqual(doc.Version, expect.Version) {
+			t.Error("document.Version is not valid")
+		}
+		if !reflect.DeepEqual(doc.Info, expect.Info) {
+			t.Error("document.Info is not valid")
+		}
+		if !reflect.DeepEqual(doc.Servers, expect.Servers) {
+			t.Error("document.Servers is not valid")
+		}
+		if !reflect.DeepEqual(doc.Paths, expect.Paths) {
+			t.Error("document.Paths is not valid")
+		}
+		if !reflect.DeepEqual(doc.Components, expect.Components) {
+			t.Error("document.Components is not valid")
+		}
+		if !reflect.DeepEqual(doc.Security, expect.Security) {
+			t.Error("document.Security is not valid")
+		}
+		if !reflect.DeepEqual(doc.Tags, expect.Tags) {
+			t.Error("document.Tags is not valid")
+		}
+		if !reflect.DeepEqual(doc.ExternalDocs, expect.ExternalDocs) {
+			t.Error("document.ExternalDocs is not valid")
+		}
 		return
 	}
 }
