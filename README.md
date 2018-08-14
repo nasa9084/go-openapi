@@ -63,7 +63,7 @@ func main() {
       * [x] XML
       * [ ] Components
       * [x] SecurityScheme
-      * [ ] OAuthFlows
+      * [x] OAuthFlows
       * [x] OAuthFlow
       * [ ] SecurityRequirement
       * [x] Tag
