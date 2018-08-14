@@ -25,7 +25,10 @@ type Header struct {
 
 // Validate the values of Header object.
 func (header Header) Validate() error {
-	validaters := []validater{header.Schema}
+	validaters := []validater{}
+	if header.Schema != nil {
+		validaters = append(validaters, header.Schema)
+	}
 	if v, ok := header.Example.(validater); ok {
 		validaters = append(validaters, v)
 	}
