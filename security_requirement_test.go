@@ -79,7 +79,7 @@ func TestSecurityRequirementUnmarshalJSON(t *testing.T) {
 	}
 	jsn = `{"apiKey": ["foo", "bar"]}`
 	secReq = openapi.SecurityRequirement{}
-	if err := yaml.Unmarshal([]byte(jsn), &secReq); err != nil {
+	if err := json.Unmarshal([]byte(jsn), &secReq); err != nil {
 		t.Error(err)
 		return
 	}
