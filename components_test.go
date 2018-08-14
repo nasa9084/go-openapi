@@ -21,6 +21,8 @@ func TestComponentsValidateKeys(t *testing.T) {
 		hasErr bool
 	}{
 		{"empty", openapi.Components{}, false},
+		{"invalidKey", openapi.Components{Parameters: map[string]*openapi.Parameter{"@": &openapi.Parameter{}}}, true},
+		{"validKey", openapi.Components{Parameters: map[string]*openapi.Parameter{"foo": &openapi.Parameter{}}}, false},
 	}
 	for _, c := range candidates {
 		if err := openapi.ValidateComponentKeys(c.in); (err != nil) != c.hasErr {
