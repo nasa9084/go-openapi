@@ -54,6 +54,36 @@ func testTestSpec(t *testing.T) {
 	}
 }
 
+func eqDocument(t *testing.T, a, b openapi.Document) {
+	if !reflect.DeepEqual(a, b) {
+		t.Errorf("document is not valid: %+v != %+v", a, b)
+		if !reflect.DeepEqual(a.Version, b.Version) {
+			t.Log("document.Version is not valid")
+		}
+		if !reflect.DeepEqual(a.Info, b.Info) {
+			t.Log("document.Info is not valid")
+		}
+		if !reflect.DeepEqual(a.Servers, b.Servers) {
+			t.Log("document.Servers is not valid")
+		}
+		if !reflect.DeepEqual(a.Paths, b.Paths) {
+			t.Log("document.Paths is not valid")
+		}
+		if !reflect.DeepEqual(a.Components, b.Components) {
+			t.Log("document.Components is not valid")
+		}
+		if !reflect.DeepEqual(a.Security, b.Security) {
+			t.Log("document.Security is not valid")
+		}
+		if !reflect.DeepEqual(a.Tags, b.Tags) {
+			t.Log("document.Tags is not valid")
+		}
+		if !reflect.DeepEqual(a.ExternalDocs, b.ExternalDocs) {
+			t.Log("document.ExternalDocs is not valid")
+		}
+	}
+}
+
 func testPetStore(t *testing.T) {
 	doc, err := openapi.LoadFile("test/petstore.yaml")
 	if err != nil {
@@ -226,34 +256,7 @@ func testPetStore(t *testing.T) {
 			},
 		},
 	}
-	if !reflect.DeepEqual(*doc, expect) {
-		t.Errorf("document is not valid: %+v != %+v", doc, expect)
-		if !reflect.DeepEqual(doc.Version, expect.Version) {
-			t.Error("document.Version is not valid")
-		}
-		if !reflect.DeepEqual(doc.Info, expect.Info) {
-			t.Error("document.Info is not valid")
-		}
-		if !reflect.DeepEqual(doc.Servers, expect.Servers) {
-			t.Error("document.Servers is not valid")
-		}
-		if !reflect.DeepEqual(doc.Paths, expect.Paths) {
-			t.Error("document.Paths is not valid")
-		}
-		if !reflect.DeepEqual(doc.Components, expect.Components) {
-			t.Error("document.Components is not valid")
-		}
-		if !reflect.DeepEqual(doc.Security, expect.Security) {
-			t.Error("document.Security is not valid")
-		}
-		if !reflect.DeepEqual(doc.Tags, expect.Tags) {
-			t.Error("document.Tags is not valid")
-		}
-		if !reflect.DeepEqual(doc.ExternalDocs, expect.ExternalDocs) {
-			t.Error("document.ExternalDocs is not valid")
-		}
-		return
-	}
+	eqDocument(t, *doc, expect)
 }
 
 func testPetStoreExpanded(t *testing.T) {
@@ -500,34 +503,7 @@ Sed tempus felis lobortis leo pulvinar rutrum. Nam mattis velit nisl, eu condime
 			},
 		},
 	}
-	if !reflect.DeepEqual(*doc, expect) {
-		t.Errorf("document is not valid: %+v != %+v", doc, expect)
-		if !reflect.DeepEqual(doc.Version, expect.Version) {
-			t.Error("document.Version is not valid")
-		}
-		if !reflect.DeepEqual(doc.Info, expect.Info) {
-			t.Error("document.Info is not valid")
-		}
-		if !reflect.DeepEqual(doc.Servers, expect.Servers) {
-			t.Error("document.Servers is not valid")
-		}
-		if !reflect.DeepEqual(doc.Paths, expect.Paths) {
-			t.Error("document.Paths is not valid")
-		}
-		if !reflect.DeepEqual(doc.Components, expect.Components) {
-			t.Error("document.Components is not valid")
-		}
-		if !reflect.DeepEqual(doc.Security, expect.Security) {
-			t.Error("document.Security is not valid")
-		}
-		if !reflect.DeepEqual(doc.Tags, expect.Tags) {
-			t.Error("document.Tags is not valid")
-		}
-		if !reflect.DeepEqual(doc.ExternalDocs, expect.ExternalDocs) {
-			t.Error("document.ExternalDocs is not valid")
-		}
-		return
-	}
+	eqDocument(t, *doc, expect)
 }
 
 func testCallBackExample(t *testing.T) {
@@ -626,34 +602,7 @@ in further updates
 			},
 		},
 	}
-	if !reflect.DeepEqual(*doc, expect) {
-		t.Errorf("document is not valid: %+v != %+v", doc, expect)
-		if !reflect.DeepEqual(doc.Version, expect.Version) {
-			t.Error("document.Version is not valid")
-		}
-		if !reflect.DeepEqual(doc.Info, expect.Info) {
-			t.Error("document.Info is not valid")
-		}
-		if !reflect.DeepEqual(doc.Servers, expect.Servers) {
-			t.Error("document.Servers is not valid")
-		}
-		if !reflect.DeepEqual(doc.Paths, expect.Paths) {
-			t.Error("document.Paths is not valid")
-		}
-		if !reflect.DeepEqual(doc.Components, expect.Components) {
-			t.Error("document.Components is not valid")
-		}
-		if !reflect.DeepEqual(doc.Security, expect.Security) {
-			t.Error("document.Security is not valid")
-		}
-		if !reflect.DeepEqual(doc.Tags, expect.Tags) {
-			t.Error("document.Tags is not valid")
-		}
-		if !reflect.DeepEqual(doc.ExternalDocs, expect.ExternalDocs) {
-			t.Error("document.ExternalDocs is not valid")
-		}
-		return
-	}
+	eqDocument(t, *doc, expect)
 }
 
 func testLinkExample(t *testing.T) {
@@ -988,34 +937,7 @@ func testLinkExample(t *testing.T) {
 			},
 		},
 	}
-	if !reflect.DeepEqual(*doc, expect) {
-		t.Errorf("document is not valid: %+v != %+v", doc, expect)
-		if !reflect.DeepEqual(doc.Version, expect.Version) {
-			t.Error("document.Version is not valid")
-		}
-		if !reflect.DeepEqual(doc.Info, expect.Info) {
-			t.Error("document.Info is not valid")
-		}
-		if !reflect.DeepEqual(doc.Servers, expect.Servers) {
-			t.Error("document.Servers is not valid")
-		}
-		if !reflect.DeepEqual(doc.Paths, expect.Paths) {
-			t.Error("document.Paths is not valid")
-		}
-		if !reflect.DeepEqual(doc.Components, expect.Components) {
-			t.Error("document.Components is not valid")
-		}
-		if !reflect.DeepEqual(doc.Security, expect.Security) {
-			t.Error("document.Security is not valid")
-		}
-		if !reflect.DeepEqual(doc.Tags, expect.Tags) {
-			t.Error("document.Tags is not valid")
-		}
-		if !reflect.DeepEqual(doc.ExternalDocs, expect.ExternalDocs) {
-			t.Error("document.ExternalDocs is not valid")
-		}
-		return
-	}
+	eqDocument(t, *doc, expect)
 }
 
 func testAPIWithExample(t *testing.T) {
@@ -1221,34 +1143,7 @@ func testAPIWithExample(t *testing.T) {
 			},
 		},
 	}
-	if !reflect.DeepEqual(*doc, expect) {
-		t.Errorf("document is not valid: %+v != %+v", doc, expect)
-		if !reflect.DeepEqual(doc.Version, expect.Version) {
-			t.Error("document.Version is not valid")
-		}
-		if !reflect.DeepEqual(doc.Info, expect.Info) {
-			t.Error("document.Info is not valid")
-		}
-		if !reflect.DeepEqual(doc.Servers, expect.Servers) {
-			t.Error("document.Servers is not valid")
-		}
-		if !reflect.DeepEqual(doc.Paths, expect.Paths) {
-			t.Error("document.Paths is not valid")
-		}
-		if !reflect.DeepEqual(doc.Components, expect.Components) {
-			t.Error("document.Components is not valid")
-		}
-		if !reflect.DeepEqual(doc.Security, expect.Security) {
-			t.Error("document.Security is not valid")
-		}
-		if !reflect.DeepEqual(doc.Tags, expect.Tags) {
-			t.Error("document.Tags is not valid")
-		}
-		if !reflect.DeepEqual(doc.ExternalDocs, expect.ExternalDocs) {
-			t.Error("document.ExternalDocs is not valid")
-		}
-		return
-	}
+	eqDocument(t, *doc, expect)
 }
 
 func testUpsto(t *testing.T) {
