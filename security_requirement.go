@@ -14,7 +14,7 @@ type SecurityRequirement struct {
 	mp       map[string][]string
 }
 
-// UnmarshalJSON implements json.Unmarshaler
+// UnmarshalJSON implements json.Unmarshaler.
 func (secReq *SecurityRequirement) UnmarshalJSON(data []byte) error {
 	v := map[string][]string{}
 	if err := json.Unmarshal(data, &v); err != nil {
@@ -22,6 +22,11 @@ func (secReq *SecurityRequirement) UnmarshalJSON(data []byte) error {
 	}
 	secReq.mp = v
 	return nil
+}
+
+// UnmarshalYAML implements yaml.Unmarshaler.
+func (secReq *SecurityRequirement) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	return unmarshal(&secReq.mp)
 }
 
 // Get returns required security schemes. If there is not given name,
