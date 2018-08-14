@@ -1,6 +1,7 @@
 package openapi_test
 
 import (
+	"fmt"
 	"testing"
 
 	openapi "github.com/nasa9084/go-openapi"
@@ -30,7 +31,7 @@ func TestOAuthFlowValidate(t *testing.T) {
 	invalidrURL := openapi.OAuthFlow{AuthorizationURL: exampleCom, TokenURL: exampleCom, RefreshURL: "foobar", Scopes: mockScopes}
 	zeroMap := openapi.OAuthFlow{AuthorizationURL: exampleCom, TokenURL: exampleCom, RefreshURL: exampleCom, Scopes: map[string]string{}}
 
-	candidates := []struct {
+	candidatebase := []struct {
 		label   string
 		in      openapi.OAuthFlow
 		haveErr [4]bool
@@ -57,33 +58,23 @@ func TestOAuthFlowValidate(t *testing.T) {
 		{"invalidrURL", invalidrURL, [4]bool{true, true, true, true}},
 		{"zero length map", zeroMap, [4]bool{true, true, true, true}},
 	}
-	for _, c := range candidates {
-		testOAuthFlowValidate(t, c.label, c.in, c.haveErr)
+	for _, c := range candidatebase {
+		candidates := generateCandidates(t, c.label, c.in, c.haveErr)
+		testValidater(t, candidates)
 	}
 }
 
 var flowTypes = []string{"implicit", "password", "clientCredentials", "authorizationCode"}
 
-func testOAuthFlowValidate(t *testing.T, label string, oauthFlow openapi.OAuthFlow, haveErr [4]bool) {
-	if err := oauthFlow.Validate(); err == nil {
-		t.Logf("%s-empty", label)
-		t.Error("error should be occurred, but not")
-	}
+func generateCandidates(t *testing.T, label string, oauthFlow openapi.OAuthFlow, haveErr [4]bool) []candidate {
+	candidates := []candidate{}
+	oauthFlow.SetFlowType("")
+	candidates = append(candidates, candidate{fmt.Sprintf("%s-empty", label), oauthFlow, true})
 	oauthFlow.SetFlowType("foobar")
-	if err := oauthFlow.Validate(); err == nil {
-		t.Logf("%s-wrongtype", label)
-		t.Error("error should be occurred, but not")
-	}
+	candidates = append(candidates, candidate{fmt.Sprintf("%s-wrongtype", label), oauthFlow, true})
 	for i, flowType := range flowTypes {
 		oauthFlow.SetFlowType(flowType)
-		if err := oauthFlow.Validate(); (err != nil) != haveErr[i] {
-			t.Logf("%s-%s", label, flowType)
-			if haveErr[i] {
-				t.Error("error should be occurred, but not")
-				continue
-			}
-			t.Error("error should not be occurred, but occurred")
-			t.Log(err)
-		}
+		candidates = append(candidates, candidate{fmt.Sprintf("%s-%s", label, flowType), oauthFlow, haveErr[i]})
 	}
+	return candidates
 }
