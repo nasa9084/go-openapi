@@ -6,6 +6,19 @@ import (
 	openapi "github.com/nasa9084/go-openapi"
 )
 
+func TestResponsesValidate(t *testing.T) {
+	validResp := &openapi.Response{Description: "foobar"}
+	candidates := []candidate{
+		{"empty", openapi.Responses{}, false},
+		{"hasInvalidStatus", openapi.Responses{"foobar": validResp}, true},
+		{"hasDefaultStatus", openapi.Responses{"default": validResp}, false},
+		{"hasWildcardStatus", openapi.Responses{"2XX": validResp}, false},
+		{"hasOKStatus", openapi.Responses{"200": validResp}, false},
+		{"hasEmptyResponse", openapi.Responses{"200": &openapi.Response{}}, true},
+	}
+	testValidater(t, candidates)
+}
+
 func TestValidateStatusCode(t *testing.T) {
 	candidates := []struct {
 		label  string
