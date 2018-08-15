@@ -48,8 +48,8 @@ func main() {
       * [x] PathItem
       * [x] Operation
       * [x] Parameter
-      * [ ] RequestBody
-      * [ ] Responses
+      * [x] RequestBody
+      * [x] Responses
       * [ ] Response
       * [ ] Callbacks
       * [ ] Callback
