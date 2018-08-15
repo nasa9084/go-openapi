@@ -7,6 +7,15 @@ import (
 	openapi "github.com/nasa9084/go-openapi"
 )
 
+func TestOperationValidate(t *testing.T) {
+	candidates := []candidate{
+		{"empty", openapi.Operation{}, true},
+		{"duplicatedParameter", openapi.Operation{Responses: openapi.Responses{}, Parameters: []*openapi.Parameter{&openapi.Parameter{Name: "foo", In: "query"}, &openapi.Parameter{Name: "foo", In: "query"}}}, true},
+		{"valid", openapi.Operation{Responses: openapi.Responses{}}, false},
+	}
+	testValidater(t, candidates)
+}
+
 func TestSuccessResponse(t *testing.T) {
 	candidates := []struct {
 		label  string
