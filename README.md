@@ -46,7 +46,7 @@ func main() {
       * [x] ServerVariable
       * [x] Paths
       * [x] PathItem
-      * [ ] Operation
+      * [x] Operation
       * [x] Parameter
       * [ ] RequestBody
       * [ ] Responses
