@@ -27,12 +27,12 @@ type Operation struct {
 // If there are 2 or more success responses (like created and ok),
 // it's not sure which is returned.
 // If only match the default response or 2XX response, returned status code will be 0.
-func (op *Operation) SuccessResponse() (*Response, int, bool) {
-	if op == nil || op.Responses == nil {
+func (operation *Operation) SuccessResponse() (*Response, int, bool) {
+	if operation == nil || operation.Responses == nil {
 		return nil, -1, false
 	}
 	var defaultResponse *Response
-	for statusStr, resp := range op.Responses {
+	for statusStr, resp := range operation.Responses {
 		switch statusStr {
 		case "default", "2XX":
 			defaultResponse = resp
