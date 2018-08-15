@@ -34,9 +34,7 @@ func (op *Operation) SuccessResponse() (*Response, int, bool) {
 	var defaultResponse *Response
 	for statusStr, resp := range op.Responses {
 		switch statusStr {
-		case "default":
-			defaultResponse = resp
-		case "2XX":
+		case "default", "2XX":
 			defaultResponse = resp
 		case "1XX", "3XX", "4XX", "5XX":
 			continue
