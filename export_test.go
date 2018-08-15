@@ -8,6 +8,7 @@ var (
 	ReduceComponentKeys    = reduceComponentKeys
 	ReduceComponentObjects = reduceComponentObjects
 	HasDuplicatedParameter = hasDuplicatedParameter
+	ValidateStatusCode     = validateStatusCode
 	MustURL                = mustURL
 	ValidateAll            = validateAll
 )
