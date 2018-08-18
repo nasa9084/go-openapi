@@ -59,7 +59,7 @@ func (secReq SecurityRequirement) validateScopes() error {
 			return ErrNotDeclared{Name: name}
 		}
 		if secScheme.Type != OAuth2Type {
-			if scopes != nil && len(scopes) != 0 {
+			if len(scopes) != 0 {
 				return ErrMustEmpty{Type: string(secScheme.Type)}
 			}
 			continue
