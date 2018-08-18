@@ -15,7 +15,9 @@ func LoadFile(filename string) (*Document, error) {
 		return nil, err
 	}
 	var buf bytes.Buffer
-	io.Copy(&buf, f)
+	if _, err := io.Copy(&buf, f); err != nil {
+		return nil, err
+	}
 	b := buf.Bytes()
 
 	if err := f.Close(); err != nil {
