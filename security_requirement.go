@@ -49,25 +49,28 @@ func (secReq SecurityRequirement) Validate() error {
 	if components == nil {
 		return ErrRequired{Target: "components object in parent document"}
 	}
-	for name, arr := range secReq.mp {
-		secScheme, ok := components.SecuritySchemes[name]
+	return secReq.validateScopes()
+}
+
+func (secReq SecurityRequirement) validateScopes() error {
+	for name, scopes := range secReq.mp {
+		secScheme, ok := secReq.document.Components.SecuritySchemes[name]
 		if !ok {
 			return ErrNotDeclared{Name: name}
 		}
-		switch secScheme.Type {
-		case OAuth2Type:
-			for _, scope := range arr {
-				_, implicit := secScheme.Flows.Implicit.Scopes[scope]
-				_, password := secScheme.Flows.Password.Scopes[scope]
-				_, cc := secScheme.Flows.ClientCredentials.Scopes[scope]
-				_, ac := secScheme.Flows.AuthorizationCode.Scopes[scope]
-				if !implicit && !password && !cc && !ac {
-					return ErrNotDeclared{Name: scope}
-				}
-			}
-		default:
-			if arr != nil && len(arr) != 0 {
+		if secScheme.Type != OAuth2Type {
+			if scopes != nil && len(scopes) != 0 {
 				return ErrMustEmpty{Type: string(secScheme.Type)}
+			}
+			continue
+		}
+		for _, scope := range scopes {
+			_, implicit := secScheme.Flows.Implicit.Scopes[scope]
+			_, password := secScheme.Flows.Password.Scopes[scope]
+			_, cc := secScheme.Flows.ClientCredentials.Scopes[scope]
+			_, ac := secScheme.Flows.AuthorizationCode.Scopes[scope]
+			if !implicit && !password && !cc && !ac {
+				return ErrNotDeclared{Name: scope}
 			}
 		}
 	}
