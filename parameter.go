@@ -26,11 +26,8 @@ type Parameter struct {
 // Validate the values of Parameter object.
 // This function DOES NOT check whether the name field correspond to the associated path or not.
 func (parameter Parameter) Validate() error {
-	if parameter.Name == "" {
-		return ErrRequired{Target: "parameter.name"}
-	}
-	if parameter.In == "" {
-		return ErrRequired{Target: "parameter.in"}
+	if err := parameter.validateRequiredObjects(); err != nil {
+		return err
 	}
 	switch parameter.In {
 	case InQuery, InHeader, InPath, InCookie:
@@ -43,6 +40,24 @@ func (parameter Parameter) Validate() error {
 	if parameter.In != InQuery && parameter.AllowEmptyValue {
 		return AllowEmptyValueNotValidError
 	}
+	if len(parameter.Content) > 1 {
+		return ErrTooManyParameterContent
+	}
+
+	return validateAll(parameter.reduceValidaters())
+}
+
+func (parameter Parameter) validateRequiredObjects() error {
+	if parameter.Name == "" {
+		return ErrRequired{Target: "parameter.name"}
+	}
+	if parameter.In == "" {
+		return ErrRequired{Target: "parameter.in"}
+	}
+	return nil
+}
+
+func (parameter Parameter) reduceValidaters() []validater {
 	validaters := []validater{}
 	if parameter.Schema != nil {
 		validaters = append(validaters, parameter.Schema)
@@ -53,11 +68,8 @@ func (parameter Parameter) Validate() error {
 
 	// example has no validation
 
-	if len(parameter.Content) > 1 {
-		return ErrTooManyParameterContent
-	}
 	for _, mediaType := range parameter.Content {
 		validaters = append(validaters, mediaType)
 	}
-	return validateAll(validaters)
+	return validaters
 }
