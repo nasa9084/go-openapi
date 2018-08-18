@@ -47,8 +47,6 @@ const (
 	// InvalidFlowTypeError is returned when the OAuth flow type is invalid
 	// or not set to the object.
 	InvalidFlowTypeError errString = "invalid flow type"
-	// InvalidParameterInError is returned parameter.in is invalid.
-	InvalidParameterInError errString = "parameter.in should be one of: query, header, path, cookie"
 	// RequiredMustTrueError is returned when the value of parameter.required is
 	// false when parameter.in is path.
 	RequiredMustTrueError errString = "required must be true if parameter.in is path"

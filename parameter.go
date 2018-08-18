@@ -5,7 +5,7 @@ package openapi
 // Parameter Object
 type Parameter struct {
 	Name            string
-	In              string
+	In              InType
 	Description     string
 	Required        bool
 	Deprecated      string
@@ -33,14 +33,14 @@ func (parameter Parameter) Validate() error {
 		return ErrRequired{Target: "parameter.in"}
 	}
 	switch parameter.In {
-	case "query", "header", "path", "cookie":
+	case InQuery, InHeader, InPath, InCookie:
 	default:
-		return InvalidParameterInError
+		return ErrMustOneOf{Object: "parameter.in", ValidValues: ParameterInList}
 	}
-	if parameter.In == "path" && !parameter.Required {
+	if parameter.In == InPath && !parameter.Required {
 		return RequiredMustTrueError
 	}
-	if parameter.In != "query" && parameter.AllowEmptyValue {
+	if parameter.In != InQuery && parameter.AllowEmptyValue {
 		return AllowEmptyValueNotValidError
 	}
 	validaters := []validater{}

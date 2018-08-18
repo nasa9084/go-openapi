@@ -37,7 +37,7 @@ func TestParameterValidate(t *testing.T) {
 		{"empty", openapi.Parameter{}, openapi.ErrRequired{Target: "parameter.name"}},
 		{"withName", openapi.Parameter{Name: "foo"}, openapi.ErrRequired{Target: "parameter.in"}},
 		{"withName-in", openapi.Parameter{Name: "foo", In: "path"}, openapi.RequiredMustTrueError},
-		{"withName-invalidIn", openapi.Parameter{Name: "foo", In: "bar"}, openapi.InvalidParameterInError},
+		{"withName-invalidIn", openapi.Parameter{Name: "foo", In: "bar"}, openapi.ErrMustOneOf{Object: "parameter.in", ValidValues: openapi.ParameterInList}},
 		{"withName-inPath-notRequired", openapi.Parameter{Name: "foo", In: "path"}, openapi.RequiredMustTrueError},
 		{"withName-inPath-required", openapi.Parameter{Name: "foo", In: "path", Required: true}, nil},
 		{"allowEmptyValue-notQuery", openapi.Parameter{Name: "foo", In: "header", AllowEmptyValue: true}, openapi.AllowEmptyValueNotValidError},

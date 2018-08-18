@@ -7,7 +7,7 @@ type SecurityScheme struct {
 	Type             SecuritySchemeType
 	Description      string
 	Name             string
-	In               string
+	In               InType
 	Scheme           string
 	BearerFormat     string `yaml:"bearerFormat"`
 	Flows            *OAuthFlows
@@ -54,8 +54,8 @@ func (secScheme SecurityScheme) validateFieldForAPIKey() error {
 	if secScheme.In == "" {
 		return ErrRequired{"securityScheme.in"}
 	}
-	if secScheme.In != "query" && secScheme.In != "header" && secScheme.In != "cookie" {
-		return ErrMustOneOf{Object: "securityScheme.in", ValidValues: []string{"query", "header", "cookie"}}
+	if secScheme.In != InQuery && secScheme.In != InHeader && secScheme.In != InCookie {
+		return ErrMustOneOf{Object: "securityScheme.in", ValidValues: SecuritySchemeInList}
 	}
 	return nil
 }
