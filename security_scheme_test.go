@@ -24,7 +24,7 @@ func testSecuritySchemeValidate(t *testing.T) {
 		{"oauth2/valid", openapi.SecurityScheme{Type: "oauth2", Flows: &openapi.OAuthFlows{Implicit: &openapi.OAuthFlow{AuthorizationURL: "http://example.com", Scopes: map[string]string{"foo": "bar"}}}}, nil},
 		{"openIdConnect/noOIDCURL", openapi.SecurityScheme{Type: "openIdConnect"}, openapi.ErrRequired{Target: "securityScheme.openIdConnectUrl"}},
 		{"openIdConnect/valid", openapi.SecurityScheme{Type: "openIdConnect", OpenIDConnectURL: "http://example.com"}, nil},
-		{"invalidType", openapi.SecurityScheme{Type: "foo"}, openapi.ErrMustOneOf{Object: "securityScheme.type", ValidValues: []string{"apikey", "http", "oauth2", "openIdConnect"}}},
+		{"invalidType", openapi.SecurityScheme{Type: "foo"}, openapi.ErrMustOneOf{Object: "securityScheme.type", ValidValues: openapi.SecuritySchemeTypeList}},
 	}
 	testValidater(t, candidates)
 }

@@ -55,7 +55,7 @@ func (secReq SecurityRequirement) Validate() error {
 			return ErrNotDeclared{Name: name}
 		}
 		switch secScheme.Type {
-		case "oauth2":
+		case OAuth2Type:
 			for _, scope := range arr {
 				_, implicit := secScheme.Flows.Implicit.Scopes[scope]
 				_, password := secScheme.Flows.Password.Scopes[scope]
@@ -67,7 +67,7 @@ func (secReq SecurityRequirement) Validate() error {
 			}
 		default:
 			if arr != nil && len(arr) != 0 {
-				return ErrMustEmpty{Type: secScheme.Type}
+				return ErrMustEmpty{Type: string(secScheme.Type)}
 			}
 		}
 	}

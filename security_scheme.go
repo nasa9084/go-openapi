@@ -4,7 +4,7 @@ package openapi
 
 // SecurityScheme Object
 type SecurityScheme struct {
-	Type             string
+	Type             SecuritySchemeType
 	Description      string
 	Name             string
 	In               string
@@ -16,21 +16,35 @@ type SecurityScheme struct {
 	Ref string `yaml:"$ref"`
 }
 
+// SecuritySchemeType represents a securityScheme.type value.
+type SecuritySchemeType string
+
+// SecuritySchemeTypes
+const (
+	APIKeyType        SecuritySchemeType = "apiKey"
+	HTTPType          SecuritySchemeType = "http"
+	OAuth2Type        SecuritySchemeType = "oauth2"
+	OpenIDConnectType SecuritySchemeType = "openIdConnect"
+)
+
+// SecuritySchemeTypeList is a list of valid values of securityScheme.Type.
+var SecuritySchemeTypeList = []string{string(APIKeyType), string(HTTPType), string(OAuth2Type), string(OpenIDConnectType)}
+
 // Validate the values of SecurityScheme object.
 func (secScheme SecurityScheme) Validate() error {
 	switch secScheme.Type {
 	case "":
 		return ErrRequired{Target: "securityScheme.type"}
-	case "apiKey":
+	case APIKeyType:
 		return secScheme.validateFieldForAPIKey()
-	case "http":
+	case HTTPType:
 		return secScheme.validateFieldForHTTP()
-	case "oauth2":
+	case OAuth2Type:
 		return secScheme.validateFieldForOAuth2()
-	case "openIdConnect":
+	case OpenIDConnectType:
 		return secScheme.validateFieldForOpenIDConnect()
 	}
-	return ErrMustOneOf{Object: "securityScheme.type", ValidValues: []string{"apikey", "http", "oauth2", "openIdConnect"}}
+	return ErrMustOneOf{Object: "securityScheme.type", ValidValues: SecuritySchemeTypeList}
 }
 
 func (secScheme SecurityScheme) validateFieldForAPIKey() error {
