@@ -8,6 +8,10 @@ import (
 )
 
 func TestResolveSchema(t *testing.T) {
+	doc, err := openapi.LoadFile("test/testspec.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
 	schema, err := openapi.ResolveSchema(doc, "#/components/schemas/definition")
 	if err != nil {
 		t.Error(err)
@@ -28,6 +32,10 @@ func TestResolveSchema(t *testing.T) {
 }
 
 func TestResolveResponse(t *testing.T) {
+	doc, err := openapi.LoadFile("test/testspec.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
 	response, err := openapi.ResolveResponse(doc, "#/components/responses/notFound")
 	if err != nil {
 		t.Error(err)
@@ -53,6 +61,10 @@ func TestResolveResponse(t *testing.T) {
 }
 
 func TestResolveParameter(t *testing.T) {
+	doc, err := openapi.LoadFile("test/testspec.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
 	parameter, err := openapi.ResolveParameter(doc, "#/components/parameters/pathParam")
 	if err != nil {
 		t.Error(err)
@@ -89,6 +101,10 @@ func TestResolveParameter(t *testing.T) {
 }
 
 func TestResolveExample(t *testing.T) {
+	doc, err := openapi.LoadFile("test/testspec.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
 	example, err := openapi.ResolveExample(doc, "#/components/examples/eg")
 	if err != nil {
 		t.Error(err)
@@ -110,6 +126,10 @@ func TestResolveExample(t *testing.T) {
 }
 
 func TestResolveRequestBody(t *testing.T) {
+	doc, err := openapi.LoadFile("test/testspec.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
 	requestBody, err := openapi.ResolveRequestBody(doc, "#/components/requestBodies/user")
 	if err != nil {
 		t.Error(err)
@@ -153,6 +173,10 @@ func TestResolveRequestBody(t *testing.T) {
 }
 
 func TestResolveHeader(t *testing.T) {
+	doc, err := openapi.LoadFile("test/testspec.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
 	header, err := openapi.ResolveHeader(doc, "#/components/headers/x-session")
 	if err != nil {
 		t.Error(err)
@@ -177,6 +201,10 @@ func TestResolveHeader(t *testing.T) {
 }
 
 func TestResolveSecurityScheme(t *testing.T) {
+	doc, err := openapi.LoadFile("test/testspec.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
 	securityScheme, err := openapi.ResolveSecurityScheme(doc, "#/components/securitySchemes/basicAuth")
 	if err != nil {
 		t.Error(err)
@@ -197,6 +225,10 @@ func TestResolveSecurityScheme(t *testing.T) {
 }
 
 func TestResolveLink(t *testing.T) {
+	doc, err := openapi.LoadFile("test/testspec.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
 	link, err := openapi.ResolveLink(doc, "#/components/links/someLink")
 	if err != nil {
 		t.Error(err)
@@ -213,6 +245,10 @@ func TestResolveLink(t *testing.T) {
 }
 
 func TestResolveCallback(t *testing.T) {
+	doc, err := openapi.LoadFile("test/testspec.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
 	callback, err := openapi.ResolveCallback(doc, "#/components/callbacks/cb")
 	if err != nil {
 		t.Error(err)
