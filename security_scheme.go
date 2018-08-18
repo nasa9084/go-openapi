@@ -1,7 +1,5 @@
 package openapi
 
-import "errors"
-
 // codebeat:disable[TOO_MANY_IVARS]
 
 // SecurityScheme Object
@@ -22,7 +20,7 @@ type SecurityScheme struct {
 func (secScheme SecurityScheme) Validate() error {
 	switch secScheme.Type {
 	case "":
-		return errors.New("securityScheme.type is required")
+		return ErrRequired{Target: "securityScheme.type"}
 	case "apiKey":
 		return secScheme.validateFieldForAPIKey()
 	case "http":
@@ -32,36 +30,36 @@ func (secScheme SecurityScheme) Validate() error {
 	case "openIdConnect":
 		return secScheme.validateFieldForOpenIDConnect()
 	}
-	return errors.New("securityScheme.type must be one of [apikey, http, oauth2, openIdConnect]")
+	return ErrMustOneOf{Object: "securityScheme.type", ValidValues: []string{"apikey", "http", "oauth2", "openIdConnect"}}
 }
 
 func (secScheme SecurityScheme) validateFieldForAPIKey() error {
 	if secScheme.Name == "" {
-		return errors.New("securityScheme.name is required")
+		return ErrRequired{"securityScheme.name"}
 	}
 	if secScheme.In == "" {
-		return errors.New("securityScheme.in is required")
+		return ErrRequired{"securityScheme.in"}
 	}
 	if secScheme.In != "query" && secScheme.In != "header" && secScheme.In != "cookie" {
-		return errors.New("securityScheme.in must be one of [query, header, cookie]")
+		return ErrMustOneOf{Object: "securityScheme.in", ValidValues: []string{"query", "header", "cookie"}}
 	}
 	return nil
 }
 
 func (secScheme SecurityScheme) validateFieldForHTTP() error {
 	if secScheme.Scheme == "" {
-		return errors.New("securityScheme.scheme is required")
+		return ErrRequired{Target: "securityScheme.scheme"}
 	}
 	return nil
 }
 
 func (secScheme SecurityScheme) validateFieldForOAuth2() error {
 	if secScheme.Flows == nil {
-		return errors.New("securityScheme.flows is required")
+		return ErrRequired{Target: "securityScheme.flows"}
 	}
 	return secScheme.Flows.Validate()
 }
 
 func (secScheme SecurityScheme) validateFieldForOpenIDConnect() error {
-	return mustURL("securityScheme.openIdConnectUrl is required", secScheme.OpenIDConnectURL)
+	return mustURL("securityScheme.openIdConnectUrl", secScheme.OpenIDConnectURL)
 }

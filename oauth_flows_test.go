@@ -7,12 +7,14 @@ import (
 )
 
 func TestOAuthFlowsValidate(t *testing.T) {
+	authorizationURLRequiredError := openapi.ErrRequired{Target: "oauthFlow.authorizationUrl"}
+	tokenURLRequiredError := openapi.ErrRequired{Target: "oauthFlow.tokenUrl"}
 	candidates := []candidate{
-		{"empty", openapi.OAuthFlows{}, false},
-		{"invalidImplicit", openapi.OAuthFlows{Implicit: &openapi.OAuthFlow{}}, true},
-		{"invalidPassword", openapi.OAuthFlows{Password: &openapi.OAuthFlow{}}, true},
-		{"invalidClientCredentials", openapi.OAuthFlows{ClientCredentials: &openapi.OAuthFlow{}}, true},
-		{"invalidAuthorizationCode", openapi.OAuthFlows{AuthorizationCode: &openapi.OAuthFlow{}}, true},
+		{"empty", openapi.OAuthFlows{}, nil},
+		{"invalidImplicit", openapi.OAuthFlows{Implicit: &openapi.OAuthFlow{}}, authorizationURLRequiredError},
+		{"invalidPassword", openapi.OAuthFlows{Password: &openapi.OAuthFlow{}}, tokenURLRequiredError},
+		{"invalidClientCredentials", openapi.OAuthFlows{ClientCredentials: &openapi.OAuthFlow{}}, tokenURLRequiredError},
+		{"invalidAuthorizationCode", openapi.OAuthFlows{AuthorizationCode: &openapi.OAuthFlow{}}, authorizationURLRequiredError},
 	}
 	testValidater(t, candidates)
 }

@@ -8,7 +8,7 @@ import (
 
 func TestSchemaValidate(t *testing.T) {
 	candidates := []candidate{
-		{"empty", openapi.Schema{}, false},
+		{"empty", openapi.Schema{}, nil},
 	}
 	testValidater(t, candidates)
 }

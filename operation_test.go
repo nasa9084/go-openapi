@@ -9,9 +9,9 @@ import (
 
 func TestOperationValidate(t *testing.T) {
 	candidates := []candidate{
-		{"empty", openapi.Operation{}, true},
-		{"duplicatedParameter", openapi.Operation{Responses: openapi.Responses{}, Parameters: []*openapi.Parameter{&openapi.Parameter{Name: "foo", In: "query"}, &openapi.Parameter{Name: "foo", In: "query"}}}, true},
-		{"valid", openapi.Operation{Responses: openapi.Responses{}}, false},
+		{"empty", openapi.Operation{}, openapi.ErrRequired{Target: "operation.responses"}},
+		{"duplicatedParameter", openapi.Operation{Responses: openapi.Responses{}, Parameters: []*openapi.Parameter{&openapi.Parameter{Name: "foo", In: "query"}, &openapi.Parameter{Name: "foo", In: "query"}}}, openapi.ErrParameterDuplicated},
+		{"valid", openapi.Operation{Responses: openapi.Responses{}}, nil},
 	}
 	testValidater(t, candidates)
 }

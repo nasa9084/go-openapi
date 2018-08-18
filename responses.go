@@ -1,7 +1,6 @@
 package openapi
 
 import (
-	"errors"
 	"strconv"
 )
 
@@ -30,10 +29,10 @@ func validateStatusCode(statusStr string) error {
 	}
 	statusInt, err := strconv.Atoi(statusStr)
 	if err != nil {
-		return err
+		return InvalidStatusCodeError
 	}
 	if statusInt < 100 || 599 < statusInt {
-		return errors.New("status code is invalid")
+		return InvalidStatusCodeError
 	}
 	return nil
 }

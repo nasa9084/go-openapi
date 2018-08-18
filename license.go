@@ -1,7 +1,6 @@
 package openapi
 
 import (
-	"errors"
 	"net/url"
 )
 
@@ -16,11 +15,14 @@ type License struct {
 // Validate the values of License object.
 func (license License) Validate() error {
 	if license.Name == "" {
-		return errors.New("license.name is required")
+		return ErrRequired{Target: "license.name"}
 	}
 	if license.URL != "" {
 		_, err := url.ParseRequestURI(license.URL)
-		return err
+		if err != nil {
+			return ErrFormatInvalid{Target: "license.url"}
+		}
+		return nil
 	}
 	return nil
 }

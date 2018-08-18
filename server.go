@@ -1,7 +1,6 @@
 package openapi
 
 import (
-	"errors"
 	"net/url"
 	"regexp"
 )
@@ -20,14 +19,14 @@ type Server struct {
 // Validate the values of Server object.
 func (server Server) Validate() error {
 	if server.URL == "" {
-		return errors.New("server.url is required")
+		return ErrRequired{Target: "server.url"}
 	}
 	// replace template variable with placeholder to validate the replaced string
 	// is valid URL or not
 	serverURL := tmplVarRegexp.ReplaceAllLiteralString(server.URL, "ph")
 	// use url.Parse because relative URL is allowed
 	if _, err := url.Parse(serverURL); err != nil {
-		return err
+		return ErrFormatInvalid{Target: "server.url"}
 	}
 	validaters := []validater{}
 	for _, sv := range server.Variables {

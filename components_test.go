@@ -9,29 +9,25 @@ import (
 
 func TestComponents(t *testing.T) {
 	candidates := []candidate{
-		{"empty", openapi.Components{}, false},
+		{"empty", openapi.Components{}, nil},
 	}
 	testValidater(t, candidates)
 }
 
 func TestComponentsValidateKeys(t *testing.T) {
 	candidates := []struct {
-		label  string
-		in     openapi.Components
-		hasErr bool
+		label string
+		in    openapi.Components
+		err   error
 	}{
-		{"empty", openapi.Components{}, false},
-		{"invalidKey", openapi.Components{Parameters: map[string]*openapi.Parameter{"@": &openapi.Parameter{}}}, true},
-		{"validKey", openapi.Components{Parameters: map[string]*openapi.Parameter{"foo": &openapi.Parameter{}}}, false},
+		{"empty", openapi.Components{}, nil},
+		{"invalidKey", openapi.Components{Parameters: map[string]*openapi.Parameter{"@": &openapi.Parameter{}}}, openapi.MapKeyFormatError},
+		{"validKey", openapi.Components{Parameters: map[string]*openapi.Parameter{"foo": &openapi.Parameter{}}}, nil},
 	}
 	for _, c := range candidates {
-		if err := openapi.ValidateComponentKeys(c.in); (err != nil) != c.hasErr {
+		if err := openapi.ValidateComponentKeys(c.in); err != c.err {
 			t.Log(c.label)
-			if c.hasErr {
-				t.Error("error should be occurred, but not")
-				continue
-			}
-			t.Errorf("error should not be occurred: %s", err)
+			t.Errorf("error should be %s, but %s", c.err, err)
 		}
 	}
 }

@@ -7,13 +7,14 @@ import (
 )
 
 func TestContactValidate(t *testing.T) {
+	urlRequiredError := openapi.ErrRequired{Target: "contact.url"}
 	candidates := []candidate{
-		{"empty", openapi.Contact{}, true},
-		{"withURL", openapi.Contact{URL: exampleCom}, false},
-		{"invalidURL", openapi.Contact{URL: "foobar"}, true},
-		{"withEmail", openapi.Contact{Email: exampleMail}, true},
-		{"valid", openapi.Contact{URL: exampleCom, Email: exampleMail}, false},
-		{"invalidEmail", openapi.Contact{URL: exampleCom, Email: "foobar"}, true},
+		{"empty", openapi.Contact{}, urlRequiredError},
+		{"withURL", openapi.Contact{URL: exampleCom}, nil},
+		{"invalidURL", openapi.Contact{URL: "foobar"}, openapi.ErrFormatInvalid{Target: "contact.url"}},
+		{"withEmail", openapi.Contact{Email: exampleMail}, urlRequiredError},
+		{"valid", openapi.Contact{URL: exampleCom, Email: exampleMail}, nil},
+		{"invalidEmail", openapi.Contact{URL: exampleCom, Email: "foobar"}, openapi.EmailFormatError},
 	}
 
 	testValidater(t, candidates)

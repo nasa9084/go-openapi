@@ -8,9 +8,9 @@ import (
 
 func TestExternalDocumentationValidate(t *testing.T) {
 	candidates := []candidate{
-		{"empty", openapi.ExternalDocumentation{}, true},
-		{"invalidURL", openapi.ExternalDocumentation{URL: "foobar"}, true},
-		{"valid", openapi.ExternalDocumentation{URL: exampleCom}, false},
+		{"empty", openapi.ExternalDocumentation{}, openapi.ErrRequired{Target: "externalDocumentation.url"}},
+		{"invalidURL", openapi.ExternalDocumentation{URL: "foobar"}, openapi.ErrFormatInvalid{Target: "externalDocumentation.url"}},
+		{"valid", openapi.ExternalDocumentation{URL: exampleCom}, nil},
 	}
 	testValidater(t, candidates)
 }

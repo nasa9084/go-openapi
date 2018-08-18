@@ -8,11 +8,11 @@ import (
 
 func TestInfoValidate(t *testing.T) {
 	candidates := []candidate{
-		{"empty", openapi.Info{}, true},
-		{"withTitle", openapi.Info{Title: "foo"}, true},
-		{"withTitleAndVersion", openapi.Info{Title: "foo", Version: "1.0"}, false},
-		{"withInvalidToS", openapi.Info{Title: "foo", TermsOfService: "foobar", Version: "1.0"}, true},
-		{"withInvalidLicense", openapi.Info{Title: "foo", Version: "1.0", License: &openapi.License{URL: "foobar"}}, true},
+		{"empty", openapi.Info{}, openapi.ErrRequired{Target: "info.title"}},
+		{"withTitle", openapi.Info{Title: "foo"}, openapi.ErrRequired{Target: "info.version"}},
+		{"withTitleAndVersion", openapi.Info{Title: "foo", Version: "1.0"}, nil},
+		{"withInvalidToS", openapi.Info{Title: "foo", TermsOfService: "foobar", Version: "1.0"}, openapi.ErrFormatInvalid{Target: "info.termsOfService"}},
+		{"withInvalidLicense", openapi.Info{Title: "foo", Version: "1.0", License: &openapi.License{URL: "foobar"}}, openapi.ErrRequired{Target: "license.name"}},
 	}
 	testValidater(t, candidates)
 }

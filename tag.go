@@ -1,7 +1,5 @@
 package openapi
 
-import "errors"
-
 // codebeat:disable[TOO_MANY_IVARS]
 
 // Tag Object
@@ -14,7 +12,7 @@ type Tag struct {
 // Validate the values of Tag object.
 func (tag Tag) Validate() error {
 	if tag.Name == "" {
-		return errors.New("tag.name is required")
+		return ErrRequired{Target: "tag.name"}
 	}
 	if tag.ExternalDocs != nil {
 		return tag.ExternalDocs.Validate()

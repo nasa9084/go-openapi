@@ -2,8 +2,6 @@ package openapi
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 )
 
 // codebeat:disable[TOO_MANY_IVARS]
@@ -45,16 +43,16 @@ func (secReq SecurityRequirement) Validate() error {
 		return nil
 	}
 	if secReq.document == nil {
-		return errors.New("missing root document for security requirement")
+		return MissingRootDocumentError
 	}
 	components := secReq.document.Components
 	if components == nil {
-		return errors.New("components object in parent document is nil")
+		return ErrRequired{Target: "components object in parent document"}
 	}
 	for name, arr := range secReq.mp {
 		secScheme, ok := components.SecuritySchemes[name]
 		if !ok {
-			return fmt.Errorf("%s is not declared in securitySchemes under the components object", name)
+			return ErrNotDeclared{Name: name}
 		}
 		switch secScheme.Type {
 		case "oauth2":
@@ -64,12 +62,12 @@ func (secReq SecurityRequirement) Validate() error {
 				_, cc := secScheme.Flows.ClientCredentials.Scopes[scope]
 				_, ac := secScheme.Flows.AuthorizationCode.Scopes[scope]
 				if !implicit && !password && !cc && !ac {
-					return fmt.Errorf("%s is not defined in securitySchemes under the components object", scope)
+					return ErrNotDeclared{Name: scope}
 				}
 			}
 		default:
 			if arr != nil && len(arr) != 0 {
-				return fmt.Errorf("securityRequirements for %s type must be empty", secScheme.Type)
+				return ErrMustEmpty{Type: secScheme.Type}
 			}
 		}
 	}

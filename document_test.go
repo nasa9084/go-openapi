@@ -8,11 +8,11 @@ import (
 
 func TestDocumentValidate(t *testing.T) {
 	candidates := []candidate{
-		{"empty", openapi.Document{}, true},
-		{"withInvalidVersion", openapi.Document{Version: "1.0"}, true},
-		{"withVersion", openapi.Document{Version: "3.0.0"}, true},
-		{"valid", openapi.Document{Version: "3.0.0", Info: &openapi.Info{Title: "foo", TermsOfService: exampleCom, Version: "1.0"}, Paths: openapi.Paths{}}, false},
-		{"noPaths", openapi.Document{Version: "3.0.0", Info: &openapi.Info{Title: "foo", TermsOfService: exampleCom, Version: "1.0"}}, true},
+		{"empty", openapi.Document{}, openapi.ErrRequired{Target: "openapi"}},
+		{"withInvalidVersion", openapi.Document{Version: "1.0"}, openapi.ErrFormatInvalid{Target: "openapi version", Format: "X.Y.Z"}},
+		{"withVersion", openapi.Document{Version: "3.0.0"}, openapi.ErrRequired{Target: "info"}},
+		{"valid", openapi.Document{Version: "3.0.0", Info: &openapi.Info{Title: "foo", TermsOfService: exampleCom, Version: "1.0"}, Paths: openapi.Paths{}}, nil},
+		{"noPaths", openapi.Document{Version: "3.0.0", Info: &openapi.Info{Title: "foo", TermsOfService: exampleCom, Version: "1.0"}}, openapi.ErrRequired{Target: "paths"}},
 	}
 	testValidater(t, candidates)
 }

@@ -1,7 +1,6 @@
 package openapi
 
 import (
-	"errors"
 	"net/url"
 )
 
@@ -20,11 +19,11 @@ type Info struct {
 // Validate the values of Info object.
 func (info Info) Validate() error {
 	if info.Title == "" {
-		return errors.New("info.title is required")
+		return ErrRequired{"info.title"}
 	}
 	if info.TermsOfService != "" {
 		if _, err := url.ParseRequestURI(info.TermsOfService); err != nil {
-			return err
+			return ErrFormatInvalid{Target: "info.termsOfService"}
 		}
 	}
 	validaters := []validater{}
@@ -38,7 +37,7 @@ func (info Info) Validate() error {
 		return err
 	}
 	if info.Version == "" {
-		return errors.New("info.version is required")
+		return ErrRequired{Target: "info.version"}
 	}
 	return nil
 }

@@ -1,7 +1,6 @@
 package openapi
 
 import (
-	"errors"
 	"strconv"
 	"strings"
 )
@@ -51,36 +50,36 @@ func (doc Document) Validate() error {
 
 func validateOASVersion(version string) error {
 	if version == "" {
-		return errors.New("openapi is required")
+		return ErrRequired{Target: "openapi"}
 	}
 	splited := strings.Split(version, ".")
 	if len(splited) != 3 {
-		return errors.New("openapi version is not valid: version format should be X.Y.Z")
+		return ErrFormatInvalid{Target: "openapi version", Format: "X.Y.Z"}
 	}
 	major, err := strconv.Atoi(splited[0])
 	if err != nil {
-		return errors.New("major part of openapi version is invalid format")
+		return ErrFormatInvalid{Target: "major part of openapi version"}
 	}
 	minor, err := strconv.Atoi(splited[1])
 	if err != nil {
-		return errors.New("minor part of openapi version is invalid format")
+		return ErrFormatInvalid{Target: "minor part of openapi version"}
 	}
 	_, err = strconv.Atoi(splited[2])
 	if err != nil {
-		return errors.New("patch part of openapi version is invalid format")
+		return ErrFormatInvalid{Target: "patch part of openapi version"}
 	}
 	if major == 3 && 0 <= minor {
 		return nil
 	}
-	return errors.New("the OAS version is not supported")
+	return UnsupportedVersionError
 }
 
 func (doc Document) validateRequiredObjects() error {
 	if doc.Info == nil {
-		return errors.New("info is required")
+		return ErrRequired{Target: "info"}
 	}
 	if doc.Paths == nil {
-		return errors.New("paths is required")
+		return ErrRequired{Target: "paths"}
 	}
 	return nil
 }

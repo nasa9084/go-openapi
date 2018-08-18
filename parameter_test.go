@@ -34,14 +34,14 @@ func testHasDuplicatedParameterTrue(t *testing.T) {
 
 func TestParameterValidate(t *testing.T) {
 	candidates := []candidate{
-		{"empty", openapi.Parameter{}, true},
-		{"withName", openapi.Parameter{Name: "foo"}, true},
-		{"withName-in", openapi.Parameter{Name: "foo", In: "path"}, true},
-		{"withName-invalidIn", openapi.Parameter{Name: "foo", In: "bar"}, true},
-		{"withName-inPath-notRequired", openapi.Parameter{Name: "foo", In: "path"}, true},
-		{"withName-inPath-required", openapi.Parameter{Name: "foo", In: "path", Required: true}, false},
-		{"allowEmptyValue-notQuery", openapi.Parameter{Name: "foo", In: "header", AllowEmptyValue: true}, true},
-		{"allowEmptyValue-query", openapi.Parameter{Name: "foo", In: "query", AllowEmptyValue: true}, false},
+		{"empty", openapi.Parameter{}, openapi.ErrRequired{Target: "parameter.name"}},
+		{"withName", openapi.Parameter{Name: "foo"}, openapi.ErrRequired{Target: "parameter.in"}},
+		{"withName-in", openapi.Parameter{Name: "foo", In: "path"}, openapi.RequiredMustTrueError},
+		{"withName-invalidIn", openapi.Parameter{Name: "foo", In: "bar"}, openapi.InvalidParameterInError},
+		{"withName-inPath-notRequired", openapi.Parameter{Name: "foo", In: "path"}, openapi.RequiredMustTrueError},
+		{"withName-inPath-required", openapi.Parameter{Name: "foo", In: "path", Required: true}, nil},
+		{"allowEmptyValue-notQuery", openapi.Parameter{Name: "foo", In: "header", AllowEmptyValue: true}, openapi.AllowEmptyValueNotValidError},
+		{"allowEmptyValue-query", openapi.Parameter{Name: "foo", In: "query", AllowEmptyValue: true}, nil},
 	}
 	testValidater(t, candidates)
 }

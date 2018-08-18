@@ -7,10 +7,11 @@ import (
 )
 
 func TestRequestBodyValidate(t *testing.T) {
+	contentRequiredError := openapi.ErrRequired{Target: "requestBody.content"}
 	candidates := []candidate{
-		{"empty", openapi.RequestBody{}, true},
-		{"emptyContent", openapi.RequestBody{Content: map[string]*openapi.MediaType{}}, true},
-		{"valid", openapi.RequestBody{Content: map[string]*openapi.MediaType{"application/json": &openapi.MediaType{}}}, false},
+		{"empty", openapi.RequestBody{}, contentRequiredError},
+		{"emptyContent", openapi.RequestBody{Content: map[string]*openapi.MediaType{}}, contentRequiredError},
+		{"valid", openapi.RequestBody{Content: map[string]*openapi.MediaType{"application/json": &openapi.MediaType{}}}, nil},
 	}
 	testValidater(t, candidates)
 }

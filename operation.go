@@ -1,7 +1,6 @@
 package openapi
 
 import (
-	"errors"
 	"strconv"
 )
 
@@ -60,13 +59,13 @@ func (operation Operation) Validate() error {
 		validaters = append(validaters, operation.ExternalDocs)
 	}
 	if hasDuplicatedParameter(operation.Parameters) {
-		return errors.New("some parameter is duplicated")
+		return ErrParameterDuplicated
 	}
 	if operation.RequestBody != nil {
 		validaters = append(validaters, operation.RequestBody)
 	}
 	if operation.Responses == nil {
-		return errors.New("operation.responses is required")
+		return ErrRequired{Target: "operation.responses"}
 	}
 	validaters = append(validaters, operation.Responses)
 	for _, callback := range operation.Callbacks {

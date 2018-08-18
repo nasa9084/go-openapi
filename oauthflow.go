@@ -1,7 +1,6 @@
 package openapi
 
 import (
-	"errors"
 	"net/url"
 
 	"github.com/nasa9084/go-openapi/oauth"
@@ -45,11 +44,8 @@ func (oauthFlow *OAuthFlow) SetFlowType(typ string) {
 
 // Validate the values of OAuthFlow object.
 func (oauthFlow OAuthFlow) Validate() error {
-	if oauthFlow.flowType == "" {
-		return errors.New("flow type is not set")
-	}
 	if _, ok := validFlowTypes[oauthFlow.flowType]; !ok {
-		return errors.New("invalid type name")
+		return InvalidFlowTypeError
 	}
 	if _, ok := requireAuthorizationURL[oauthFlow.flowType]; ok {
 		if err := mustURL("oauthFlow.authorizationUrl", oauthFlow.AuthorizationURL); err != nil {
@@ -63,11 +59,11 @@ func (oauthFlow OAuthFlow) Validate() error {
 	}
 	if oauthFlow.RefreshURL != "" {
 		if _, err := url.ParseRequestURI(oauthFlow.RefreshURL); err != nil {
-			return err
+			return ErrFormatInvalid{Target: "oauthFlow.refreshUrl"}
 		}
 	}
 	if oauthFlow.Scopes == nil || len(oauthFlow.Scopes) == 0 {
-		return errors.New("oauthFlow.scopes is required")
+		return ErrRequired{Target: "oauthFlow.scopes"}
 	}
 
 	return nil

@@ -1,7 +1,5 @@
 package openapi
 
-import "errors"
-
 // codebeat:disable[TOO_MANY_IVARS]
 
 // Parameter Object
@@ -29,21 +27,21 @@ type Parameter struct {
 // This function DOES NOT check whether the name field correspond to the associated path or not.
 func (parameter Parameter) Validate() error {
 	if parameter.Name == "" {
-		return errors.New("parameter.name is required")
+		return ErrRequired{Target: "parameter.name"}
 	}
 	if parameter.In == "" {
-		return errors.New("parameter.in is required")
+		return ErrRequired{Target: "parameter.in"}
 	}
 	switch parameter.In {
 	case "query", "header", "path", "cookie":
 	default:
-		return errors.New("parameter.in should be one of: query, header, path, cookie")
+		return InvalidParameterInError
 	}
 	if parameter.In == "path" && !parameter.Required {
-		return errors.New("if parameter.in is path, required must be true")
+		return RequiredMustTrueError
 	}
 	if parameter.In != "query" && parameter.AllowEmptyValue {
-		return errors.New("allowEmptyValue is valid only for query parameters")
+		return AllowEmptyValueNotValidError
 	}
 	validaters := []validater{}
 	if parameter.Schema != nil {
@@ -56,7 +54,7 @@ func (parameter Parameter) Validate() error {
 	// example has no validation
 
 	if len(parameter.Content) > 1 {
-		return errors.New("parameter.content must only contain one entry")
+		return ErrTooManyParameterContent
 	}
 	for _, mediaType := range parameter.Content {
 		validaters = append(validaters, mediaType)

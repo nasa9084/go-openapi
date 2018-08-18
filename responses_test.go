@@ -9,12 +9,12 @@ import (
 func TestResponsesValidate(t *testing.T) {
 	validResp := &openapi.Response{Description: "foobar"}
 	candidates := []candidate{
-		{"empty", openapi.Responses{}, false},
-		{"hasInvalidStatus", openapi.Responses{"foobar": validResp}, true},
-		{"hasDefaultStatus", openapi.Responses{"default": validResp}, false},
-		{"hasWildcardStatus", openapi.Responses{"2XX": validResp}, false},
-		{"hasOKStatus", openapi.Responses{"200": validResp}, false},
-		{"hasEmptyResponse", openapi.Responses{"200": &openapi.Response{}}, true},
+		{"empty", openapi.Responses{}, nil},
+		{"hasInvalidStatus", openapi.Responses{"foobar": validResp}, openapi.InvalidStatusCodeError},
+		{"hasDefaultStatus", openapi.Responses{"default": validResp}, nil},
+		{"hasWildcardStatus", openapi.Responses{"2XX": validResp}, nil},
+		{"hasOKStatus", openapi.Responses{"200": validResp}, nil},
+		{"hasEmptyResponse", openapi.Responses{"200": &openapi.Response{}}, openapi.ErrRequired{Target: "response.description"}},
 	}
 	testValidater(t, candidates)
 }

@@ -8,11 +8,11 @@ import (
 
 func TestLicenseValidate(t *testing.T) {
 	candidates := []candidate{
-		{"empty", openapi.License{}, true},
-		{"withName", openapi.License{Name: "foobar"}, false},
-		{"withURL", openapi.License{URL: exampleCom}, true},
-		{"invalidURL", openapi.License{Name: "foobar", URL: "foobar"}, true},
-		{"full", openapi.License{Name: "foobar", URL: exampleCom}, false},
+		{"empty", openapi.License{}, openapi.ErrRequired{Target: "license.name"}},
+		{"withName", openapi.License{Name: "foobar"}, nil},
+		{"withURL", openapi.License{URL: exampleCom}, openapi.ErrRequired{Target: "license.name"}},
+		{"invalidURL", openapi.License{Name: "foobar", URL: "foobar"}, openapi.ErrFormatInvalid{Target: "license.url"}},
+		{"full", openapi.License{Name: "foobar", URL: exampleCom}, nil},
 	}
 	testValidater(t, candidates)
 }

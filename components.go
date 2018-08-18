@@ -1,7 +1,5 @@
 package openapi
 
-import "errors"
-
 // codebeat:disable[TOO_MANY_IVARS]
 
 // Components Object
@@ -30,7 +28,7 @@ func validateComponentKeys(components Components) error {
 	keys := reduceComponentKeys(components)
 	for _, k := range keys {
 		if !mapKeyRegexp.MatchString(k) {
-			return errors.New("map key format is invalid")
+			return MapKeyFormatError
 		}
 	}
 	return nil

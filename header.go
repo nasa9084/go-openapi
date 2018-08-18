@@ -1,7 +1,5 @@
 package openapi
 
-import "errors"
-
 // codebeat:disable[TOO_MANY_IVARS]
 
 // Header Object
@@ -36,7 +34,7 @@ func (header Header) Validate() error {
 	// example has no validation
 
 	if len(header.Content) > 1 {
-		return errors.New("header.content must only contain one entry")
+		return ErrTooManyHeaderContent
 	}
 	for _, mediaType := range header.Content {
 		validaters = append(validaters, mediaType)

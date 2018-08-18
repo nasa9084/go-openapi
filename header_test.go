@@ -8,13 +8,13 @@ import (
 
 func TestHeaderValidate(t *testing.T) {
 	candidates := []candidate{
-		{"empty", openapi.Header{}, false},
+		{"empty", openapi.Header{}, nil},
 		{"2 contents", openapi.Header{
 			Content: map[string]*openapi.MediaType{
 				"application/json": &openapi.MediaType{},
 				"image/png":        &openapi.MediaType{},
 			},
-		}, true},
+		}, openapi.ErrTooManyHeaderContent},
 	}
 	testValidater(t, candidates)
 }

@@ -1,7 +1,6 @@
 package openapi
 
 import (
-	"errors"
 	"net/http"
 	"strings"
 )
@@ -87,7 +86,7 @@ func (pathItem PathItem) Validate() error {
 		validaters = append(validaters, s)
 	}
 	if hasDuplicatedParameter(pathItem.Parameters) {
-		return errors.New("some parameter is duplicated")
+		return ErrParameterDuplicated
 	}
 	for _, p := range pathItem.Parameters {
 		validaters = append(validaters, p)

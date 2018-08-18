@@ -1,7 +1,6 @@
 package openapi
 
 import (
-	"errors"
 	"strings"
 )
 
@@ -14,14 +13,14 @@ type Paths map[string]*PathItem
 func (paths Paths) Validate() error {
 	for path, pathItem := range paths {
 		if !strings.HasPrefix(path, "/") {
-			return errors.New("path name must begin with a slash")
+			return PathFormatError
 		}
 		if err := pathItem.Validate(); err != nil {
 			return err
 		}
 	}
 	if hasDuplicatedOperationID(paths) {
-		return errors.New("operation id is duplicated")
+		return ErrOperationIDDuplicated
 	}
 	return nil
 }

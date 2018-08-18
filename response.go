@@ -1,7 +1,5 @@
 package openapi
 
-import "errors"
-
 // codebeat:disable[TOO_MANY_IVARS]
 
 // Response Object
@@ -17,7 +15,7 @@ type Response struct {
 // Validate the value of Response object.
 func (response Response) Validate() error {
 	if response.Description == "" {
-		return errors.New("response.description is required")
+		return ErrRequired{Target: "response.description"}
 	}
 	validaters := []validater{}
 	for _, header := range response.Headers {

@@ -2,6 +2,7 @@ package openapi_test
 
 import (
 	"errors"
+	"reflect"
 	"testing"
 
 	openapi "github.com/nasa9084/go-openapi"
@@ -13,20 +14,16 @@ const (
 )
 
 type candidate struct {
-	label  string
-	in     openapi.Validater
-	hasErr bool
+	label string
+	in    openapi.Validater
+	err   error
 }
 
 func testValidater(t *testing.T, candidates []candidate) {
 	t.Helper()
 	for _, c := range candidates {
-		if err := c.in.Validate(); (err != nil) != c.hasErr {
-			if c.hasErr {
-				t.Error("error should be occurred, but not")
-				continue
-			}
-			t.Errorf("error is occurred: %s", err)
+		if err := c.in.Validate(); !reflect.DeepEqual(err, c.err) {
+			t.Errorf("error should be %s, but %s", c.err, err)
 		}
 	}
 }

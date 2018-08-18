@@ -11,7 +11,7 @@ import (
 
 func TestSecurityRequirementValidate(t *testing.T) {
 	candidates := []candidate{
-		{"empty", openapi.SecurityRequirement{}, false},
+		{"empty", openapi.SecurityRequirement{}, nil},
 	}
 	testValidater(t, candidates)
 }

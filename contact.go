@@ -1,7 +1,5 @@
 package openapi
 
-import "errors"
-
 // codebeat:disable[TOO_MANY_IVARS]
 
 // Contact Object
@@ -18,7 +16,7 @@ func (contact Contact) Validate() error {
 	}
 	if contact.Email != "" {
 		if !emailRegexp.MatchString(contact.Email) {
-			return errors.New("email format invalid")
+			return EmailFormatError
 		}
 	}
 	return nil

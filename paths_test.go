@@ -22,16 +22,16 @@ func getPaths(path, id1, id2 string) openapi.Paths {
 
 func testPathItemDuplicate(t *testing.T) {
 	candidates := []candidate{
-		{"invalid", getPaths("/foo/bar", "foobar", "foobar"), true},
-		{"valid", getPaths("/foo/bar", "foo", "bar"), false},
+		{"invalid", getPaths("/foo/bar", "foobar", "foobar"), openapi.ErrOperationIDDuplicated},
+		{"valid", getPaths("/foo/bar", "foo", "bar"), nil},
 	}
 	testValidater(t, candidates)
 }
 
 func testPaths(t *testing.T) {
 	candidates := []candidate{
-		{"abs path", getPaths("/foo/bar", "foo", "bar"), false},
-		{"rel path", getPaths("foo/bar", "foo", "bar"), true},
+		{"abs path", getPaths("/foo/bar", "foo", "bar"), nil},
+		{"rel path", getPaths("foo/bar", "foo", "bar"), openapi.PathFormatError},
 	}
 	testValidater(t, candidates)
 }

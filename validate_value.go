@@ -1,7 +1,6 @@
 package openapi
 
 import (
-	"errors"
 	"net/url"
 	"regexp"
 )
@@ -29,8 +28,10 @@ func validateAll(vs []validater) error {
 
 func mustURL(name, urlStr string) error {
 	if urlStr == "" {
-		return errors.New(name + " is required")
+		return ErrRequired{Target: name}
 	}
-	_, err := url.ParseRequestURI(urlStr)
-	return err
+	if _, err := url.ParseRequestURI(urlStr); err != nil {
+		return ErrFormatInvalid{Target: name}
+	}
+	return nil
 }

@@ -8,8 +8,8 @@ import (
 
 func TestDiscriminatorValidate(t *testing.T) {
 	candidates := []candidate{
-		{"empty", openapi.Discriminator{}, true},
-		{"withPropertyName", openapi.Discriminator{PropertyName: "foobar"}, false},
+		{"empty", openapi.Discriminator{}, openapi.ErrRequired{Target: "discriminator.propertyName"}},
+		{"withPropertyName", openapi.Discriminator{PropertyName: "foobar"}, nil},
 	}
 	testValidater(t, candidates)
 }

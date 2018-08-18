@@ -8,8 +8,8 @@ import (
 
 func TestServerVariableValidate(t *testing.T) {
 	candidates := []candidate{
-		{"empty", openapi.ServerVariable{}, true},
-		{"withDefault", openapi.ServerVariable{Default: "default"}, false},
+		{"empty", openapi.ServerVariable{}, openapi.ErrRequired{Target: "serverVariable.default"}},
+		{"withDefault", openapi.ServerVariable{Default: "default"}, nil},
 	}
 	testValidater(t, candidates)
 }
