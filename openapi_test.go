@@ -558,7 +558,7 @@ by the source server
 						},
 					},
 				},
-				Callbacks: openapi.Callbacks{
+				Callbacks: map[string]*openapi.Callback{
 					"onData": &openapi.Callback{
 						"{$request.query.callbackUrl}/data": &openapi.PathItem{
 							Post: &openapi.Operation{
