@@ -16,7 +16,7 @@ func (contact Contact) Validate() error {
 	}
 	if contact.Email != "" {
 		if !emailRegexp.MatchString(contact.Email) {
-			return EmailFormatError
+			return ErrFormatInvalid{Target: "contact.email", Format: "email"}
 		}
 	}
 	return nil

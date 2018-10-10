@@ -14,7 +14,7 @@ func TestContactValidate(t *testing.T) {
 		{"invalidURL", openapi.Contact{URL: "foobar"}, openapi.ErrFormatInvalid{Target: "contact.url", Format: "URL"}},
 		{"withEmail", openapi.Contact{Email: exampleMail}, urlRequiredError},
 		{"valid", openapi.Contact{URL: exampleCom, Email: exampleMail}, nil},
-		{"invalidEmail", openapi.Contact{URL: exampleCom, Email: "foobar"}, openapi.EmailFormatError},
+		{"invalidEmail", openapi.Contact{URL: exampleCom, Email: "foobar"}, openapi.ErrFormatInvalid{Target: "contact.email", Format: "email"}},
 	}
 
 	testValidater(t, candidates)

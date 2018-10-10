@@ -20,7 +20,6 @@ func (fe ErrFormatInvalid) Error() string {
 
 // central error variables relating format
 var (
-	EmailFormatError  = ErrFormatInvalid{Target: "email"}
 	MapKeyFormatError = ErrFormatInvalid{Target: "map key"}
 	PathFormatError   = ErrFormatInvalid{Target: "path"}
 )
