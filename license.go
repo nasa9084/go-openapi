@@ -20,7 +20,7 @@ func (license License) Validate() error {
 	if license.URL != "" {
 		_, err := url.ParseRequestURI(license.URL)
 		if err != nil {
-			return ErrFormatInvalid{Target: "license.url"}
+			return ErrFormatInvalid{Target: "license.url", Format: "URL"}
 		}
 		return nil
 	}
