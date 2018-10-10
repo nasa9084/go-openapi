@@ -40,9 +40,9 @@ func TestOAuthFlowValidate(t *testing.T) {
 	aURLRequiredError := openapi.ErrRequired{Target: "oauthFlow.authorizationUrl"}
 	tURLRequiredError := openapi.ErrRequired{Target: "oauthFlow.tokenUrl"}
 	scopesRequiredError := openapi.ErrRequired{Target: "oauthFlow.scopes"}
-	aURLFormatError := openapi.ErrFormatInvalid{Target: "oauthFlow.authorizationUrl"}
-	tURLFormatError := openapi.ErrFormatInvalid{Target: "oauthFlow.tokenUrl"}
-	rURLFormatError := openapi.ErrFormatInvalid{Target: "oauthFlow.refreshUrl"}
+	aURLFormatError := openapi.ErrFormatInvalid{Target: "oauthFlow.authorizationUrl", Format: "URL"}
+	tURLFormatError := openapi.ErrFormatInvalid{Target: "oauthFlow.tokenUrl", Format: "URL"}
+	rURLFormatError := openapi.ErrFormatInvalid{Target: "oauthFlow.refreshUrl", Format: "URL"}
 
 	candidatebases := []candidateBase{
 		{"empty", empty, [4]error{aURLRequiredError, tURLRequiredError, tURLRequiredError, aURLRequiredError}},

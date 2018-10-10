@@ -9,7 +9,7 @@ import (
 func TestXMLValidate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", openapi.XML{}, openapi.ErrRequired{Target: "xml.namespace"}},
-		{"invalidURLNamespace", openapi.XML{Namespace: "foobar"}, openapi.ErrFormatInvalid{Target: "xml.namespace"}},
+		{"invalidURLNamespace", openapi.XML{Namespace: "foobar"}, openapi.ErrFormatInvalid{Target: "xml.namespace", Format: "URL"}},
 		{"withNamespace", openapi.XML{Namespace: exampleCom}, nil},
 	}
 	testValidater(t, candidates)

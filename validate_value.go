@@ -31,7 +31,7 @@ func mustURL(name, urlStr string) error {
 		return ErrRequired{Target: name}
 	}
 	if _, err := url.ParseRequestURI(urlStr); err != nil {
-		return ErrFormatInvalid{Target: name}
+		return ErrFormatInvalid{Target: name, Format: "URL"}
 	}
 	return nil
 }

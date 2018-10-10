@@ -59,7 +59,7 @@ func (oauthFlow OAuthFlow) Validate() error {
 	}
 	if oauthFlow.RefreshURL != "" {
 		if _, err := url.ParseRequestURI(oauthFlow.RefreshURL); err != nil {
-			return ErrFormatInvalid{Target: "oauthFlow.refreshUrl"}
+			return ErrFormatInvalid{Target: "oauthFlow.refreshUrl", Format: "URL"}
 		}
 	}
 	if oauthFlow.Scopes == nil || len(oauthFlow.Scopes) == 0 {
