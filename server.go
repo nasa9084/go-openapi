@@ -26,7 +26,7 @@ func (server Server) Validate() error {
 	serverURL := tmplVarRegexp.ReplaceAllLiteralString(server.URL, "ph")
 	// use url.Parse because relative URL is allowed
 	if _, err := url.Parse(serverURL); err != nil {
-		return ErrFormatInvalid{Target: "server.url"}
+		return ErrFormatInvalid{Target: "server.url", Format: "URL"}
 	}
 	validaters := []validater{}
 	for _, sv := range server.Variables {

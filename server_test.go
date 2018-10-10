@@ -9,7 +9,7 @@ import (
 func TestServerValidate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", openapi.Server{}, openapi.ErrRequired{Target: "server.url"}},
-		{"invalidURL", openapi.Server{URL: "foobar%"}, openapi.ErrFormatInvalid{Target: "server.url"}},
+		{"invalidURL", openapi.Server{URL: "foobar%"}, openapi.ErrFormatInvalid{Target: "server.url", Format: "URL"}},
 		{"withURL", openapi.Server{URL: exampleCom}, nil},
 	}
 	testValidater(t, candidates)
