@@ -1,6 +1,7 @@
 package openapi_test
 
 import (
+	"reflect"
 	"testing"
 
 	openapi "github.com/nasa9084/go-openapi"
@@ -34,4 +35,30 @@ func testPaths(t *testing.T) {
 		{"rel path", getPaths("foo/bar", "foo", "bar"), openapi.PathFormatError},
 	}
 	testValidater(t, candidates)
+}
+
+func TestPathsGetOperation(t *testing.T) {
+	target := openapi.Paths{
+		"/": &openapi.PathItem{
+			Get: &openapi.Operation{OperationID: "bar"},
+		},
+	}
+	candidates := []struct {
+		paths  openapi.Paths
+		opID   string
+		expect *openapi.Operation
+	}{
+		{openapi.Paths{}, "", nil},
+		{openapi.Paths{}, "foo", nil},
+		{openapi.Paths{}, "bar", nil},
+		{target, "", nil},
+		{target, "foo", nil},
+		{target, "bar", &openapi.Operation{OperationID: "bar"}},
+	}
+	for _, c := range candidates {
+		op := c.paths.GetOperation(c.opID)
+		if !reflect.DeepEqual(op, c.expect) {
+			t.Errorf("%+v != %+v", op, c.expect)
+		}
+	}
 }

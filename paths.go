@@ -38,3 +38,14 @@ func hasDuplicatedOperationID(paths Paths) bool {
 
 	return false
 }
+
+func (paths Paths) GetOperation(operationID string) *Operation {
+	for _, pathItem := range paths {
+		for _, op := range pathItem.Operations() {
+			if op.OperationID == operationID {
+				return op
+			}
+		}
+	}
+	return nil
+}
