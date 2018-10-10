@@ -24,15 +24,18 @@ func (doc Document) Validate() error {
 	if err := validateOASVersion(doc.Version); err != nil {
 		return err
 	}
-	if err := doc.validateRequiredObjects(); err != nil {
-		return err
-	}
 	var validaters []validater
-	validaters = append(validaters, doc.Info) // doc.Info nil check has done
+	if doc.Info == nil {
+		return ErrRequired{Target: "info"}
+	}
+	validaters = append(validaters, doc.Info)
 	for _, s := range doc.Servers {
 		validaters = append(validaters, s)
 	}
-	validaters = append(validaters, doc.Paths) // doc.Paths nil check has done
+	if doc.Paths == nil {
+		return ErrRequired{Target: "paths"}
+	}
+	validaters = append(validaters, doc.Paths)
 	if doc.Components != nil {
 		validaters = append(validaters, doc.Components)
 	}
@@ -72,14 +75,4 @@ func validateOASVersion(version string) error {
 		return nil
 	}
 	return UnsupportedVersionError
-}
-
-func (doc Document) validateRequiredObjects() error {
-	if doc.Info == nil {
-		return ErrRequired{Target: "info"}
-	}
-	if doc.Paths == nil {
-		return ErrRequired{Target: "paths"}
-	}
-	return nil
 }
