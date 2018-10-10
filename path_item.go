@@ -36,10 +36,10 @@ var methods = []string{
 	http.MethodTrace,
 }
 
-// GetOperation returns a operation object associated with given method.
+// GetOperationByMethod returns a operation object associated with given method.
 // The method is case-insensitive, converted to upper case in this function.
 // If the method is invalid, this function will return nil.
-func (pathItem *PathItem) GetOperation(method string) *Operation {
+func (pathItem *PathItem) GetOperationByMethod(method string) *Operation {
 	switch strings.ToUpper(method) {
 	case http.MethodGet:
 		return pathItem.Get
@@ -62,6 +62,20 @@ func (pathItem *PathItem) GetOperation(method string) *Operation {
 	}
 }
 
+// GetOperationByID returns an operation object which matches given operationId.
+// If the pathItem object has duplicated operationId, this function returns one
+// which match first.
+func (pathItem PathItem) GetOperationByID(operationID string) *Operation {
+	for _, method := range methods {
+		if op := pathItem.GetOperationByMethod(method); op != nil {
+			if op.OperationID == operationID {
+				return op
+			}
+		}
+	}
+	return nil
+}
+
 // Operations returns a map containing operation object as a
 // value associated with a HTTP method as a key.
 // If an operation is nil, it won't be added returned map, so
@@ -69,7 +83,7 @@ func (pathItem *PathItem) GetOperation(method string) *Operation {
 func (pathItem PathItem) Operations() map[string]*Operation {
 	ops := map[string]*Operation{}
 	for _, method := range methods {
-		if op := pathItem.GetOperation(method); op != nil {
+		if op := pathItem.GetOperationByMethod(method); op != nil {
 			ops[method] = op
 		}
 	}

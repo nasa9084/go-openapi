@@ -37,7 +37,7 @@ func testPaths(t *testing.T) {
 	testValidater(t, candidates)
 }
 
-func TestPathsGetOperation(t *testing.T) {
+func TestPathsGetOperationByID(t *testing.T) {
 	target := openapi.Paths{
 		"/": &openapi.PathItem{
 			Get: &openapi.Operation{OperationID: "bar"},
@@ -56,7 +56,7 @@ func TestPathsGetOperation(t *testing.T) {
 		{target, "bar", &openapi.Operation{OperationID: "bar"}},
 	}
 	for _, c := range candidates {
-		op := c.paths.GetOperation(c.opID)
+		op := c.paths.GetOperationByID(c.opID)
 		if !reflect.DeepEqual(op, c.expect) {
 			t.Errorf("%+v != %+v", op, c.expect)
 		}

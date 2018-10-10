@@ -39,7 +39,12 @@ func hasDuplicatedOperationID(paths Paths) bool {
 	return false
 }
 
-func (paths Paths) GetOperation(operationID string) *Operation {
+// GetOperationByID returns an operation by operationId.
+// If the paths object has two or more operations which matches
+// given operationId, this function returns the operation
+// matched first. So you should call Validate() before using this
+// function.
+func (paths Paths) GetOperationByID(operationID string) *Operation {
 	for _, pathItem := range paths {
 		for _, op := range pathItem.Operations() {
 			if op.OperationID == operationID {

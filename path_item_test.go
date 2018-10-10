@@ -6,7 +6,7 @@ import (
 	openapi "github.com/nasa9084/go-openapi"
 )
 
-func TestGetOperation(t *testing.T) {
+func TestGetOperationByMethod(t *testing.T) {
 	pathItem := openapi.PathItem{
 		Get:     &openapi.Operation{OperationID: "get"},
 		Put:     &openapi.Operation{OperationID: "put"},
@@ -32,7 +32,7 @@ func TestGetOperation(t *testing.T) {
 	}
 
 	for _, c := range candidates {
-		op := pathItem.GetOperation(c.method)
+		op := pathItem.GetOperationByMethod(c.method)
 		if !c.isNil && op == nil {
 			t.Errorf("operation should be returned: %s", c.method)
 			continue
