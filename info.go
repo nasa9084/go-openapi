@@ -23,7 +23,7 @@ func (info Info) Validate() error {
 	}
 	if info.TermsOfService != "" {
 		if _, err := url.ParseRequestURI(info.TermsOfService); err != nil {
-			return ErrFormatInvalid{Target: "info.termsOfService"}
+			return ErrFormatInvalid{Target: "info.termsOfService", Format: "URL"}
 		}
 	}
 	validaters := []validater{}
