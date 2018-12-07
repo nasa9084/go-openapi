@@ -14,6 +14,7 @@ func TestMain(m *testing.M) {
 
 func TestLoadFile(t *testing.T) {
 	t.Run("testspec.yaml", testTestSpec)
+	t.Run("securityRequirementRoot", testSecurityRequirementRootDoc)
 	t.Run("petstore.yaml", testPetStore)
 	t.Run("petstore-expanded.yaml", testPetStoreExpanded)
 	t.Run("callback-example.yaml", testCallBackExample)
@@ -74,6 +75,37 @@ func eqDocument(t *testing.T, a, b openapi.Document) {
 		if !reflect.DeepEqual(a.ExternalDocs, b.ExternalDocs) {
 			t.Log("document.ExternalDocs is not valid")
 		}
+	}
+}
+
+func testSecurityRequirementRootDoc(t *testing.T) {
+	document := []byte(`---
+openapi: 3.0.2
+info:
+  title: none
+  version: 1.0.0
+paths:
+  /:
+    get:
+      description: foobarbaz
+      security:
+      - apikey: []
+      responses:
+        '200':
+          description: ok
+components:
+  securitySchemes:
+    apikey:
+      name: X-API-Key
+      type: apiKey
+      in: header
+`)
+	doc, err := openapi.Load(document)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := doc.Validate(); err != nil {
+		t.Error(err)
 	}
 }
 

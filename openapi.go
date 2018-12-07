@@ -36,5 +36,12 @@ func Load(b []byte) (*Document, error) {
 	for i := range doc.Security {
 		doc.Security[i].setDocument(doc)
 	}
+	for _, pi := range doc.Paths {
+		for _, op := range pi.Operations() {
+			for _, sr := range op.Security {
+				sr.setDocument(doc)
+			}
+		}
+	}
 	return doc, nil
 }
