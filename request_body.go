@@ -13,6 +13,9 @@ type RequestBody struct {
 
 // Validate the values of RequestBody object.
 func (requestBody RequestBody) Validate() error {
+	if requestBody.Ref != "" {
+		return nil // validated in doc.Components
+	}
 	if requestBody.Content == nil || len(requestBody.Content) == 0 {
 		return ErrRequired{Target: "requestBody.content"}
 	}

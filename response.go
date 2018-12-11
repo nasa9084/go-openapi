@@ -14,6 +14,9 @@ type Response struct {
 
 // Validate the value of Response object.
 func (response Response) Validate() error {
+	if response.Ref != "" {
+		return nil // validated in doc.Components
+	}
 	if response.Description == "" {
 		return ErrRequired{Target: "response.description"}
 	}
