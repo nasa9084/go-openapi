@@ -111,6 +111,9 @@ func (pathItem PathItem) Validate() error {
 func hasDuplicatedParameter(parameters []*Parameter) bool {
 	for i, p := range parameters {
 		for _, q := range parameters[i+1:] {
+			if q.Name == "" && q.Ref != "" {
+				continue // need to resolve and validate
+			}
 			if p.Name == q.Name && p.In == q.In {
 				return true
 			}
