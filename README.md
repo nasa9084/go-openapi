@@ -50,7 +50,7 @@ func main() {
       * [x] Parameter
       * [x] RequestBody
       * [x] Responses
-      * [ ] Response
+      * [x] Response
       * [ ] Callbacks
       * [ ] Callback
       * [ ] Schema
