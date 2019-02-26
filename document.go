@@ -21,41 +21,17 @@ type Document struct {
 
 // Validate the values of spec.
 func (doc Document) Validate() error {
-	if err := validateOASVersion(doc.Version); err != nil {
+	if err := doc.validateRequiredFields(); err != nil {
 		return err
 	}
-	var validaters []validater
-	if doc.Info == nil {
-		return ErrRequired{Target: "info"}
+	if err := doc.validateOASVersion(); err != nil {
+		return err
 	}
-	validaters = append(validaters, doc.Info)
-	for _, s := range doc.Servers {
-		validaters = append(validaters, s)
-	}
-	if doc.Paths == nil {
-		return ErrRequired{Target: "paths"}
-	}
-	validaters = append(validaters, doc.Paths)
-	if doc.Components != nil {
-		validaters = append(validaters, doc.Components)
-	}
-	for _, securityRequirement := range doc.Security {
-		validaters = append(validaters, securityRequirement)
-	}
-	for _, t := range doc.Tags {
-		validaters = append(validaters, t)
-	}
-	if doc.ExternalDocs != nil {
-		validaters = append(validaters, doc.ExternalDocs)
-	}
-	return validateAll(validaters)
+	return doc.validateFields()
 }
 
-func validateOASVersion(version string) error {
-	if version == "" {
-		return ErrRequired{Target: "openapi"}
-	}
-	splited := strings.FieldsFunc(version, func(r rune) bool { return r == '.' })
+func (doc Document) validateOASVersion() error {
+	splited := strings.FieldsFunc(doc.Version, func(r rune) bool { return r == '.' })
 	if len(splited) != 3 {
 		return ErrFormatInvalid{Target: "openapi version", Format: "X.Y.Z"}
 	}
@@ -75,4 +51,39 @@ func validateOASVersion(version string) error {
 		return nil
 	}
 	return UnsupportedVersionError
+}
+
+func (doc Document) validateRequiredFields() error {
+	if doc.Version == "" {
+		return ErrRequired{Target: "openapi"}
+	}
+	if doc.Info == nil {
+		return ErrRequired{Target: "info"}
+	}
+	if doc.Paths == nil {
+		return ErrRequired{Target: "paths"}
+	}
+	return nil
+}
+
+func (doc Document) validateFields() error {
+	var validaters []validater
+	validaters = append(validaters, doc.Info)
+	for _, s := range doc.Servers {
+		validaters = append(validaters, s)
+	}
+	validaters = append(validaters, doc.Paths)
+	if doc.Components != nil {
+		validaters = append(validaters, doc.Components)
+	}
+	for _, securityRequirement := range doc.Security {
+		validaters = append(validaters, securityRequirement)
+	}
+	for _, t := range doc.Tags {
+		validaters = append(validaters, t)
+	}
+	if doc.ExternalDocs != nil {
+		validaters = append(validaters, doc.ExternalDocs)
+	}
+	return validateAll(validaters)
 }
