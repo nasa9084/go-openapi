@@ -55,7 +55,7 @@ func validateOASVersion(version string) error {
 	if version == "" {
 		return ErrRequired{Target: "openapi"}
 	}
-	splited := strings.Split(version, ".")
+	splited := strings.FieldsFunc(version, func(r rune) bool { return r == '.' })
 	if len(splited) != 3 {
 		return ErrFormatInvalid{Target: "openapi version", Format: "X.Y.Z"}
 	}
