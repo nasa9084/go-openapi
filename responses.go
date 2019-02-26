@@ -29,10 +29,10 @@ func validateStatusCode(statusStr string) error {
 	}
 	statusInt, err := strconv.Atoi(statusStr)
 	if err != nil {
-		return InvalidStatusCodeError
+		return ErrInvalidStatusCode
 	}
 	if statusInt < 100 || 599 < statusInt {
-		return InvalidStatusCodeError
+		return ErrInvalidStatusCode
 	}
 	return nil
 }

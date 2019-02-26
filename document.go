@@ -50,7 +50,7 @@ func (doc Document) validateOASVersion() error {
 	if major == 3 && 0 <= minor {
 		return nil
 	}
-	return UnsupportedVersionError
+	return ErrUnsupportedVersion
 }
 
 func (doc Document) validateRequiredFields() error {

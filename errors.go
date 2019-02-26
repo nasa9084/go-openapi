@@ -20,8 +20,8 @@ func (fe ErrFormatInvalid) Error() string {
 
 // central error variables relating format
 var (
-	MapKeyFormatError = ErrFormatInvalid{Target: "map key"}
-	PathFormatError   = ErrFormatInvalid{Target: "path"}
+	ErrMapKeyFormat = ErrFormatInvalid{Target: "map key"}
+	ErrPathFormat   = ErrFormatInvalid{Target: "path"}
 )
 
 // ErrRequired is returned when missing some required parameter
@@ -40,24 +40,24 @@ func (ge errString) Error() string {
 }
 
 const (
-	// UnsupportedVersionError is returned when the openapi version
+	// ErrUnsupportedVersion is returned when the openapi version
 	// is unsupported by this package.
-	UnsupportedVersionError errString = "the OAS version is not supported"
-	// InvalidFlowTypeError is returned when the OAuth flow type is invalid
+	ErrUnsupportedVersion errString = "the OAS version is not supported"
+	// ErrInvalidFlowType is returned when the OAuth flow type is invalid
 	// or not set to the object.
-	InvalidFlowTypeError errString = "invalid flow type"
-	// RequiredMustTrueError is returned when the value of parameter.required is
+	ErrInvalidFlowType errString = "invalid flow type"
+	// ErrRequiredMustTrue is returned when the value of parameter.required is
 	// false when parameter.in is path.
-	RequiredMustTrueError errString = "required must be true if parameter.in is path"
-	// AllowEmptyValueNotValidError is returned when allowEmptyValue is specified
+	ErrRequiredMustTrue errString = "required must be true if parameter.in is path"
+	// ErrAllowEmptyValueNotValid is returned when allowEmptyValue is specified
 	// but parameter.in is not query.
-	AllowEmptyValueNotValidError errString = "allowEmptyValue is valid only for query parameters"
-	// InvalidStatusCodeError is returned when specified status code is not
+	ErrAllowEmptyValueNotValid errString = "allowEmptyValue is valid only for query parameters"
+	// ErrInvalidStatusCode is returned when specified status code is not
 	// valid as HTTP status code.
-	InvalidStatusCodeError errString = "status code is invalid"
-	// MissingRootDocumentError is returned when validating securityRequirement
+	ErrInvalidStatusCode errString = "status code is invalid"
+	// ErrMissingRootDocument is returned when validating securityRequirement
 	// object but root document is not set.
-	MissingRootDocumentError errString = "missing root document for security requirement"
+	ErrMissingRootDocument errString = "missing root document for security requirement"
 )
 
 type errTooManyContentEntry struct {

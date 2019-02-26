@@ -36,11 +36,11 @@ func TestParameterValidate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", openapi.Parameter{}, openapi.ErrRequired{Target: "parameter.name"}},
 		{"withName", openapi.Parameter{Name: "foo"}, openapi.ErrRequired{Target: "parameter.in"}},
-		{"withName-in", openapi.Parameter{Name: "foo", In: "path"}, openapi.RequiredMustTrueError},
+		{"withName-in", openapi.Parameter{Name: "foo", In: "path"}, openapi.ErrRequiredMustTrue},
 		{"withName-invalidIn", openapi.Parameter{Name: "foo", In: "bar"}, openapi.ErrMustOneOf{Object: "parameter.in", ValidValues: openapi.ParameterInList}},
-		{"withName-inPath-notRequired", openapi.Parameter{Name: "foo", In: "path"}, openapi.RequiredMustTrueError},
+		{"withName-inPath-notRequired", openapi.Parameter{Name: "foo", In: "path"}, openapi.ErrRequiredMustTrue},
 		{"withName-inPath-required", openapi.Parameter{Name: "foo", In: "path", Required: true}, nil},
-		{"allowEmptyValue-notQuery", openapi.Parameter{Name: "foo", In: "header", AllowEmptyValue: true}, openapi.AllowEmptyValueNotValidError},
+		{"allowEmptyValue-notQuery", openapi.Parameter{Name: "foo", In: "header", AllowEmptyValue: true}, openapi.ErrAllowEmptyValueNotValid},
 		{"allowEmptyValue-query", openapi.Parameter{Name: "foo", In: "query", AllowEmptyValue: true}, nil},
 	}
 	testValidater(t, candidates)

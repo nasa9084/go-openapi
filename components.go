@@ -28,7 +28,7 @@ func validateComponentKeys(components Components) error {
 	keys := reduceComponentKeys(components)
 	for _, k := range keys {
 		if !mapKeyRegexp.MatchString(k) {
-			return MapKeyFormatError
+			return ErrMapKeyFormat
 		}
 	}
 	return nil

@@ -35,10 +35,10 @@ func (parameter Parameter) Validate() error {
 		return ErrMustOneOf{Object: "parameter.in", ValidValues: ParameterInList}
 	}
 	if parameter.In == InPath && !parameter.Required {
-		return RequiredMustTrueError
+		return ErrRequiredMustTrue
 	}
 	if parameter.In != InQuery && parameter.AllowEmptyValue {
-		return AllowEmptyValueNotValidError
+		return ErrAllowEmptyValueNotValid
 	}
 	if len(parameter.Content) > 1 {
 		return ErrTooManyParameterContent

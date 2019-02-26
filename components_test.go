@@ -22,7 +22,7 @@ func TestComponentsValidateKeys(t *testing.T) {
 		err   error
 	}{
 		{"empty", openapi.Components{}, nil},
-		{"invalidKey", openapi.Components{Parameters: map[string]*openapi.Parameter{"@": &openapi.Parameter{}}}, openapi.MapKeyFormatError},
+		{"invalidKey", openapi.Components{Parameters: map[string]*openapi.Parameter{"@": &openapi.Parameter{}}}, openapi.ErrMapKeyFormat},
 		{"validKey", openapi.Components{Parameters: map[string]*openapi.Parameter{"foo": &openapi.Parameter{}}}, nil},
 	}
 	for _, c := range candidates {

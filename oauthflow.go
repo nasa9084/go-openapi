@@ -45,7 +45,7 @@ func (oauthFlow *OAuthFlow) SetFlowType(typ string) {
 // Validate the values of OAuthFlow object.
 func (oauthFlow OAuthFlow) Validate() error {
 	if _, ok := validFlowTypes[oauthFlow.flowType]; !ok {
-		return InvalidFlowTypeError
+		return ErrInvalidFlowType
 	}
 	if _, ok := requireAuthorizationURL[oauthFlow.flowType]; ok {
 		if err := mustURL("oauthFlow.authorizationUrl", oauthFlow.AuthorizationURL); err != nil {

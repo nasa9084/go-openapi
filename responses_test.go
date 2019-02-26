@@ -10,7 +10,7 @@ func TestResponsesValidate(t *testing.T) {
 	validResp := &openapi.Response{Description: "foobar"}
 	candidates := []candidate{
 		{"empty", openapi.Responses{}, nil},
-		{"hasInvalidStatus", openapi.Responses{"foobar": validResp}, openapi.InvalidStatusCodeError},
+		{"hasInvalidStatus", openapi.Responses{"foobar": validResp}, openapi.ErrInvalidStatusCode},
 		{"hasDefaultStatus", openapi.Responses{"default": validResp}, nil},
 		{"hasWildcardStatus", openapi.Responses{"2XX": validResp}, nil},
 		{"hasOKStatus", openapi.Responses{"200": validResp}, nil},

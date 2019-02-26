@@ -77,9 +77,9 @@ func generateCandidates(base []candidateBase) []candidate {
 	candidates := []candidate{}
 	for _, c := range base {
 		c.in.SetFlowType("")
-		candidates = append(candidates, candidate{fmt.Sprintf("%s-empty", c.label), c.in, openapi.InvalidFlowTypeError})
+		candidates = append(candidates, candidate{fmt.Sprintf("%s-empty", c.label), c.in, openapi.ErrInvalidFlowType})
 		c.in.SetFlowType("foobar")
-		candidates = append(candidates, candidate{fmt.Sprintf("%s-wrongtype", c.label), c.in, openapi.InvalidFlowTypeError})
+		candidates = append(candidates, candidate{fmt.Sprintf("%s-wrongtype", c.label), c.in, openapi.ErrInvalidFlowType})
 		for i, flowType := range flowTypes {
 			c.in.SetFlowType(flowType)
 			candidates = append(candidates, candidate{fmt.Sprintf("%s-%s", c.label, flowType), c.in, c.err[i]})

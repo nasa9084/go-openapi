@@ -33,7 +33,7 @@ func testPathItemDuplicate(t *testing.T) {
 func testPaths(t *testing.T) {
 	candidates := []candidate{
 		{"abs path", getPaths("/foo/bar", "foo", "bar"), nil},
-		{"rel path", getPaths("foo/bar", "foo", "bar"), openapi.PathFormatError},
+		{"rel path", getPaths("foo/bar", "foo", "bar"), openapi.ErrPathFormat},
 	}
 	testValidater(t, candidates)
 }

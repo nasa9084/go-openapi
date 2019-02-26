@@ -13,7 +13,7 @@ type Paths map[string]*PathItem
 func (paths Paths) Validate() error {
 	for path, pathItem := range paths {
 		if !strings.HasPrefix(path, "/") {
-			return PathFormatError
+			return ErrPathFormat
 		}
 		if err := pathItem.Validate(); err != nil {
 			return err

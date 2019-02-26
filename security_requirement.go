@@ -43,7 +43,7 @@ func (secReq SecurityRequirement) Validate() error {
 		return nil
 	}
 	if secReq.document == nil {
-		return MissingRootDocumentError
+		return ErrMissingRootDocument
 	}
 	components := secReq.document.Components
 	if components == nil {
