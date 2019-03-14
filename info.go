@@ -18,26 +18,35 @@ type Info struct {
 
 // Validate the values of Info object.
 func (info Info) Validate() error {
-	if info.Title == "" {
-		return ErrRequired{"info.title"}
+	if err := info.validateRequiredFields(); err != nil {
+		return err
 	}
+	return info.validateFields()
+}
+
+func (info Info) validateRequiredFields() error {
+	if info.Title == "" {
+		return ErrRequired{Target: "info.title"}
+	}
+	if info.Version == "" {
+		return ErrRequired{Target: "info.version"}
+	}
+	return nil
+}
+
+func (info Info) validateFields() error {
 	if info.TermsOfService != "" {
 		if _, err := url.ParseRequestURI(info.TermsOfService); err != nil {
 			return ErrFormatInvalid{Target: "info.termsOfService", Format: "URL"}
 		}
 	}
-	validaters := []validater{}
+
+	var validaters []validater
 	if info.Contact != nil {
 		validaters = append(validaters, info.Contact)
 	}
 	if info.License != nil {
 		validaters = append(validaters, info.License)
 	}
-	if err := validateAll(validaters); err != nil {
-		return err
-	}
-	if info.Version == "" {
-		return ErrRequired{Target: "info.version"}
-	}
-	return nil
+	return validateAll(validaters)
 }

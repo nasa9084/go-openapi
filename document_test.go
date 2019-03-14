@@ -42,7 +42,7 @@ func TestDocumentValidate(t *testing.T) {
 	testValidater(t, candidates)
 }
 
-func TestIsSupportedVersion(t *testing.T) {
+func TestOASVersion(t *testing.T) {
 	candidates := []struct {
 		label string
 		in    string

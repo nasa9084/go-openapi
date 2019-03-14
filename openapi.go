@@ -33,6 +33,11 @@ func Load(b []byte) (*Document, error) {
 	if err := yaml.Unmarshal(b, doc); err != nil {
 		return nil, err
 	}
+	// If the servers property is not provided, or is an empty array, the default value would be a Server Object with a url value of /.
+	// see: https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#oasObject
+	if doc.Servers == nil || len(doc.Servers) == 0 {
+		doc.Servers = []*Server{&Server{URL: "/"}}
+	}
 	for i := range doc.Security {
 		doc.Security[i].setDocument(doc)
 	}

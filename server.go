@@ -18,8 +18,8 @@ type Server struct {
 
 // Validate the values of Server object.
 func (server Server) Validate() error {
-	if server.URL == "" {
-		return ErrRequired{Target: "server.url"}
+	if err := server.validateRequiredFields(); err != nil {
+		return err
 	}
 	// replace template variable with placeholder to validate the replaced string
 	// is valid URL or not
@@ -33,4 +33,11 @@ func (server Server) Validate() error {
 		validaters = append(validaters, sv)
 	}
 	return validateAll(validaters)
+}
+
+func (server Server) validateRequiredFields() error {
+	if server.URL == "" {
+		return ErrRequired{Target: "server.url"}
+	}
+	return nil
 }
