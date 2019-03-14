@@ -550,6 +550,11 @@ func testCallBackExample(t *testing.T) {
 			Title:   "Callback Example",
 			Version: "1.0.0",
 		},
+		Servers: []*openapi.Server{
+			&openapi.Server{
+				URL: "/",
+			},
+		},
 	}
 	expectPaths := openapi.Paths{
 		"/streams": &openapi.PathItem{
@@ -649,6 +654,11 @@ func testLinkExample(t *testing.T) {
 		Info: &openapi.Info{
 			Title:   "Link Example",
 			Version: "1.0.0",
+		},
+		Servers: []*openapi.Server{
+			&openapi.Server{
+				URL: "/",
+			},
 		},
 	}
 	expectPaths := openapi.Paths{
@@ -986,6 +996,11 @@ func testAPIWithExample(t *testing.T) {
 		Info: &openapi.Info{
 			Title:   "Simple API overview",
 			Version: "v2",
+		},
+		Servers: []*openapi.Server{
+			&openapi.Server{
+				URL: "/",
+			},
 		},
 	}
 	expectPaths := openapi.Paths{
