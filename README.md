@@ -53,17 +53,17 @@ func main() {
       * [x] RequestBody
       * [x] Responses
       * [x] Response
-      * [ ] Callbacks
-      * [ ] Callback
+      * [x] Callbacks
+      * [x] Callback
       * [ ] Schema
-      * [ ] Example
+      * [x] Example
       * [ ] MediaType
       * [ ] Header
       * [ ] Link
       * [ ] Encoding
       * [x] Discriminator
       * [x] XML
-      * [ ] Components
+      * [x] Components
       * [x] SecurityScheme
       * [x] OAuthFlows
       * [x] OAuthFlow
