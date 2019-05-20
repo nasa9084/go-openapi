@@ -2,6 +2,7 @@ package openapi_test
 
 import (
 	"reflect"
+	"strconv"
 	"testing"
 
 	openapi "github.com/nasa9084/go-openapi"
@@ -56,11 +57,13 @@ func TestPathsGetOperationByID(t *testing.T) {
 		{target, "foo", nil},
 		{target, "bar", &openapi.Operation{OperationID: "bar"}},
 	}
-	for _, c := range candidates {
-		op := c.paths.GetOperationByID(c.opID)
-		if !reflect.DeepEqual(op, c.expect) {
-			t.Errorf("%+v != %+v", op, c.expect)
-		}
+	for i, c := range candidates {
+		t.Run(strconv.Itoa(i)+"/"+c.opID, func(t *testing.T) {
+			op := c.paths.GetOperationByID(c.opID)
+			if !reflect.DeepEqual(op, c.expect) {
+				t.Errorf("%+v != %+v", op, c.expect)
+			}
+		})
 	}
 }
 

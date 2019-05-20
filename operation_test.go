@@ -2,6 +2,7 @@ package openapi_test
 
 import (
 	"reflect"
+	"strconv"
 	"testing"
 
 	openapi "github.com/nasa9084/go-openapi"
@@ -35,23 +36,25 @@ func TestSuccessResponse(t *testing.T) {
 		{"have2XX", &openapi.Operation{Responses: openapi.Responses{"2XX": &openapi.Response{}}}, &openapi.Response{}, 0, true},
 		{"have1XX", &openapi.Operation{Responses: openapi.Responses{"1XX": &openapi.Response{}}}, nil, 0, false},
 	}
-	for _, c := range candidates {
-		resp, status, ok := c.in.SuccessResponse()
-		if c.resp != nil && resp == nil {
-			t.Error("resp should not be nil")
-			return
-		}
-		if !reflect.DeepEqual(c.resp, resp) {
-			t.Errorf("%+v != %+v", c.resp, resp)
-			return
-		}
-		if status != c.status {
-			t.Errorf("%d != %d", status, c.status)
-			return
-		}
-		if ok != c.ok {
-			t.Errorf("%t != %t", ok, c.ok)
-			return
-		}
+	for i, c := range candidates {
+		t.Run(strconv.Itoa(i)+"/"+c.label, func(t *testing.T) {
+			resp, status, ok := c.in.SuccessResponse()
+			if c.resp != nil && resp == nil {
+				t.Error("resp should not be nil")
+				return
+			}
+			if !reflect.DeepEqual(c.resp, resp) {
+				t.Errorf("%+v != %+v", c.resp, resp)
+				return
+			}
+			if status != c.status {
+				t.Errorf("%d != %d", status, c.status)
+				return
+			}
+			if ok != c.ok {
+				t.Errorf("%t != %t", ok, c.ok)
+				return
+			}
+		})
 	}
 }

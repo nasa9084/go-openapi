@@ -1,6 +1,7 @@
 package openapi_test
 
 import (
+	"strconv"
 	"testing"
 
 	openapi "github.com/nasa9084/go-openapi"
@@ -31,18 +32,20 @@ func TestGetOperationByMethod(t *testing.T) {
 		{"Delete", "delete", false},
 	}
 
-	for _, c := range candidates {
-		op := pathItem.GetOperationByMethod(c.method)
-		if !c.isNil && op == nil {
-			t.Errorf("operation should be returned: %s", c.method)
-			continue
-		}
-		if c.isNil {
-			continue
-		}
-		if op.OperationID != c.opID {
-			t.Errorf("%s != %s", op.OperationID, c.opID)
-		}
+	for i, c := range candidates {
+		t.Run(strconv.Itoa(i)+"/"+c.method+"."+c.opID, func(t *testing.T) {
+			op := pathItem.GetOperationByMethod(c.method)
+			if !c.isNil && op == nil {
+				t.Errorf("operation should be returned: %s", c.method)
+				return
+			}
+			if c.isNil {
+				return
+			}
+			if op.OperationID != c.opID {
+				t.Errorf("%s != %s", op.OperationID, c.opID)
+			}
+		})
 	}
 }
 

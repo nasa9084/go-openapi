@@ -1,6 +1,7 @@
 package openapi_test
 
 import (
+	"strconv"
 	"testing"
 
 	openapi "github.com/nasa9084/go-openapi"
@@ -33,13 +34,15 @@ func TestValidateStatusCode(t *testing.T) {
 		{"wildcard", "2XX", false},
 		{"invalid", "foobar", true},
 	}
-	for _, c := range candidates {
-		if err := openapi.ValidateStatusCode(c.in); (err != nil) != c.hasErr {
-			if c.hasErr {
-				t.Error("error should be occurred, but not")
-				continue
+	for i, c := range candidates {
+		t.Run(strconv.Itoa(i)+"/"+c.label, func(t *testing.T) {
+			if err := openapi.ValidateStatusCode(c.in); (err != nil) != c.hasErr {
+				if c.hasErr {
+					t.Error("error should be occurred, but not")
+					return
+				}
+				t.Errorf("error should not be occurred, but occurred: %s", err)
 			}
-			t.Errorf("error should not be occurred, but occurred: %s", err)
-		}
+		})
 	}
 }

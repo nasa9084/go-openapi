@@ -3,6 +3,7 @@ package openapi_test
 import (
 	"errors"
 	"reflect"
+	"strconv"
 	"testing"
 
 	openapi "github.com/nasa9084/go-openapi"
@@ -21,10 +22,12 @@ type candidate struct {
 
 func testValidater(t *testing.T, candidates []candidate) {
 	t.Helper()
-	for _, c := range candidates {
-		if err := c.in.Validate(); !reflect.DeepEqual(err, c.err) {
-			t.Errorf("error should be %s, but %s", c.err, err)
-		}
+	for i, c := range candidates {
+		t.Run(strconv.Itoa(i)+"/"+c.label, func(t *testing.T) {
+			if err := c.in.Validate(); !reflect.DeepEqual(err, c.err) {
+				t.Errorf("error should be %s, but %s", c.err, err)
+			}
+		})
 	}
 }
 
@@ -51,11 +54,12 @@ func TestValidateAll(t *testing.T) {
 		{"have invalid", []openapi.Validater{valid, invalid, valid}, true},
 		{"have nil", []openapi.Validater{valid, nil, valid, valid}, false},
 	}
-	for _, c := range candidates {
-		if err := openapi.ValidateAll(c.in); (err != nil) != c.hasErr {
-			t.Log(c.label)
-			t.Errorf("error: %s", err)
-		}
+	for i, c := range candidates {
+		t.Run(strconv.Itoa(i)+"/"+c.label, func(t *testing.T) {
+			if err := openapi.ValidateAll(c.in); (err != nil) != c.hasErr {
+				t.Errorf("error: %s", err)
+			}
+		})
 	}
 }
 
@@ -71,15 +75,16 @@ func TestMustURL(t *testing.T) {
 		{"absolute path", "/foo/bar/baz", false},
 		{"plain string", "foobarbaz", true},
 	}
-	for _, c := range candidates {
-		if err := openapi.MustURL(c.label, c.in); (err != nil) != c.hasErr {
-			t.Logf("error occured at %s", c.label)
-			if c.hasErr {
-				t.Error("error should occured, but not")
+	for i, c := range candidates {
+		t.Run(strconv.Itoa(i)+"/"+c.label, func(t *testing.T) {
+			if err := openapi.MustURL(c.label, c.in); (err != nil) != c.hasErr {
+				if c.hasErr {
+					t.Error("error should occured, but not")
+					return
+				}
+				t.Error("error should not occurred, but occurred")
 				return
 			}
-			t.Error("error should not occurred, but occurred")
-			return
-		}
+		})
 	}
 }
