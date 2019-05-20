@@ -8,7 +8,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-func TestServerValidate(t *testing.T) {
+func TestServer_Validate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", openapi.Server{}, openapi.ErrRequired{Target: "server.url"}},
 		{"invalidURL", openapi.Server{URL: "foobar%"}, openapi.ErrFormatInvalid{Target: "server.url", Format: "URL"}},

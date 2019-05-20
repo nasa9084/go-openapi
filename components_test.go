@@ -9,14 +9,14 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-func TestComponents(t *testing.T) {
+func TestComponents_Validate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", openapi.Components{}, nil},
 	}
 	testValidater(t, candidates)
 }
 
-func TestComponentsValidateKeys(t *testing.T) {
+func TestComponents_ValidateComponentKeys(t *testing.T) {
 	candidates := []struct {
 		label string
 		in    openapi.Components

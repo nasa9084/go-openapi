@@ -6,7 +6,7 @@ import (
 	openapi "github.com/nasa9084/go-openapi"
 )
 
-func TestRequestBodyValidate(t *testing.T) {
+func TestRequestBody_Validate(t *testing.T) {
 	contentRequiredError := openapi.ErrRequired{Target: "requestBody.content"}
 	candidates := []candidate{
 		{"empty", openapi.RequestBody{}, contentRequiredError},

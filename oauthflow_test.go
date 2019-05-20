@@ -13,7 +13,7 @@ type candidateBase struct {
 	err   [4]error
 }
 
-func TestOAuthFlowValidate(t *testing.T) {
+func TestOAuthFlow_Validate(t *testing.T) {
 	mockScopes := map[string]string{"foo": "bar"}
 
 	empty := openapi.OAuthFlow{}

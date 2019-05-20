@@ -7,7 +7,7 @@ import (
 	openapi "github.com/nasa9084/go-openapi"
 )
 
-func TestResponsesValidate(t *testing.T) {
+func TestResponses_Validate(t *testing.T) {
 	validResp := &openapi.Response{Description: "foobar"}
 	candidates := []candidate{
 		{"empty", openapi.Responses{}, nil},

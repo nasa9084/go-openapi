@@ -8,7 +8,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-func TestInfoValidate(t *testing.T) {
+func TestInfo_Validate(t *testing.T) {
 	candidates := []candidate{
 		{"empty",
 			openapi.Info{},

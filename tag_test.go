@@ -6,7 +6,7 @@ import (
 	openapi "github.com/nasa9084/go-openapi"
 )
 
-func TestTagValidate(t *testing.T) {
+func TestTag_Validate(t *testing.T) {
 	nameRequiredError := openapi.ErrRequired{Target: "tag.name"}
 	candidates := []candidate{
 		{"empty", openapi.Tag{}, nameRequiredError},

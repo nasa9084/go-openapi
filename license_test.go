@@ -6,7 +6,7 @@ import (
 	openapi "github.com/nasa9084/go-openapi"
 )
 
-func TestLicenseValidate(t *testing.T) {
+func TestLicense_Validate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", openapi.License{}, openapi.ErrRequired{Target: "license.name"}},
 		{"withName", openapi.License{Name: "foobar"}, nil},

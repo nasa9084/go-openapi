@@ -6,7 +6,7 @@ import (
 	openapi "github.com/nasa9084/go-openapi"
 )
 
-func TestHeaderValidate(t *testing.T) {
+func TestHeader_Validate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", openapi.Header{}, nil},
 		{"2 contents", openapi.Header{

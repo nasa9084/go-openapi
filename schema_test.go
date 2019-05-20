@@ -6,7 +6,7 @@ import (
 	openapi "github.com/nasa9084/go-openapi"
 )
 
-func TestSchemaValidate(t *testing.T) {
+func TestSchema_Validate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", openapi.Schema{}, nil},
 	}

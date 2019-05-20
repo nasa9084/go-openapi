@@ -6,11 +6,7 @@ import (
 	openapi "github.com/nasa9084/go-openapi"
 )
 
-func TestSecurityScheme(t *testing.T) {
-	t.Run("validate", testSecuritySchemeValidate)
-}
-
-func testSecuritySchemeValidate(t *testing.T) {
+func TestSecurityScheme_Validate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", openapi.SecurityScheme{}, openapi.ErrRequired{Target: "securityScheme.type"}},
 		{"apiKey/noName", openapi.SecurityScheme{Type: "apiKey", In: "query"}, openapi.ErrRequired{Target: "securityScheme.name"}},

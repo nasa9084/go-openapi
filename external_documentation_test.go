@@ -6,7 +6,7 @@ import (
 	openapi "github.com/nasa9084/go-openapi"
 )
 
-func TestExternalDocumentationValidate(t *testing.T) {
+func TestExternalDocumentation_Validate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", openapi.ExternalDocumentation{}, openapi.ErrRequired{Target: "externalDocumentation.url"}},
 		{"invalidURL", openapi.ExternalDocumentation{URL: "foobar"}, openapi.ErrFormatInvalid{Target: "externalDocumentation.url", Format: "URL"}},

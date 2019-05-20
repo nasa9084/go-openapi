@@ -7,7 +7,7 @@ import (
 	openapi "github.com/nasa9084/go-openapi"
 )
 
-func TestDocumentValidate(t *testing.T) {
+func TestDocument_Validate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", openapi.Document{}, openapi.ErrRequired{Target: "openapi"}},
 		{"withInvalidVersion",

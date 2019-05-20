@@ -8,7 +8,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-func TestContactValidate(t *testing.T) {
+func TestContact_Validate(t *testing.T) {
 	urlRequiredError := openapi.ErrRequired{Target: "contact.url"}
 	candidates := []candidate{
 		{"empty", openapi.Contact{}, urlRequiredError},

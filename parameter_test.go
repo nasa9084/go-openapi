@@ -32,7 +32,7 @@ func testHasDuplicatedParameterTrue(t *testing.T) {
 	}
 }
 
-func TestParameterValidate(t *testing.T) {
+func TestParameter_Validate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", openapi.Parameter{}, openapi.ErrRequired{Target: "parameter.name"}},
 		{"withName", openapi.Parameter{Name: "foo"}, openapi.ErrRequired{Target: "parameter.in"}},

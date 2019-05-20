@@ -7,7 +7,7 @@ import (
 	openapi "github.com/nasa9084/go-openapi"
 )
 
-func TestGetOperationByMethod(t *testing.T) {
+func TestPathItem_GetOperationByMethod(t *testing.T) {
 	pathItem := openapi.PathItem{
 		Get:     &openapi.Operation{OperationID: "get"},
 		Put:     &openapi.Operation{OperationID: "put"},
@@ -49,7 +49,7 @@ func TestGetOperationByMethod(t *testing.T) {
 	}
 }
 
-func TestOperations(t *testing.T) {
+func TestPathItem_Operations(t *testing.T) {
 	pathItem := openapi.PathItem{
 		Get:     &openapi.Operation{OperationID: "get"},
 		Put:     &openapi.Operation{OperationID: "put"},

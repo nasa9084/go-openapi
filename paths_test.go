@@ -9,7 +9,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-func TestPathsValidate(t *testing.T) {
+func TestPaths_Validate(t *testing.T) {
 	t.Run("duplicate pathItem", testPathItemDuplicate)
 	t.Run("test path", testPaths)
 }
@@ -39,7 +39,7 @@ func testPaths(t *testing.T) {
 	testValidater(t, candidates)
 }
 
-func TestPathsGetOperationByID(t *testing.T) {
+func TestPaths_GetOperationByID(t *testing.T) {
 	target := openapi.Paths{
 		"/": &openapi.PathItem{
 			Get: &openapi.Operation{OperationID: "bar"},

@@ -9,14 +9,14 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-func TestSecurityRequirementValidate(t *testing.T) {
+func TestSecurityRequirement_Validate(t *testing.T) {
 	candidates := []candidate{
 		{"empty", openapi.SecurityRequirement{}, nil},
 	}
 	testValidater(t, candidates)
 }
 
-func TestSecurityRequirementUnmarshalYAML(t *testing.T) {
+func TestSecurityRequirement_UnmarshalYAML(t *testing.T) {
 	yml := `apiKey: []`
 	secReq := openapi.SecurityRequirement{}
 	if err := yaml.Unmarshal([]byte(yml), &secReq); err != nil {
@@ -52,7 +52,7 @@ func TestSecurityRequirementUnmarshalYAML(t *testing.T) {
 	}
 }
 
-func TestSecurityRequirementUnmarshalJSON(t *testing.T) {
+func TestSecurityRequirement_UnmarshalJSON(t *testing.T) {
 	// empty list case
 	jsn := `{"apiKey": []}`
 	secReq := openapi.SecurityRequirement{}

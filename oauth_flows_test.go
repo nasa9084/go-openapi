@@ -6,7 +6,7 @@ import (
 	openapi "github.com/nasa9084/go-openapi"
 )
 
-func TestOAuthFlowsValidate(t *testing.T) {
+func TestOAuthFlows_Validate(t *testing.T) {
 	authorizationURLRequiredError := openapi.ErrRequired{Target: "oauthFlow.authorizationUrl"}
 	tokenURLRequiredError := openapi.ErrRequired{Target: "oauthFlow.tokenUrl"}
 	candidates := []candidate{
