@@ -92,6 +92,8 @@ var (
 	// ErrParameterDuplicated is returned when some parameters are duplicated
 	// but cannot be duplicated.
 	ErrParameterDuplicated = errDuplicated{target: "parameters"}
+	// ErrPathsDuplicated is returned when some paths are duplicated.
+	ErrPathsDuplicated = errDuplicated{target: "paths"}
 )
 
 // ErrNotDeclared is returned when the securityScheme name is
