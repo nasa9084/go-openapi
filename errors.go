@@ -20,8 +20,9 @@ func (fe ErrFormatInvalid) Error() string {
 
 // central error variables relating format
 var (
-	ErrMapKeyFormat = ErrFormatInvalid{Target: "map key"}
-	ErrPathFormat   = ErrFormatInvalid{Target: "path"}
+	ErrMapKeyFormat      = ErrFormatInvalid{Target: "map key"}
+	ErrPathFormat        = ErrFormatInvalid{Target: "path"}
+	ErrRuntimeExprFormat = ErrFormatInvalid{Target: "key", Format: "RuntimeExpression"}
 )
 
 // ErrRequired is returned when missing some required parameter
