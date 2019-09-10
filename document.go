@@ -1,6 +1,7 @@
 package openapi
 
 import (
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -86,4 +87,31 @@ func (doc Document) validateFields() error {
 		validaters = append(validaters, doc.ExternalDocs)
 	}
 	return validateAll(validaters)
+}
+
+type WalkFunc func(doc *Document, method, path string, pathItem *PathItem, op *Operation) error
+
+func (doc *Document) Walk(walkFn WalkFunc) error {
+	var paths []string
+	for path := range doc.Paths {
+		paths = append(paths, path)
+	}
+	sort.Strings(paths)
+
+	for _, path := range paths {
+		pathItem := doc.Paths[path]
+		var methods []string
+		for method := range pathItem.Operations() {
+			methods = append(methods, method)
+		}
+		sort.Strings(methods)
+
+		for _, method := range methods {
+			operation := pathItem.GetOperationByMethod(method)
+			if err := walkFn(doc, method, path, pathItem, operation); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
