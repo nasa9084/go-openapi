@@ -2,6 +2,7 @@ package openapi
 
 import (
 	"encoding/json"
+	"sort"
 )
 
 // codebeat:disable[TOO_MANY_IVARS]
@@ -35,6 +36,17 @@ func (secReq SecurityRequirement) Get(name string) []string {
 		return nil
 	}
 	return val
+}
+
+// Names returns the keys of security requirements.
+// The returned slice is sorted.
+func (secReq SecurityRequirement) Names() []string {
+	ret := make([]string, 0, len(secReq.mp))
+	for k := range secReq.mp {
+		ret = append(ret, k)
+	}
+	sort.Strings(ret)
+	return ret
 }
 
 // Validate the values of SecurityRequirement object.
