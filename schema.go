@@ -1,5 +1,10 @@
 package openapi
 
+import (
+	"fmt"
+	"strings"
+)
+
 // codebeat:disable[TOO_MANY_IVARS]
 
 // Schema Object
@@ -42,6 +47,8 @@ type Schema struct {
 	Deprecated    bool
 
 	Ref string `yaml:"$ref"`
+
+	Extension map[string]interface{} `yaml:",inline"`
 }
 
 // Validate the values of Schema object.
@@ -76,6 +83,11 @@ func (schema Schema) Validate() error {
 	}
 	if e, ok := schema.Example.(validater); ok {
 		validaters = append(validaters, e)
+	}
+	for k := range schema.Extension {
+		if !strings.HasPrefix(k, "x-") {
+			return fmt.Errorf("unknown field: %s", k)
+		}
 	}
 	return validateAll(validaters)
 }
