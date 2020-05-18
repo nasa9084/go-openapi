@@ -27,7 +27,7 @@ func TestResolve(t *testing.T) {
 			callbacks: map[string]*Callback{
 				"FooCallback": {
 					callback: map[string]*PathItem{
-						"/v1": &PathItem{
+						"/v1": {
 							summary: "FooCallbackPathItem",
 						},
 					},
@@ -87,7 +87,7 @@ func TestResolve(t *testing.T) {
 			ref: "#/components/callbacks/FooCallback",
 			want: &Callback{
 				callback: map[string]*PathItem{
-					"/v1": &PathItem{
+					"/v1": {
 						summary: "FooCallbackPathItem",
 					},
 				},
