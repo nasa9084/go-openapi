@@ -1,4 +1,4 @@
-//nolint:dupl,goconst
+//nolint:dupl,goconst,funlen
 package openapi
 
 import (
