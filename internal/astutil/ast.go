@@ -2,10 +2,73 @@ package astutil
 
 import (
 	"go/ast"
+	"go/parser"
+	"go/token"
 	"log"
 	"reflect"
 	"strings"
 )
+
+const openAPIObjectMarker = "//+object"
+
+func isNotOpenAPIObject(genDecl *ast.GenDecl) bool {
+	return genDecl.Doc == nil || len(genDecl.Doc.List) == 0 || genDecl.Doc.List[0].Text != openAPIObjectMarker
+}
+
+type OpenAPIObject struct {
+	Name   string
+	Fields []OpenAPIObjectField
+}
+
+type OpenAPIObjectField struct {
+	Name string
+	Type ast.Expr
+	Tags Tags
+}
+
+func ParseOpenAPIObjects(filename string) ([]OpenAPIObject, error) {
+	f, err := parser.ParseFile(token.NewFileSet(), filename, nil, parser.ParseComments)
+	if err != nil {
+		return nil, err
+	}
+	var ret []OpenAPIObject
+	for _, decl := range f.Decls {
+		genDecl, ok := decl.(*ast.GenDecl)
+		if !ok {
+			continue
+		}
+		if isNotOpenAPIObject(genDecl) {
+			continue
+		}
+
+		for _, spec := range genDecl.Specs {
+			typ, ok := spec.(*ast.TypeSpec)
+			if !ok {
+				continue
+			}
+
+			o := OpenAPIObject{
+				Name: typ.Name.Name,
+			}
+
+			st, ok := typ.Type.(*ast.StructType)
+			if !ok {
+				continue
+			}
+
+			for _, field := range st.Fields.List {
+				o.Fields = append(o.Fields, OpenAPIObjectField{
+					Name: field.Names[0].Name,
+					Type: field.Type,
+					Tags: ParseTags(field),
+				})
+			}
+
+			ret = append(ret, o)
+		}
+	}
+	return ret, nil
+}
 
 func TypeString(expr ast.Expr) string {
 	switch t := expr.(type) {
