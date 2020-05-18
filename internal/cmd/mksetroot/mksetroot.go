@@ -63,8 +63,7 @@ func mkSetRoot(g *generator.Generator, object astutil.OpenAPIObject) {
 				g.Printf("\nv.%s[k].setRoot(root)", field.Name)
 				g.Printf("\n}")
 			case *ast.ArrayType:
-				switch tv.Elt.(type) {
-				case *ast.StarExpr:
+				if _, ok := tv.Elt.(*ast.StarExpr); ok {
 					g.Printf("\nfor k := range v.%s {", field.Name)
 					g.Printf("\nfor i := range v.%s[k] {", field.Name)
 					g.Printf("\nv.%s[k][i].setRoot(root)", field.Name)
