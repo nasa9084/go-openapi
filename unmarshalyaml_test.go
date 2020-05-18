@@ -3506,29 +3506,32 @@ func TestCallbackExampleUnmarshalYAML(t *testing.T) {
 		t.Error("myWebhook is not found")
 		return
 	}
-	pathItem, ok := callback.callback["http://notificationServer.com?transactionId={$request.body#/id}&email={$request.body#/email}"]
+	const wantCBExpr = "http://notificationServer.com?transactionId={$request.body#/id}&email={$request.body#/email}"
+	pathItem, ok := callback.callback[wantCBExpr]
 	if !ok {
-		t.Error("myWebhook.http://notificationServer.com?transactionId={$request.body#/id}&email={$request.body#/email} is not found")
+		t.Errorf("myWebhook.%s is not found", wantCBExpr)
 		return
 	}
 	if pathItem.post.requestBody.description != "Callback payload" {
+		t.Errorf("unexpected myWebhook.%s.post.requestBody.description: %s", wantCBExpr, pathItem.post.requestBody.description)
+		return
 	}
 	mediaType, ok := pathItem.post.requestBody.content["application/json"]
 	if !ok {
-		t.Error("myWebhook.http://notificationServer.com?transactionId={$request.body#/id}&email={$request.body#/email}.post.requestBody.content.application/json is not found")
+		t.Errorf("myWebhook.%s.post.requestBody.content.application/json is not found", wantCBExpr)
 		return
 	}
 	if mediaType.schema.reference != "#/components/schemas/SomePayload" {
-		t.Errorf("unexpected myWebhook.http://notificationServer.com?transactionId={$request.body#/id}&email={$request.body#/email}.post.requestBody.schema.$ref: %s", mediaType.schema.reference)
+		t.Errorf("unexpected myWebhook.%s.post.requestBody.schema.$ref: %s", wantCBExpr, mediaType.schema.reference)
 		return
 	}
 	response, ok := pathItem.post.responses.responses["200"]
 	if !ok {
-		t.Error("myWebhook.http://notificationServer.com?transactionId={$request.body#/id}&email={$request.body#/email}.post.responses.200 is not found")
+		t.Errorf("myWebhook.%s.post.responses.200 is not found", wantCBExpr)
 		return
 	}
 	if response.description != "webhook successfully processed and no retries will be performed" {
-		t.Errorf("unexpected myWebhook.http://notificationServer.com?transactionId={$request.body#/id}&email={$request.body#/email}.post.responses.200.description: %s", response.description)
+		t.Errorf("unexpected myWebhook.%s.post.responses.200.description: %s", wantCBExpr, response.description)
 		return
 	}
 }
