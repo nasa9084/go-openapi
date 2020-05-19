@@ -70,6 +70,17 @@ func ParseOpenAPIObjects(filename string) ([]OpenAPIObject, error) {
 	return ret, nil
 }
 
+func (field OpenAPIObjectField) YAMLName() string {
+	if yamlName := field.Tags.Get("yaml"); yamlName != "" {
+		return yamlName
+	}
+	return field.Name
+}
+
+func (field OpenAPIObjectField) IsRequired() bool {
+	return field.Tags.Get("required") != ""
+}
+
 func TypeString(expr ast.Expr) string {
 	switch t := expr.(type) {
 	case *ast.Ident:
