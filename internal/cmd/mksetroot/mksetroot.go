@@ -20,6 +20,7 @@ func main() {
 	}
 
 	for _, object := range objects {
+		log.Printf("generate %s.setRoot()", object.Name)
 		mkSetRoot(g, object)
 	}
 	if err := g.Save("setroot_gen.go"); err != nil {
@@ -28,7 +29,6 @@ func main() {
 }
 
 func mkSetRoot(g *generator.Generator, object astutil.OpenAPIObject) {
-	log.Printf("generate %s.setRoot()", object.Name)
 	g.Printf("\n\nfunc (v *%s) setRoot(root *OpenAPI) {", object.Name)
 
 	for _, field := range object.Fields {
