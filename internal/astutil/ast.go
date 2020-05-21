@@ -81,6 +81,22 @@ func (field OpenAPIObjectField) IsRequired() bool {
 	return field.Tags.Get("required") != ""
 }
 
+func (field OpenAPIObjectField) TypeString() string {
+	return TypeString(field.Type)
+}
+
+func (field OpenAPIObjectField) IsStringType() bool {
+	if t, ok := field.Type.(*ast.Ident); ok {
+		return t.Name == "string"
+	}
+	return false
+}
+
+func (field OpenAPIObjectField) IsPointerType() bool {
+	_, ok := field.Type.(*ast.StarExpr)
+	return ok
+}
+
 func TypeString(expr ast.Expr) string {
 	switch t := expr.(type) {
 	case *ast.Ident:

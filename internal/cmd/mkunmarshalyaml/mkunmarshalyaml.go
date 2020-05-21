@@ -72,38 +72,15 @@ func mkUnmarshalYAML(g *generator.Generator, object astutil.OpenAPIObject) {
 		}
 
 		if isInline(field.Tags) {
-			noUnknown = generateInlineUnmarshal(g, field)
+			if generateInlineUnmarshal(g, field) {
+				// only overwrites when true
+				noUnknown = true
+			}
 			continue
 		}
 
 		g.Printf("\n\n")
-		if field.IsRequired() {
-			g.Printf("%sBytes, ok := proxy[\"%s\"]", field.Name, field.YAMLName())
-			g.Printf("\nif !ok {")
-			g.Printf("\nreturn ErrRequired(%s)", strconv.Quote(field.YAMLName()))
-			g.Printf("\n}")
-		} else {
-			g.Printf("if %sBytes, ok := proxy[\"%s\"]; ok {", field.Name, field.YAMLName())
-		}
-
-		typName := strings.TrimPrefix(astutil.TypeString(field.Type), "*")
-		g.Printf("\nvar %sVal %s", field.Name, typName)
-		if typName == "string" {
-			g.Printf("\nif err := yaml.Unmarshal(q(%sBytes), &%[1]sVal); err != nil {", field.Name)
-		} else {
-			g.Printf("\nif err := yaml.Unmarshal(%sBytes, &%[1]sVal); err != nil {", field.Name)
-		}
-		g.Printf("\nreturn err")
-		g.Printf("\n}")
-		g.Printf("\nv.%s = ", field.Name)
-		if _, ok := field.Type.(*ast.StarExpr); ok {
-			g.Printf("&")
-		}
-		g.Printf("%sVal", field.Name)
-		g.Printf("\ndelete(proxy, `%s`)", field.YAMLName())
-		if !field.IsRequired() {
-			g.Printf("\n}")
-		}
+		generateUnmarshalField(g, field)
 		generateFormatValidation(g, field)
 	}
 	if !noUnknown {
@@ -166,6 +143,33 @@ func generateInlineUnmarshal(g *generator.Generator, field astutil.OpenAPIObject
 	g.Printf("\nv.%s = %s", field.Name, field.Name)
 	g.Printf("\n}")
 	return noUnknown
+}
+
+func generateUnmarshalField(g *generator.Generator, field astutil.OpenAPIObjectField) {
+	if field.IsRequired() {
+		g.Printf("%sBytes, ok := proxy[\"%s\"]", field.Name, field.YAMLName())
+		g.Printf("\nif !ok {")
+		g.Printf("\nreturn ErrRequired(%s)", strconv.Quote(field.YAMLName()))
+		g.Printf("\n}")
+	} else {
+		g.Printf("if %sBytes, ok := proxy[\"%s\"]; ok {", field.Name, field.YAMLName())
+		defer g.Printf("\n}")
+	}
+
+	g.Printf("\nvar %sVal %s", field.Name, strings.TrimPrefix(field.TypeString(), "*"))
+	if field.IsStringType() {
+		g.Printf("\nif err := yaml.Unmarshal(q(%sBytes), &%[1]sVal); err != nil {", field.Name)
+	} else {
+		g.Printf("\nif err := yaml.Unmarshal(%sBytes, &%[1]sVal); err != nil {", field.Name)
+	}
+	g.Printf("\nreturn err")
+	g.Printf("\n}")
+	g.Printf("\nv.%s = ", field.Name)
+	if field.IsPointerType() {
+		g.Printf("&")
+	}
+	g.Printf("%sVal", field.Name)
+	g.Printf("\ndelete(proxy, `%s`)", field.YAMLName())
 }
 
 func generateFormatValidation(g *generator.Generator, field astutil.OpenAPIObjectField) {
