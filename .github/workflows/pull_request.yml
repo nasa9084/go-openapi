@@ -1,10 +1,11 @@
 ---
-name: pull_request
+name: reviewdog
 on: pull_request
 
 jobs:
-  review:
-    name: Review
+  golangci-lint:
+    if: github.event_name == 'pull_request'
+    name: golangci-lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
