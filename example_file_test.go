@@ -237,6 +237,7 @@ func TestCallbackExample(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	//nolint:lll // cannot do better
 	want := OpenAPI{
 		openapi: "3.0.0",
 		info: &Info{
@@ -704,6 +705,7 @@ func TestPetstoreExpanded(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	//nolint:lll // cannot do better
 	want := OpenAPI{
 		openapi: "3.0.0",
 		info: &Info{
@@ -1164,6 +1166,7 @@ func TestUspto(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	//nolint:lll // cannot do better
 	want := OpenAPI{
 		openapi: "3.0.1",
 		servers: []*Server{
