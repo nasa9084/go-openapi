@@ -5,6 +5,7 @@ import (
 	"testing"
 )
 
+//nolint:funlen // most of code is testcases
 func TestIsRuntimerExpr(t *testing.T) {
 	tests := []struct {
 		expr string

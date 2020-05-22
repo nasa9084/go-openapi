@@ -3,9 +3,7 @@ package openapi
 
 import (
 	"errors"
-	"reflect"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/goccy/go-yaml"
@@ -167,10 +165,7 @@ externalDocs:
 				t.Fatal(err)
 			}
 			tt.want.setRoot(&tt.want)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected openapi:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -278,23 +273,8 @@ foo: bar`,
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var target OpenAPI
-			got := yaml.Unmarshal([]byte(tt.yml), &target)
-			if tt.want != nil {
-				if got == nil {
-					t.Errorf("error `%s` is expected but not", tt.want.Error())
-					return
-				}
-				if got.Error() != tt.want.Error() {
-					t.Errorf("unexpected error:\n  got:  %s\n  want: %s", got.Error(), tt.want.Error())
-					return
-				}
-			} else {
-				if got != nil {
-					t.Errorf("error: %s", got)
-					return
-				}
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &OpenAPI{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -312,47 +292,27 @@ license:
   url: https://www.apache.org/licenses/LICENSE-2.0.html
 version: 1.0.1`
 
-	var info Info
-	if err := yaml.Unmarshal([]byte(yml), &info); err != nil {
+	var got Info
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
 
-	if info.title != "Sample Pet Store App" {
-		t.Errorf("unexpected info.title: %s", info.title)
-		return
+	want := Info{
+		title:          "Sample Pet Store App",
+		description:    "This is a sample server for a pet store.",
+		termsOfService: "http://example.com/terms/",
+		contact: &Contact{
+			name:  "API Support",
+			url:   "http://www.example.com/support",
+			email: "support@example.com",
+		},
+		license: &License{
+			name: "Apache 2.0",
+			url:  "https://www.apache.org/licenses/LICENSE-2.0.html",
+		},
+		version: "1.0.1",
 	}
-	if info.description != "This is a sample server for a pet store." {
-		t.Errorf("unexpected info.description: %s", info.description)
-		return
-	}
-	if info.termsOfService != "http://example.com/terms/" {
-		t.Errorf("unexpected info.termsOfService: %s", info.termsOfService)
-		return
-	}
-	if info.contact.name != "API Support" {
-		t.Errorf("unexpected info.contact.name: %s", info.contact.name)
-		return
-	}
-	if info.contact.url != "http://www.example.com/support" {
-		t.Errorf("unexpected info.contact.url: %s", info.contact.url)
-		return
-	}
-	if info.contact.email != "support@example.com" {
-		t.Errorf("unexpected info.contact.email: %s", info.contact.email)
-		return
-	}
-	if info.license.name != "Apache 2.0" {
-		t.Errorf("unexpected info.license.name: %s", info.license.name)
-		return
-	}
-	if info.license.url != "https://www.apache.org/licenses/LICENSE-2.0.html" {
-		t.Errorf("unexpected info.license.url: %s", info.license.url)
-		return
-	}
-	if info.version != "1.0.1" {
-		t.Errorf("unexpected info.version: %s", info.version)
-		return
-	}
+	assertEqual(t, got, want)
 }
 
 func TestInfoUnmarshalYAML(t *testing.T) {
@@ -387,10 +347,7 @@ x-foo: bar`,
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected info:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -438,16 +395,8 @@ foo: bar`,
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var info Info
-			got := yaml.Unmarshal([]byte(tt.yml), &info)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &Info{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -457,23 +406,16 @@ func TestContactExampleUnmarshalYAML(t *testing.T) {
 url: http://www.example.com/support
 email: support@example.com`
 
-	var contact Contact
-	if err := yaml.Unmarshal([]byte(yml), &contact); err != nil {
+	var got Contact
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
-
-	if contact.name != "API Support" {
-		t.Errorf("unexpected contact.name: %s", contact.name)
-		return
+	want := Contact{
+		name:  "API Support",
+		url:   "http://www.example.com/support",
+		email: "support@example.com",
 	}
-	if contact.url != "http://www.example.com/support" {
-		t.Errorf("unexpected contact.url: %s", contact.url)
-		return
-	}
-	if contact.email != "support@example.com" {
-		t.Errorf("unexpected contact.email: %s", contact.email)
-		return
-	}
+	assertEqual(t, got, want)
 }
 
 func TestContactUnmarshalYAML(t *testing.T) {
@@ -502,10 +444,7 @@ func TestContactUnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected contact:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -530,16 +469,8 @@ func TestContactUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var contact Contact
-			got := yaml.Unmarshal([]byte(tt.yml), &contact)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &Contact{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -548,19 +479,17 @@ func TestLicenseExampleUnmarshalYAML(t *testing.T) {
 	yml := `name: Apache 2.0
 url: https://www.apache.org/licenses/LICENSE-2.0.html`
 
-	var license License
-	if err := yaml.Unmarshal([]byte(yml), &license); err != nil {
+	var got License
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
 
-	if license.name != "Apache 2.0" {
-		t.Errorf("unexpected license.name: %s", license.name)
-		return
+	want := License{
+		name: "Apache 2.0",
+		url:  "https://www.apache.org/licenses/LICENSE-2.0.html",
 	}
-	if license.url != "https://www.apache.org/licenses/LICENSE-2.0.html" {
-		t.Errorf("unexpected license.url: %s", license.url)
-		return
-	}
+
+	assertEqual(t, got, want)
 }
 
 func TestLicenseUnmarshalYAML(t *testing.T) {
@@ -591,10 +520,7 @@ x-foo: bar`,
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected license:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -621,16 +547,8 @@ foo: bar`,
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var license License
-			got := yaml.Unmarshal([]byte(tt.yml), &license)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &License{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -640,19 +558,16 @@ func TestServerExampleUnmarshalYAML(t *testing.T) {
 		yml := `url: https://development.gigantic-server.com/v1
 description: Development server`
 
-		var server Server
-		if err := yaml.Unmarshal([]byte(yml), &server); err != nil {
+		var got Server
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
 
-		if server.url != "https://development.gigantic-server.com/v1" {
-			t.Errorf("unexpected server.url: %s", server.url)
-			return
+		want := Server{
+			url:         "https://development.gigantic-server.com/v1",
+			description: "Development server",
 		}
-		if server.description != "Development server" {
-			t.Errorf("unexpected server.description: %s", server.description)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 	t.Run("servers", func(t *testing.T) {
 		yml := `servers:
@@ -669,40 +584,22 @@ description: Development server`
 		if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
 			t.Fatal(err)
 		}
-		servers := target.Servers
-		t.Run("0", func(t *testing.T) {
-			server := servers[0]
-			if server.url != "https://development.gigantic-server.com/v1" {
-				t.Errorf("unexpected server.url: %s", server.url)
-				return
-			}
-			if server.description != "Development server" {
-				t.Errorf("unexpected server.description: %s", server.description)
-				return
-			}
-		})
-		t.Run("1", func(t *testing.T) {
-			server := servers[1]
-			if server.url != "https://staging.gigantic-server.com/v1" {
-				t.Errorf("unexpected server.url: %s", server.url)
-				return
-			}
-			if server.description != "Staging server" {
-				t.Errorf("unexpected server.description: %s", server.description)
-				return
-			}
-		})
-		t.Run("2", func(t *testing.T) {
-			server := servers[2]
-			if server.url != "https://api.gigantic-server.com/v1" {
-				t.Errorf("unexpected server.url: %s", server.url)
-				return
-			}
-			if server.description != "Production server" {
-				t.Errorf("unexpected server.description: %s", server.description)
-				return
-			}
-		})
+		got := target.Servers
+		want := []*Server{
+			{
+				url:         "https://development.gigantic-server.com/v1",
+				description: "Development server",
+			},
+			{
+				url:         "https://staging.gigantic-server.com/v1",
+				description: "Staging server",
+			},
+			{
+				url:         "https://api.gigantic-server.com/v1",
+				description: "Production server",
+			},
+		}
+		assertEqual(t, got, want)
 	})
 	t.Run("with variables", func(t *testing.T) {
 		yml := `servers:
@@ -729,39 +626,25 @@ description: Development server`
 			t.Fatal(err)
 		}
 
-		server := target.Servers[0]
-		if server.url != "https://{username}.gigantic-server.com:{port}/{basePath}" {
-			t.Errorf("unexpected server url: %s", server.url)
-			return
+		got := target.Servers[0]
+		want := &Server{
+			url:         "https://{username}.gigantic-server.com:{port}/{basePath}",
+			description: "The production API server",
+			variables: map[string]*ServerVariable{
+				"username": {
+					default_:    "demo",
+					description: `this value is assigned by the service provider, in this example "gigantic-server.com"`,
+				},
+				"port": {
+					enum:     []string{"8443", "443"},
+					default_: "8443",
+				},
+				"basePath": {
+					default_: "v2",
+				},
+			},
 		}
-		if server.description != "The production API server" {
-			t.Errorf("unexpected server.descripion: %s", server.description)
-			return
-		}
-		if server.variables["username"].default_ != "demo" {
-			t.Errorf("unexpected server.variables.username.default: %s", server.variables["username"].default_)
-			return
-		}
-		if server.variables["username"].description != `this value is assigned by the service provider, in this example "gigantic-server.com"` {
-			t.Errorf("unexpected server.variables.username.description: %s", server.variables["username"].description)
-			return
-		}
-		if len(server.variables["port"].enum) != 2 {
-			t.Errorf("unexpected length of server.variables.port.enum: %d", len(server.variables["port"].enum))
-			return
-		}
-		if !reflect.DeepEqual(server.variables["port"].enum, []string{"8443", "443"}) {
-			t.Errorf("unexpected server.variables.port.enum: %#v", server.variables["port"].enum)
-			return
-		}
-		if server.variables["port"].default_ != "8443" {
-			t.Errorf("unexpected server.variables.port.default: %s", server.variables["port"].default_)
-			return
-		}
-		if server.variables["basePath"].default_ != "v2" {
-			t.Errorf("unexpected server.variables.basepath.default: %s", server.variables["basePath"].default_)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 }
 
@@ -793,10 +676,7 @@ x-foo: bar`,
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected server:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -830,16 +710,8 @@ foo: bar`,
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var server Server
-			got := yaml.Unmarshal([]byte(tt.yml), &server)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &Server{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -872,10 +744,7 @@ x-foo: bar`,
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected serverVariable:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -903,16 +772,8 @@ foo: bar`,
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var serverVariable ServerVariable
-			got := yaml.Unmarshal([]byte(tt.yml), &serverVariable)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &ServerVariable{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -991,234 +852,107 @@ func TestComponentsExampleUnmarshalYAML(t *testing.T) {
 	if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
 		t.Fatal(err)
 	}
-	components := target.Components
-	schemas := components.schemas
-	t.Run("schemas.GeneralError", func(t *testing.T) {
-		generalError, ok := schemas["GeneralError"]
-		if !ok {
-			t.Error("components.schemas.GeneralError is not found")
-			return
-		}
-		if generalError.type_ != "object" {
-			t.Errorf("unexpected components.schema.type: %s", generalError.type_)
-			return
-		}
-		code, ok := generalError.properties["code"]
-		if !ok {
-			t.Error("components.schemas.GeneralError.properties.code is not found")
-			return
-		}
-		if code.type_ != "integer" {
-			t.Errorf("unexpected components.schemas.GeneralError.properties.code.type: %s", code.type_)
-			return
-		}
-		if code.format != "int32" {
-			t.Errorf("unexpected components.schemas.GeneralError.properties.code.format: %s", code.format)
-			return
-		}
-		message, ok := generalError.properties["message"]
-		if !ok {
-			t.Error("components.schemas.GeneralError.properties.message is not found")
-			return
-		}
-		if message.type_ != "string" {
-			t.Errorf("unexpected components.schemas.GeneralError.properties.message.type: %s", message.type_)
-			return
-		}
-	})
-	t.Run("schemas.Category", func(t *testing.T) {
-		category, ok := schemas["Category"]
-		if !ok {
-			t.Error("components.schemas.Category is not found")
-			return
-		}
-		if category.type_ != "object" {
-			t.Errorf("unexpected components.schema.Category.type: %s", category.type_)
-			return
-		}
-		id, ok := category.properties["id"]
-		if !ok {
-			t.Error("components.schemas.Category.properties.id is not found")
-			return
-		}
-		if id.type_ != "integer" {
-			t.Errorf("unexpected components.schemas.Category.properties.id.type: %s", id.type_)
-			return
-		}
-		if id.format != "int64" {
-			t.Errorf("unexpected components.schemas.Category.properties.id.format: %s", id.format)
-			return
-		}
-		name, ok := category.properties["name"]
-		if !ok {
-			t.Error("components.schemas.Category.properties.name is not found")
-			return
-		}
-		if name.type_ != "string" {
-			t.Errorf("unexpected components.schemas.Category.properties.name.type: %s", name.type_)
-			return
-		}
-	})
-	parameters := components.parameters
-	t.Run("parameters.skipParam", func(t *testing.T) {
-		skipParam, ok := parameters["skipParam"]
-		if !ok {
-			t.Error("components.parameters.skipParam is not found")
-			return
-		}
-		if skipParam.name != "skip" {
-			t.Errorf("unexpected components.parameters.skipParam.name: %s", skipParam.name)
-			return
-		}
-		if skipParam.in != "query" {
-			t.Errorf("unexpected components.parameters.skipParam.in: %s", skipParam.in)
-			return
-		}
-		if skipParam.description != "number of items to skip" {
-			t.Errorf("unexpected components.parameters.skipParam.description: %s", skipParam.description)
-			return
-		}
-		if skipParam.required != true {
-			t.Errorf("unexpected components.parameters.skipParam.required: %t", skipParam.required)
-			return
-		}
-		schema := skipParam.schema
-		if schema.type_ != "integer" {
-			t.Errorf("unexpected components.parameters.skipParam.schema.type: %s", schema.type_)
-			return
-		}
-		if schema.format != "int32" {
-			t.Errorf("unexpected components.parameters.skipParam.schema.format: %s", schema.format)
-			return
-		}
-	})
-	t.Run("parameters.limitParam", func(t *testing.T) {
-		limitParam, ok := parameters["limitParam"]
-		if !ok {
-			t.Error("components.parameters.limitParam is not found")
-			return
-		}
-		if limitParam.name != "limit" {
-			t.Errorf("unexpected components.parameters.limitParam.name: %s", limitParam.name)
-			return
-		}
-		if limitParam.in != "query" {
-			t.Errorf("unexpected components.parameters.limitParam.in: %s", limitParam.in)
-			return
-		}
-		if limitParam.description != "max records to return" {
-			t.Errorf("unexpected components.parameters.limitParam.description: %s", limitParam.description)
-			return
-		}
-		if limitParam.required != true {
-			t.Errorf("unexpected components.parameters.limitParam.required: %t", limitParam.required)
-			return
-		}
-		schema := limitParam.schema
-		if schema.type_ != "integer" {
-			t.Errorf("unexpected components.parameters.limitParam.schema.type: %s", schema.type_)
-			return
-		}
-		if schema.format != "int32" {
-			t.Errorf("unexpected components.parameters.limitParam.schema.format: %s", schema.format)
-			return
-		}
-	})
-	responses := components.responses
-	t.Run("responses.NotFound", func(t *testing.T) {
-		notFound, ok := responses["NotFound"]
-		if !ok {
-			t.Error("components.responses.NotFound is not found")
-			return
-		}
-		if notFound.description != "Entity not found." {
-			t.Errorf("unexpected components.responses.NotFound.description: %s", notFound.description)
-			return
-		}
-	})
-	t.Run("responses.IllegalInput", func(t *testing.T) {
-		illegalInput, ok := responses["IllegalInput"]
-		if !ok {
-			t.Error("components.responses.IllegalInput is not found")
-			return
-		}
-		if illegalInput.description != "Illegal input for operation." {
-			t.Errorf("unexpected components.responses.IllegalInput.description: %s", illegalInput.description)
-			return
-		}
-	})
-	t.Run("responses.GeneralError", func(t *testing.T) {
-		generalError, ok := responses["GeneralError"]
-		if !ok {
-			t.Error("components.responses.GeneralError is not found")
-			return
-		}
-		if generalError.description != "General Error" {
-			t.Errorf("unexpected components.responses.GeneralError.description: %s", generalError.description)
-			return
-		}
-		mediaType, ok := generalError.content["application/json"]
-		if !ok {
-			t.Error("components.responses.GeneralError.content.application/json is not found")
-			return
-		}
-		if mediaType.schema.reference != "#/components/schemas/GeneralError" {
-			t.Errorf("unexpected components.responses.GeneralError.content.application/json.schema.$ref")
-			return
-		}
-	})
-	securitySchemes := components.securitySchemes
-	t.Run("securitySchemes.api_key", func(t *testing.T) {
-		apiKey, ok := securitySchemes["api_key"]
-		if !ok {
-			t.Error("components.securitySchemes.api_key is not found")
-			return
-		}
-		if apiKey.type_ != "apiKey" {
-			t.Errorf("unexpected components.securitySchemes.api_key.type: %s", apiKey.type_)
-			return
-		}
-		if apiKey.name != "api_key" {
-			t.Errorf("unexpected components.securitySchemes.api_key.name: %s", apiKey.name)
-			return
-		}
-		if apiKey.in != "header" {
-			t.Errorf("unexpected components.securitySchemes.api_key.in: %s", apiKey.in)
-			return
-		}
-	})
-	t.Run("securitySchemes.petstore_auth", func(t *testing.T) {
-		petstoreAuth, ok := securitySchemes["petstore_auth"]
-		if !ok {
-			t.Error("components.securitySchemes.petstore_auth is not found")
-			return
-		}
-		if petstoreAuth.type_ != "oauth2" {
-			t.Errorf("unexpected components.securitySchemes.petstore_auth.type: %s", petstoreAuth.type_)
-			return
-		}
-		if petstoreAuth.flows.implicit.authorizationURL != "http://example.org/api/oauth/dialog" {
-			t.Errorf("unexpected components.securitySchemes.petstore_auth.flows.implicit.authorizationURL: %s", petstoreAuth.flows.implicit.authorizationURL)
-			return
-		}
-		scopes := petstoreAuth.flows.implicit.scopes
-		write, ok := scopes["write:pets"]
-		if !ok {
-			t.Error("components.securitySchemes.petstore_auth.flows.implicit.scopes.write:pets is not found")
-			return
-		}
-		if write != "modify pets in your account" {
-			t.Errorf("unexpected components.securitySchemes.petstore_auth.flows.implicit.scopes.write:pets: %s", write)
-		}
-		read, ok := scopes["read:pets"]
-		if !ok {
-			t.Error("components.securitySchemes.petstore_auth.flows.implicit.scopes.read:pets is not found")
-			return
-		}
-		if read != "read your pets" {
-			t.Errorf("unexpected components.securitySchemes.petstore_auth.flows.implicit.scopes.read:pets: %s", write)
-		}
-	})
+	got := target.Components
+	want := &Components{
+		schemas: map[string]*Schema{
+			"GeneralError": {
+				type_: "object",
+				properties: map[string]*Schema{
+					"code": {
+						type_:  "integer",
+						format: "int32",
+					},
+					"message": {
+						type_: "string",
+					},
+				},
+			},
+			"Category": {
+				type_: "object",
+				properties: map[string]*Schema{
+					"id": {
+						type_:  "integer",
+						format: "int64",
+					},
+					"name": {
+						type_: "string",
+					},
+				},
+			},
+			"Tag": {
+				type_: "object",
+				properties: map[string]*Schema{
+					"id": {
+						type_:  "integer",
+						format: "int64",
+					},
+					"name": {
+						type_: "string",
+					},
+				},
+			},
+		},
+		parameters: map[string]*Parameter{
+			"skipParam": {
+				name:        "skip",
+				in:          "query",
+				description: "number of items to skip",
+				required:    true,
+				schema: &Schema{
+					type_:  "integer",
+					format: "int32",
+				},
+			},
+			"limitParam": {
+				name:        "limit",
+				in:          "query",
+				description: "max records to return",
+				required:    true,
+				schema: &Schema{
+					type_:  "integer",
+					format: "int32",
+				},
+			},
+		},
+		responses: map[string]*Response{
+			"NotFound": {
+				description: "Entity not found.",
+			},
+			"IllegalInput": {
+				description: "Illegal input for operation.",
+			},
+			"GeneralError": {
+				description: "General Error",
+				content: map[string]*MediaType{
+					"application/json": {
+						schema: &Schema{
+							reference: "#/components/schemas/GeneralError",
+						},
+					},
+				},
+			},
+		},
+		securitySchemes: map[string]*SecurityScheme{
+			"api_key": {
+				type_: "apiKey",
+				name:  "api_key",
+				in:    "header",
+			},
+			"petstore_auth": {
+				type_: "oauth2",
+				flows: &OAuthFlows{
+					implicit: &OAuthFlow{
+						authorizationURL: "http://example.org/api/oauth/dialog",
+						scopes: map[string]string{
+							"write:pets": "modify pets in your account",
+							"read:pets":  "read your pets",
+						},
+					},
+				},
+			},
+		},
+	}
+	assertEqual(t, got, want)
 }
 
 func TestComponentsUnmarshalYAML(t *testing.T) {
@@ -1300,10 +1034,7 @@ func TestComponentsUnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected components:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -1355,16 +1086,8 @@ func TestComponentsUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var components Components
-			got := yaml.Unmarshal([]byte(tt.yml), &components)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &Components{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -1382,37 +1105,37 @@ func TestPathsExampleUnmarshalYAML(t *testing.T) {
               type: array
               items:
                 $ref: '#/components/schemas/pet'`
-	var paths Paths
-	if err := yaml.Unmarshal([]byte(yml), &paths); err != nil {
+	var got Paths
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
-	if _, ok := paths.paths["/pets"]; !ok {
-		t.Error("paths./pets is not found")
-		return
+	want := Paths{
+		paths: map[string]*PathItem{
+			"/pets": {
+				get: &Operation{
+					description: "Returns all pets from the system that the user has access to",
+					responses: &Responses{
+						responses: map[string]*Response{
+							"200": {
+								description: "A list of pets.",
+								content: map[string]*MediaType{
+									"application/json": {
+										schema: &Schema{
+											type_: "array",
+											items: &Schema{
+												reference: "#/components/schemas/pet",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
-	op := paths.paths["/pets"].get
-	if op.description != "Returns all pets from the system that the user has access to" {
-		t.Errorf("unexpected paths./pets.get.description: %s", op.description)
-		return
-	}
-	response, ok := op.responses.responses["200"]
-	if !ok {
-		t.Error("paths./pets.get.responses.200 is not found")
-		return
-	}
-	if _, ok := response.content["application/json"]; !ok {
-		t.Error("paths./pets.get.responses.200.content.application/json is not found")
-		return
-	}
-	schema := response.content["application/json"].schema
-	if schema.type_ != "array" {
-		t.Errorf("unexpected paths./pets.get.responses.200.content.application/json.schema.type: %s", schema.type_)
-		return
-	}
-	if schema.items.reference != "#/components/schemas/pet" {
-		t.Errorf("unexpected paths./pets.get.responses.200.content.application/json.schema.items.$ref: %s", schema.reference)
-		return
-	}
+	assertEqual(t, got, want)
 }
 
 func TestPathsUnmarshalYAML(t *testing.T) {
@@ -1435,10 +1158,7 @@ func TestPathsUnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected paths:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -1455,16 +1175,8 @@ func TestPathsUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var paths Paths
-			got := yaml.Unmarshal([]byte(tt.yml), &paths)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &Paths{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -1500,96 +1212,59 @@ parameters:
     # style: simple
     items:
       type: string  `
-	var pathItem PathItem
-	if err := yaml.Unmarshal([]byte(yml), &pathItem); err != nil {
+	var got PathItem
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
-	t.Run("get", func(t *testing.T) {
-		operation := pathItem.get
-		if operation.description != "Returns pets based on ID" {
-			t.Errorf("unexpected pathItem.get.description: %s", operation.description)
-			return
-		}
-		if operation.summary != "Find pets by ID" {
-			t.Errorf("unexpected pathItem.get.summary: %s", operation.summary)
-			return
-		}
-		if operation.operationID != "getPetsById" {
-			t.Errorf("unexpected pathItem.get.operationId: %s", operation.operationID)
-			return
-		}
-		t.Run("200", func(t *testing.T) {
-			response, ok := pathItem.get.responses.responses["200"]
-			if !ok {
-				t.Error("pathItem.get.responses.200 is not found")
-				return
-			}
-			if response.description != "pet response" {
-				t.Errorf("unexpected pathItem.get.responses.200.description: %s", response.description)
-				return
-			}
-			if _, ok := response.content["*/*"]; !ok {
-				t.Error("pathItem.get.responses.200.content.*/* is not found")
-				return
-			}
-			schema := response.content["*/*"].schema
-			if schema.type_ != "array" {
-				t.Errorf("unexpected pathItem.get.responses.200.content.*/*.schema.type: %s", schema.type_)
-				return
-			}
-			if schema.items.reference != "#/components/schemas/Pet" {
-				t.Errorf("unexpected pathItem.get.responses.200.content.*/*.schema.items.$ref: %s", schema.items.reference)
-				return
-			}
-		})
-		t.Run("default", func(t *testing.T) {
-			response, ok := pathItem.get.responses.responses["default"]
-			if !ok {
-				t.Error("pathItem.get.responses.default is not found")
-				return
-			}
-			if response.description != "error payload" {
-				t.Errorf("unexpected pathItem.get.responses.default.description: %s", response.description)
-				return
-			}
-			if _, ok := response.content["text/html"]; !ok {
-				t.Error("pathItem.get.responses.default.content.text/html is not found")
-				return
-			}
-			if response.content["text/html"].schema.reference != "#/components/schemas/ErrorModel" {
-				t.Errorf("unexpected pathItem.get.responses.default.content.text/html.schema.$ref: %s", response.content["text/html"].schema.reference)
-				return
-			}
-		})
-	})
-	t.Run("parameters", func(t *testing.T) {
-		parameters := pathItem.parameters
-		id := parameters[0]
-		if id.name != "id" {
-			t.Errorf("unexpected pathItem.parameters.0.name: %s", id.name)
-			return
-		}
-		if id.in != "path" {
-			t.Errorf("unexpected pathItem.parameters.0.in: %s", id.in)
-			return
-		}
-		if id.description != "ID of pet to use" {
-			t.Errorf("unexpected pathItem.parameters.0.description: %s", id.description)
-			return
-		}
-		if id.required != true {
-			t.Errorf("unexpected pathItem.parameters.0.required: %t", id.required)
-			return
-		}
-		if id.schema.type_ != "array" {
-			t.Errorf("unexpected pathItem.parameters.0.schema.type: %s", id.schema.type_)
-			return
-		}
-		if id.schema.items.type_ != "string" {
-			t.Errorf("unexpected pathItem.parameters.0.schema.items.type: %s", id.schema.items.type_)
-			return
-		}
-	})
+	want := PathItem{
+		get: &Operation{
+			description: "Returns pets based on ID",
+			summary:     "Find pets by ID",
+			operationID: "getPetsById",
+			responses: &Responses{
+				responses: map[string]*Response{
+					"200": {
+						description: "pet response",
+						content: map[string]*MediaType{
+							"*/*": {
+								schema: &Schema{
+									type_: "array",
+									items: &Schema{
+										reference: "#/components/schemas/Pet",
+									},
+								},
+							},
+						},
+					},
+					"default": {
+						description: "error payload",
+						content: map[string]*MediaType{
+							"text/html": {
+								schema: &Schema{
+									reference: "#/components/schemas/ErrorModel",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		parameters: []*Parameter{
+			{
+				name:        "id",
+				in:          "path",
+				description: "ID of pet to use",
+				required:    true,
+				schema: &Schema{
+					type_: "array",
+					items: &Schema{
+						type_: "string",
+					},
+				},
+			},
+		},
+	}
+	assertEqual(t, got, want)
 }
 
 func TestPathItemUnmarshalYAML(t *testing.T) {
@@ -1716,10 +1391,7 @@ description: this is description`,
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected pathItem:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -1768,16 +1440,8 @@ func TestPathItemUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var pathItem PathItem
-			got := yaml.Unmarshal([]byte(tt.yml), &pathItem)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &PathItem{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -1822,121 +1486,71 @@ security:
 - petstore_auth:
   - write:pets
   - read:pets`
-	var operation Operation
-	if err := yaml.Unmarshal([]byte(yml), &operation); err != nil {
+	var got Operation
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
-	if operation.tags[0] != "pet" {
-		t.Errorf("unexpected operation.tags.0: %s", operation.tags[0])
-		return
+	want := Operation{
+		tags:        []string{"pet"},
+		summary:     "Updates a pet in the store with form data",
+		operationID: "updatePetWithForm",
+		parameters: []*Parameter{
+			{
+				name:        "petId",
+				in:          "path",
+				description: "ID of pet that needs to be updated",
+				required:    true,
+				schema: &Schema{
+					type_: "string",
+				},
+			},
+		},
+		requestBody: &RequestBody{
+			content: map[string]*MediaType{
+				"application/x-www-form-urlencoded": {
+					schema: &Schema{
+						properties: map[string]*Schema{
+							"name": {
+								description: "Updated name of the pet",
+								type_:       "string",
+							},
+							"status": {
+								description: "Updated status of the pet",
+								type_:       "string",
+							},
+						},
+						required: []string{"status"},
+					},
+				},
+			},
+		},
+		responses: &Responses{
+			responses: map[string]*Response{
+				"200": {
+					description: "Pet updated.",
+					content: map[string]*MediaType{
+						"application/json": {},
+						"application/xml":  {},
+					},
+				},
+				"405": {
+					description: "Method Not Allowed",
+					content: map[string]*MediaType{
+						"application/json": {},
+						"application/xml":  {},
+					},
+				},
+			},
+		},
+		security: []*SecurityRequirement{
+			{
+				securityRequirement: map[string][]string{
+					"petstore_auth": {"write:pets", "read:pets"},
+				},
+			},
+		},
 	}
-	if operation.summary != "Updates a pet in the store with form data" {
-		t.Errorf("unexpected opration.summary: %s", operation.summary)
-		return
-	}
-	if operation.operationID != "updatePetWithForm" {
-		t.Errorf("unexpected operation.operationId: %s", operation.operationID)
-		return
-	}
-	parameter := operation.parameters[0]
-	if parameter.name != "petId" {
-		t.Errorf("unexpected operation.parameters.0.name: %s", parameter.name)
-		return
-	}
-	if parameter.in != "path" {
-		t.Errorf("unexpected operation.parameters.0.in: %s", parameter.in)
-		return
-	}
-	if parameter.description != "ID of pet that needs to be updated" {
-		t.Errorf("unexpected operation.parameters.0.description: %s", parameter.description)
-		return
-	}
-	if parameter.required != true {
-		t.Errorf("unexpected operation.parameters.0.required: %t", parameter.required)
-		return
-	}
-	if parameter.schema.type_ != "string" {
-		t.Errorf("unexpected operation.parameters.0.schema.type: %s", parameter.schema.type_)
-		return
-	}
-	if _, ok := operation.requestBody.content["application/x-www-form-urlencoded"]; !ok {
-		t.Error("operation.requestBody.content.application/x-www-form-urlencoded is not found")
-		return
-	}
-	schema := operation.requestBody.content["application/x-www-form-urlencoded"].schema
-	name, ok := schema.properties["name"]
-	if !ok {
-		t.Error("operation.requestBody.content.application/x-www-form-urlencoded.schema.properties.name is not found")
-		return
-	}
-	if name.description != "Updated name of the pet" {
-		t.Errorf("unexpected operation.requestBody.content.application/x-www-form-urlencoded.schema.properties.name.description: %s", name.description)
-		return
-	}
-	if name.type_ != "string" {
-		t.Errorf("unexpected operation.requestBody.content.application/x-www-form-urlencoded.schema.properties.name.type: %s", name.type_)
-		return
-	}
-	status, ok := schema.properties["status"]
-	if !ok {
-		t.Error("operation.requestBody.content.application/x-www-form-urlencoded.schema.properties.status is not found")
-		return
-	}
-	if status.description != "Updated status of the pet" {
-		t.Errorf("unexpected operation.requestBody.content.application/x-www-form-urlencoded.schema.properties.status.description: %s", status.description)
-		return
-	}
-	if status.type_ != "string" {
-		t.Errorf("unexpected operation.requestBody.content.application/x-www-form-urlencoded.schema.properties.status.type: %s", status.type_)
-		return
-	}
-	if schema.required[0] != "status" {
-		t.Errorf("unexpected operation.requestBody.content.application/x-www-form-urlencoded.schema.required.0: %s", schema.required[0])
-		return
-	}
-	if _, ok := operation.responses.responses["200"]; !ok {
-		t.Error("operation.responses.200 is not found")
-		return
-	}
-	if operation.responses.responses["200"].description != "Pet updated." {
-		t.Errorf("unexpected operation.responses.200.description: %s", operation.responses.responses["200"].description)
-		return
-	}
-	if _, ok := operation.responses.responses["200"].content["application/json"]; !ok {
-		t.Error("operation.responses.200.content.application/json is not found")
-	}
-	if _, ok := operation.responses.responses["200"].content["application/xml"]; !ok {
-		t.Error("operation.responses.200.content.application/xml is not found")
-		return
-	}
-	if _, ok := operation.responses.responses["405"]; !ok {
-		t.Error("operation.responses.405 is not found")
-		return
-	}
-	if operation.responses.responses["405"].description != "Method Not Allowed" {
-		t.Errorf("unexpected operation.responses.405.description: %s", operation.responses.responses["405"].description)
-		return
-	}
-	if _, ok := operation.responses.responses["405"].content["application/json"]; !ok {
-		t.Error("operation.responses.405.content.application/json is not found")
-	}
-	if _, ok := operation.responses.responses["405"].content["application/xml"]; !ok {
-		t.Error("operation.responses.405.content.application/xml is not found")
-		return
-	}
-	securityRequirement, ok := operation.security[0].securityRequirement["petstore_auth"]
-	if !ok {
-		t.Error("operation.security.0.petstore_auth is not found")
-		return
-	}
-	if securityRequirement[0] != "write:pets" {
-		t.Errorf("unexpected operation.security.0.petstore_auth.0: %s", securityRequirement[0])
-		return
-	}
-	if securityRequirement[1] != "read:pets" {
-		t.Errorf("unexpected operation.security.0.petstore_auth.1: %s", securityRequirement[1])
-		return
-	}
+	assertEqual(t, got, want)
 }
 
 func TestOperationUnmarshalYAML(t *testing.T) {
@@ -1991,10 +1605,7 @@ x-foo: bar`,
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected operation:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -2053,16 +1664,8 @@ foo: bar`,
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var operation Operation
-			got := yaml.Unmarshal([]byte(tt.yml), &operation)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &Operation{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -2070,18 +1673,15 @@ foo: bar`,
 func TestExternalDocumentationExampleUnmarshalYAML(t *testing.T) {
 	yml := `description: Find more info here
 url: https://example.com`
-	var externalDocumentation ExternalDocumentation
-	if err := yaml.Unmarshal([]byte(yml), &externalDocumentation); err != nil {
+	var got ExternalDocumentation
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
-	if externalDocumentation.description != "Find more info here" {
-		t.Errorf("unexpected externalDocumentation.description: %s", externalDocumentation.description)
-		return
+	want := ExternalDocumentation{
+		description: "Find more info here",
+		url:         "https://example.com",
 	}
-	if externalDocumentation.url != "https://example.com" {
-		t.Errorf("unexpected externalDocumentation.url: %s", externalDocumentation.url)
-		return
-	}
+	assertEqual(t, got, want)
 }
 
 func TestExternalDocumentationUnmarshalYAML(t *testing.T) {
@@ -2112,10 +1712,7 @@ x-foo: bar`,
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected externalDocumentation:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -2141,16 +1738,8 @@ foo: bar`,
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var externalDocumentation ExternalDocumentation
-			got := yaml.Unmarshal([]byte(tt.yml), &externalDocumentation)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &ExternalDocumentation{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -2167,42 +1756,25 @@ schema:
     type: integer
     format: int64
 style: simple`
-		var parameter Parameter
-		if err := yaml.Unmarshal([]byte(yml), &parameter); err != nil {
+		var got Parameter
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		if parameter.name != "token" {
-			t.Errorf("unexpected paramater.name: %s", parameter.name)
-			return
+		want := Parameter{
+			name:        "token",
+			in:          "header",
+			description: "token to be passed as a header",
+			required:    true,
+			schema: &Schema{
+				type_: "array",
+				items: &Schema{
+					type_:  "integer",
+					format: "int64",
+				},
+			},
+			style: "simple",
 		}
-		if parameter.in != "header" {
-			t.Errorf("unexpected parameter.in: %s", parameter.in)
-			return
-		}
-		if parameter.description != "token to be passed as a header" {
-			t.Errorf("unexpected parameter.description: %s", parameter.description)
-			return
-		}
-		if parameter.required != true {
-			t.Errorf("unexpected parameter.required: %t", parameter.required)
-			return
-		}
-		if parameter.schema.type_ != "array" {
-			t.Errorf("unexpected parameter.schema.type: %s", parameter.schema.type_)
-			return
-		}
-		if parameter.schema.items.type_ != "integer" {
-			t.Errorf("unexpected parameter.schema.items.type: %s", parameter.schema.items.type_)
-			return
-		}
-		if parameter.schema.items.format != "int64" {
-			t.Errorf("unexpected parameter.schema.items.format: %s", parameter.schema.items.format)
-			return
-		}
-		if parameter.style != "simple" {
-			t.Errorf("unexpected paarameter.style: %s", parameter.style)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 	t.Run("path parameter", func(t *testing.T) {
 		yml := `name: username
@@ -2211,30 +1783,20 @@ description: username to fetch
 required: true
 schema:
   type: string`
-		var parameter Parameter
-		if err := yaml.Unmarshal([]byte(yml), &parameter); err != nil {
+		var got Parameter
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		if parameter.name != "username" {
-			t.Errorf("unexpected parameter.name: %s", parameter.name)
-			return
+		want := Parameter{
+			name:        "username",
+			in:          "path",
+			description: "username to fetch",
+			required:    true,
+			schema: &Schema{
+				type_: "string",
+			},
 		}
-		if parameter.in != "path" {
-			t.Errorf("unexpected parameter.in: %s", parameter.in)
-			return
-		}
-		if parameter.description != "username to fetch" {
-			t.Errorf("unexpected parameter.description: %s", parameter.description)
-			return
-		}
-		if parameter.required != true {
-			t.Errorf("unexpected parameter.required: %t", parameter.required)
-			return
-		}
-		if parameter.schema.type_ != "string" {
-			t.Errorf("unexpected parameter.schema.type: %s", parameter.schema.type_)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 	t.Run("optional query parameter", func(t *testing.T) {
 		yml := `name: id
@@ -2247,42 +1809,25 @@ schema:
     type: string
 style: form
 explode: true`
-		var parameter Parameter
-		if err := yaml.Unmarshal([]byte(yml), &parameter); err != nil {
+		var got Parameter
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		if parameter.name != "id" {
-			t.Errorf("unexpected parameter.name: %s", parameter.name)
-			return
+		want := Parameter{
+			name:        "id",
+			in:          "query",
+			description: "ID of the object to fetch",
+			required:    false,
+			schema: &Schema{
+				type_: "array",
+				items: &Schema{
+					type_: "string",
+				},
+			},
+			style:   "form",
+			explode: true,
 		}
-		if parameter.in != "query" {
-			t.Errorf("unexpected parameter.in: %s", parameter.in)
-			return
-		}
-		if parameter.description != "ID of the object to fetch" {
-			t.Errorf("unexpected parameter.description: %s", parameter.description)
-			return
-		}
-		if parameter.required != false {
-			t.Errorf("unexpected parameter.required: %t", parameter.required)
-			return
-		}
-		if parameter.schema.type_ != "array" {
-			t.Errorf("unexpected parameter.schema.type: %s", parameter.schema.type_)
-			return
-		}
-		if parameter.schema.items.type_ != "string" {
-			t.Errorf("unexpected parameter.schema.items.type: %s", parameter.schema.items.type_)
-			return
-		}
-		if parameter.style != "form" {
-			t.Errorf("unexpected parameter.style: %s", parameter.style)
-			return
-		}
-		if parameter.explode != true {
-			t.Errorf("unexpected parameter.explode: %t", parameter.explode)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 	t.Run("free form", func(t *testing.T) {
 		yml := `in: query
@@ -2292,30 +1837,22 @@ schema:
   additionalProperties:
     type: integer
 style: form`
-		var parameter Parameter
-		if err := yaml.Unmarshal([]byte(yml), &parameter); err != nil {
+		var got Parameter
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		if parameter.in != "query" {
-			t.Errorf("unexpected parameter.in: %s", parameter.in)
-			return
+		want := Parameter{
+			in:   "query",
+			name: "freeForm",
+			schema: &Schema{
+				type_: "object",
+				additionalProperties: &Schema{
+					type_: "integer",
+				},
+			},
+			style: "form",
 		}
-		if parameter.name != "freeForm" {
-			t.Errorf("unexpected parameter.name: %s", parameter.name)
-			return
-		}
-		if parameter.schema.type_ != "object" {
-			t.Errorf("unexpected parameter.schema.type_: %s", parameter.schema.type_)
-			return
-		}
-		if parameter.schema.additionalProperties.type_ != "integer" {
-			t.Errorf("unexpected parameter.schema.additionalProperties.type_: %s", parameter.schema.additionalProperties.type_)
-			return
-		}
-		if parameter.style != "form" {
-			t.Errorf("unexpected parameter.style: %s", parameter.style)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 	t.Run("complex parameter", func(t *testing.T) {
 		yml := `in: query
@@ -2332,38 +1869,31 @@ content:
           type: number
         long:
           type: number`
-		var parameter Parameter
-		if err := yaml.Unmarshal([]byte(yml), &parameter); err != nil {
+		var got Parameter
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		if parameter.in != "query" {
-			t.Errorf("unexpected parameter.in: %s", parameter.in)
-			return
+		want := Parameter{
+			in:   "query",
+			name: "coordinates",
+			content: map[string]*MediaType{
+				"application/json": {
+					schema: &Schema{
+						type_:    "object",
+						required: []string{"lat", "long"},
+						properties: map[string]*Schema{
+							"lat": {
+								type_: "number",
+							},
+							"long": {
+								type_: "number",
+							},
+						},
+					},
+				},
+			},
 		}
-		if parameter.name != "coordinates" {
-			t.Errorf("unexpected parameter.name: %s", parameter.name)
-			return
-		}
-		if parameter.content["application/json"].schema.type_ != "object" {
-			t.Errorf("unexpected parameter.content.application/json.schema.type_: %s", parameter.content["application/json"].schema.type_)
-			return
-		}
-		if parameter.content["application/json"].schema.required[0] != "lat" {
-			t.Errorf("unexpected parameter.content.application/json.schema.required.0: %s", parameter.content["application/json"].schema.required[0])
-			return
-		}
-		if parameter.content["application/json"].schema.required[1] != "long" {
-			t.Errorf("unexpected parameter.content.application/json..schema.required.1: %s", parameter.content["application/json"].schema.required[1])
-			return
-		}
-		if parameter.content["application/json"].schema.properties["lat"].type_ != "number" {
-			t.Errorf("unexpected parameter.content.application/json.schema.properties.lat.type: %s", parameter.content["application/json"].schema.properties["lat"].type_)
-			return
-		}
-		if parameter.content["application/json"].schema.properties["long"].type_ != "number" {
-			t.Errorf("unexpected parameter.content.application/json.schema.properties.long.type: %s", parameter.content["application/json"].schema.properties["long"].type_)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 }
 
@@ -2451,10 +1981,7 @@ x-foo: bar`,
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected parameter:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -2504,16 +2031,8 @@ foo: bar`,
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var parameter Parameter
-			got := yaml.Unmarshal([]byte(tt.yml), &parameter)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &Parameter{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -2546,102 +2065,54 @@ content:
       user:
         summary: User example in other format
         externalValue: 'http://foo.bar/examples/user-example.whatever'`
-		var requestBody RequestBody
-		if err := yaml.Unmarshal([]byte(yml), &requestBody); err != nil {
+		var got RequestBody
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		if requestBody.description != "user to add to the system" {
-			t.Errorf("unexpected requestBody.description: %s", requestBody.description)
-			return
+		want := RequestBody{
+			description: "user to add to the system",
+			content: map[string]*MediaType{
+				"application/json": {
+					schema: &Schema{
+						reference: "#/components/schemas/User",
+					},
+					examples: map[string]*Example{
+						"user": {
+							summary:       "User Example",
+							externalValue: "http://foo.bar/examples/user-example.json",
+						},
+					},
+				},
+				"application/xml": {
+					schema: &Schema{
+						reference: "#/components/schemas/User",
+					},
+					examples: map[string]*Example{
+						"user": {
+							summary:       "User Example in XML",
+							externalValue: "http://foo.bar/examples/user-example.xml",
+						},
+					},
+				},
+				"text/plain": {
+					examples: map[string]*Example{
+						"user": {
+							summary:       "User example in text plain format",
+							externalValue: "http://foo.bar/examples/user-example.txt",
+						},
+					},
+				},
+				"*/*": {
+					examples: map[string]*Example{
+						"user": {
+							summary:       "User example in other format",
+							externalValue: "http://foo.bar/examples/user-example.whatever",
+						},
+					},
+				},
+			},
 		}
-		t.Run("application/json", func(t *testing.T) {
-			mediaType, ok := requestBody.content["application/json"]
-			if !ok {
-				t.Error("requestBody.content.application/json is not found")
-				return
-			}
-			if mediaType.schema.reference != "#/components/schemas/User" {
-				t.Errorf("unexpected requestBody.content.application/json.schema.$ref: %s", mediaType.schema.reference)
-				return
-			}
-			example, ok := mediaType.examples["user"]
-			if !ok {
-				t.Error("requestBody.content.application/json.examples.user is not found")
-				return
-			}
-			if example.summary != "User Example" {
-				t.Errorf("unexpected requestBody.content.application/json.examples.user.summary: %s", example.summary)
-				return
-			}
-			if example.externalValue != "http://foo.bar/examples/user-example.json" {
-				t.Errorf("unexpected requestBody.content.application/json.examples.user.externalValue: %s", example.externalValue)
-				return
-			}
-		})
-		t.Run("application/xml", func(t *testing.T) {
-			mediaType, ok := requestBody.content["application/xml"]
-			if !ok {
-				t.Error("requestBody.content.application/xml is not found")
-				return
-			}
-			if mediaType.schema.reference != "#/components/schemas/User" {
-				t.Errorf("unexpected requestBody.content.application/xml.schema.$ref: %s", mediaType.schema.reference)
-				return
-			}
-			example, ok := mediaType.examples["user"]
-			if !ok {
-				t.Error("requestBody.content.application/xml.examples.user is not found")
-				return
-			}
-			if example.summary != "User Example in XML" {
-				t.Errorf("unexpected requestBody.content.application/xml.examples.user.summary: %s", example.summary)
-				return
-			}
-			if example.externalValue != "http://foo.bar/examples/user-example.xml" {
-				t.Errorf("unexpected requestBody.content.application/xml.examples.user.externalValue: %s", example.externalValue)
-				return
-			}
-		})
-		t.Run("text/plain", func(t *testing.T) {
-			mediaType, ok := requestBody.content["text/plain"]
-			if !ok {
-				t.Error("requestBody.content.text/plain is not found")
-				return
-			}
-			example, ok := mediaType.examples["user"]
-			if !ok {
-				t.Error("requestBody.content.text/plain.examples.user is not found")
-				return
-			}
-			if example.summary != "User example in text plain format" {
-				t.Errorf("unexpected requestBody.content.text/plain.examples.user.summary: %s", example.summary)
-				return
-			}
-			if example.externalValue != "http://foo.bar/examples/user-example.txt" {
-				t.Errorf("unexpected requestBody.content.text/plain.examples.user.externalValue: %s", example.externalValue)
-				return
-			}
-		})
-		t.Run("*/*", func(t *testing.T) {
-			mediaType, ok := requestBody.content["*/*"]
-			if !ok {
-				t.Error("requestBody.content.*/* is not found")
-				return
-			}
-			example, ok := mediaType.examples["user"]
-			if !ok {
-				t.Error("requestBody.content.*/*.examples.user is not found")
-				return
-			}
-			if example.summary != "User example in other format" {
-				t.Errorf("unexpected requestBody.content.*/*.examples.user.summary: %s", example.summary)
-				return
-			}
-			if example.externalValue != "http://foo.bar/examples/user-example.whatever" {
-				t.Errorf("unexpected requestBody.content.*/*.examples.user.externalValue: %s", example.externalValue)
-				return
-			}
-		})
+		assertEqual(t, got, want)
 	})
 	t.Run("array of string", func(t *testing.T) {
 		yml := `description: user to add to the system
@@ -2652,31 +2123,25 @@ content:
       type: array
       items:
         type: string`
-		var requestBody RequestBody
-		if err := yaml.Unmarshal([]byte(yml), &requestBody); err != nil {
+		var got RequestBody
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		if requestBody.description != "user to add to the system" {
-			t.Errorf("unexpected requestBody.description: %s", requestBody.description)
-			return
+		want := RequestBody{
+			description: "user to add to the system",
+			required:    true,
+			content: map[string]*MediaType{
+				"text/plain": {
+					schema: &Schema{
+						type_: "array",
+						items: &Schema{
+							type_: "string",
+						},
+					},
+				},
+			},
 		}
-		if requestBody.required != true {
-			t.Errorf("unexpected requestBody.required: %t", requestBody.required)
-			return
-		}
-		mediaType, ok := requestBody.content["text/plain"]
-		if !ok {
-			t.Error("requestBody.content.text/plain is not found")
-			return
-		}
-		if mediaType.schema.type_ != "array" {
-			t.Errorf("unexpected mediaType.schema.type: %s", mediaType.schema.type_)
-			return
-		}
-		if mediaType.schema.items.type_ != "string" {
-			t.Errorf("unexpected mediaType.schema.items.type: %s", mediaType.schema.items.type_)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 }
 
@@ -2708,10 +2173,7 @@ x-foo: bar`,
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected requestBody:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -2738,16 +2200,8 @@ foo: bar`,
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var requestBody RequestBody
-			got := yaml.Unmarshal([]byte(tt.yml), &requestBody)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &RequestBody{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -2775,81 +2229,43 @@ func TestMediaTypeExampleUnmarshalYAML(t *testing.T) {
         breed: Mixed
     frog:
       $ref: "#/components/examples/frog-example"`
-	var target map[string]*MediaType
-	if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
+	var got map[string]*MediaType
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
-	mediaType, ok := target["application/json"]
-	if !ok {
-		t.Error("application/json is not found")
-		return
+	want := map[string]*MediaType{
+		"application/json": {
+			schema: &Schema{
+				reference: "#/components/schemas/Pet",
+			},
+			examples: map[string]*Example{
+				"cat": {
+					summary: "An example of a cat",
+					value: map[string]interface{}{
+						"name":    "Fluffy",
+						"petType": "Cat",
+						"color":   "White",
+						"gender":  "male",
+						"breed":   "Persian",
+					},
+				},
+				"dog": {
+					summary: "An example of a dog with a cat's name",
+					value: map[string]interface{}{
+						"name":    "Puma",
+						"petType": "Dog",
+						"color":   "Black",
+						"gender":  "Female",
+						"breed":   "Mixed",
+					},
+				},
+				"frog": {
+					reference: "#/components/examples/frog-example",
+				},
+			},
+		},
 	}
-	if mediaType.schema.reference != "#/components/schemas/Pet" {
-		t.Errorf("unexpected mediaType.schema.$ref: %s", mediaType.schema.reference)
-		return
-	}
-	assert := func(t *testing.T, got map[string]interface{}, want map[string]string) {
-		name := strings.Split(t.Name(), "/")[1]
-		for key := range want {
-			if v, ok := got[key]; !ok {
-				t.Errorf("mediaType.examples.%s.value.%s is not found", name, key)
-				return
-			} else if v != want[key] {
-				t.Errorf("unexpected mediaType.examples.%s.value.%s: %s != %s", name, key, v, want[key])
-			}
-		}
-	}
-	t.Run("cat", func(t *testing.T) {
-		example, ok := mediaType.examples["cat"]
-		if !ok {
-			t.Error("mediaType.examples.cat is not found")
-			return
-		}
-		value, ok := example.value.(map[string]interface{})
-		if !ok {
-			t.Errorf("mediaType.examples.cat.value is assumed map[string]interface but %v", reflect.TypeOf(example.value))
-			return
-		}
-		want := map[string]string{
-			"name":    "Fluffy",
-			"petType": "Cat",
-			"color":   "White",
-			"gender":  "male",
-			"breed":   "Persian",
-		}
-		assert(t, value, want)
-	})
-	t.Run("dog", func(t *testing.T) {
-		example, ok := mediaType.examples["dog"]
-		if !ok {
-			t.Error("mediaType.examples.dog is not found")
-			return
-		}
-		value, ok := example.value.(map[string]interface{})
-		if !ok {
-			t.Errorf("mediaType.examples.dog.value is assumed map[string]interface but %v", reflect.TypeOf(example.value))
-			return
-		}
-		want := map[string]string{
-			"name":    "Puma",
-			"petType": "Dog",
-			"color":   "Black",
-			"gender":  "Female",
-			"breed":   "Mixed",
-		}
-		assert(t, value, want)
-	})
-	t.Run("frog", func(t *testing.T) {
-		example, ok := mediaType.examples["frog"]
-		if !ok {
-			t.Error("mediaType.examples.frog is not found")
-			return
-		}
-		if example.reference != "#/components/examples/frog-example" {
-			t.Errorf("unexpected mediaType.examples.frog.$ref: %s", example.reference)
-			return
-		}
-	})
+	assertEqual(t, got, want)
 }
 
 func TestMediaTypeUnmarshalYAML(t *testing.T) {
@@ -2872,10 +2288,7 @@ func TestMediaTypeUnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected mediaType:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -2900,16 +2313,8 @@ func TestMediaTypeUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var mediaType MediaType
-			got := yaml.Unmarshal([]byte(tt.yml), &mediaType)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &MediaType{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -2956,90 +2361,52 @@ func TestEncodingExampleUnmarshalYAML(t *testing.T) {
 	if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
 		t.Fatal(err)
 	}
-	if _, ok := target.RequestBody.content["multipart/mixed"]; !ok {
-		t.Error("requestBody.content.multipart/mixed is not found")
-		return
+	got := target.RequestBody
+	want := RequestBody{
+		content: map[string]*MediaType{
+			"multipart/mixed": {
+				schema: &Schema{
+					type_: "object",
+					properties: map[string]*Schema{
+						"id": {
+							type_:  "string",
+							format: "uuid",
+						},
+						"address": {
+							type_:      "object",
+							properties: map[string]*Schema{},
+						},
+						"historyMetadata": {
+							description: "metadata in XML format",
+							type_:       "object",
+							properties:  map[string]*Schema{},
+						},
+						"profileImage": {
+							type_:  "string",
+							format: "binary",
+						},
+					},
+				},
+				encoding: map[string]*Encoding{
+					"historyMetadata": {
+						contentType: "application/xml; charset=utf-8",
+					},
+					"profileImage": {
+						contentType: "image/png, image/jpeg",
+						headers: map[string]*Header{
+							"X-Rate-Limit-Limit": {
+								description: "The number of allowed requests in the current period",
+								schema: &Schema{
+									type_: "integer",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
-	schema := target.RequestBody.content["multipart/mixed"].schema
-	if schema.type_ != "object" {
-		t.Errorf("unexpected requestBody.content.multipart/mixed.schema.type: %s", schema.type_)
-		return
-	}
-	id, ok := schema.properties["id"]
-	if !ok {
-		t.Error("requestBody.content.multipart/mixed.schema.properties.id is not found")
-		return
-	}
-	if id.type_ != "string" {
-		t.Errorf("unexpected id.type: %s", id.type_)
-		return
-	}
-	if id.format != "uuid" {
-		t.Errorf("unexpected id.format: %s", id.format)
-		return
-	}
-	address, ok := schema.properties["address"]
-	if !ok {
-		t.Error("requestBody.content.multipart/mixed.schema.properties.address is not found")
-		return
-	}
-	if address.type_ != "object" {
-		t.Errorf("unexpected id.type: %s", id.type_)
-		return
-	}
-	historyMetadata, ok := schema.properties["historyMetadata"]
-	if !ok {
-		t.Error("requestBody.content.multipart/mixed.schema.properties.historyMetadata is not found")
-		return
-	}
-	if historyMetadata.description != "metadata in XML format" {
-		t.Errorf("unexpected historyMetadata.description: %s", historyMetadata.description)
-		return
-	}
-	if historyMetadata.type_ != "object" {
-		t.Errorf("unexpected historyMetadata.type: %s", historyMetadata.type_)
-		return
-	}
-	profileImage, ok := schema.properties["profileImage"]
-	if !ok {
-		t.Error("requestBody.content.multipart/mixed.schema.properties.profileImage is not found")
-		return
-	}
-	if profileImage.type_ != "string" {
-		t.Errorf("unexpected id.type: %s", id.type_)
-		return
-	}
-	if profileImage.format != "binary" {
-		t.Errorf("unexpected id.format: %s", id.format)
-		return
-	}
-	t.Run("historyMetadata", func(t *testing.T) {
-		encoding := target.RequestBody.content["multipart/mixed"].encoding["historyMetadata"]
-		if encoding.contentType != "application/xml; charset=utf-8" {
-			t.Errorf("unexpected encoding.contentType: %s", encoding.contentType)
-			return
-		}
-	})
-	t.Run("profileImage", func(t *testing.T) {
-		encoding := target.RequestBody.content["multipart/mixed"].encoding["profileImage"]
-		if encoding.contentType != "image/png, image/jpeg" {
-			t.Errorf("unexpected encoding.contentType: %s", encoding.contentType)
-			return
-		}
-		xRateLimitLimit, ok := encoding.headers["X-Rate-Limit-Limit"]
-		if !ok {
-			t.Error("encoding.headers.X-Rate-Limit-Limit is not found")
-			return
-		}
-		if xRateLimitLimit.description != "The number of allowed requests in the current period" {
-			t.Errorf("unexpeceted encoding.headers.X-Rate-Limit-Limit.description: %s", xRateLimitLimit.description)
-			return
-		}
-		if xRateLimitLimit.schema.type_ != "integer" {
-			t.Errorf("unexpected encoding.headers.X-Rate-Limit-Limit.schema.type: %s", xRateLimitLimit.schema.type_)
-			return
-		}
-	})
+	assertEqual(t, got, want)
 }
 
 func TestEncodingUnmarshalYAML(t *testing.T) {
@@ -3080,10 +2447,7 @@ func TestEncodingUnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected encoding:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -3104,16 +2468,8 @@ func TestEncodingUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var encoding Encoding
-			got := yaml.Unmarshal([]byte(tt.yml), &encoding)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &Encoding{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -3131,50 +2487,35 @@ default:
     application/json:
       schema:
         $ref: '#/components/schemas/ErrorModel'`
-	var responses Responses
-	if err := yaml.Unmarshal([]byte(yml), &responses); err != nil {
+	var got Responses
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
-	t.Run("200", func(t *testing.T) {
-		response, ok := responses.responses["200"]
-		if !ok {
-			t.Error("responses.200 is not found")
-			return
-		}
-		if response.description != "a pet to be returned" {
-			t.Errorf("unexpected responses.200.description: %s", response.description)
-			return
-		}
-		mediaType, ok := response.content["application/json"]
-		if !ok {
-			t.Error("responses.200.content.application/json is not found")
-			return
-		}
-		if mediaType.schema.reference != "#/components/schemas/Pet" {
-			t.Errorf("unexpected responses.200.content.application/json.schema.$ref: %s", mediaType.schema.reference)
-			return
-		}
-	})
-	t.Run("default", func(t *testing.T) {
-		response, ok := responses.responses["default"]
-		if !ok {
-			t.Error("responses.default is not found")
-			return
-		}
-		if response.description != "Unexpected error" {
-			t.Errorf("unexpected responses.default.description: %s", response.description)
-			return
-		}
-		mediaType, ok := response.content["application/json"]
-		if !ok {
-			t.Error("responses.default.content.application/json is not found")
-			return
-		}
-		if mediaType.schema.reference != "#/components/schemas/ErrorModel" {
-			t.Errorf("unexpected responses.default.content.application/json.schema.$ref: %s", mediaType.schema.reference)
-			return
-		}
-	})
+	want := Responses{
+		responses: map[string]*Response{
+			"200": {
+				description: "a pet to be returned",
+				content: map[string]*MediaType{
+					"application/json": {
+						schema: &Schema{
+							reference: "#/components/schemas/Pet",
+						},
+					},
+				},
+			},
+			"default": {
+				description: "Unexpected error",
+				content: map[string]*MediaType{
+					"application/json": {
+						schema: &Schema{
+							reference: "#/components/schemas/ErrorModel",
+						},
+					},
+				},
+			},
+		},
+	}
+	assertEqual(t, got, want)
 }
 
 func TestResponsesUnmarshalYAML(t *testing.T) {
@@ -3208,10 +2549,7 @@ func TestResponsesUnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected responses:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -3237,16 +2575,8 @@ func TestResponsesUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var responses Responses
-			got := yaml.Unmarshal([]byte(tt.yml), &responses)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &Responses{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -3260,27 +2590,24 @@ content:
       type: array
       items:
         $ref: '#/components/schemas/VeryComplexType'`
-		var response Response
-		if err := yaml.Unmarshal([]byte(yml), &response); err != nil {
+		var got Response
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		if response.description != "A complex object array response" {
-			t.Errorf("unexpected response.description: %s", response.description)
-			return
+		want := Response{
+			description: "A complex object array response",
+			content: map[string]*MediaType{
+				"application/json": {
+					schema: &Schema{
+						type_: "array",
+						items: &Schema{
+							reference: "#/components/schemas/VeryComplexType",
+						},
+					},
+				},
+			},
 		}
-		mediaType, ok := response.content["application/json"]
-		if !ok {
-			t.Error("response.content.application/json is not found")
-			return
-		}
-		if mediaType.schema.type_ != "array" {
-			t.Errorf("unexpected response.content.application/json.schema.type: %s", mediaType.schema.type_)
-			return
-		}
-		if mediaType.schema.items.reference != "#/components/schemas/VeryComplexType" {
-			t.Errorf("unexpected response.content.application/json.schema.items.$ref: %s", mediaType.schema.items.reference)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 	t.Run("string", func(t *testing.T) {
 		yml := `description: A simple string response
@@ -3288,23 +2615,21 @@ content:
   text/plain:
     schema:
       type: string`
-		var response Response
-		if err := yaml.Unmarshal([]byte(yml), &response); err != nil {
+		var got Response
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		if response.description != "A simple string response" {
-			t.Errorf("unexpected response.description: %s", response.description)
-			return
+		want := Response{
+			description: "A simple string response",
+			content: map[string]*MediaType{
+				"text/plain": {
+					schema: &Schema{
+						type_: "string",
+					},
+				},
+			},
 		}
-		mediaType, ok := response.content["text/plain"]
-		if !ok {
-			t.Error("response.content.text/plain is not found")
-			return
-		}
-		if mediaType.schema.type_ != "string" {
-			t.Errorf("unexpected  response.content.text/plain.schema.type: %s", mediaType.schema.type_)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 	t.Run("plain text with headers", func(t *testing.T) {
 		yml := `description: A simple string response
@@ -3326,79 +2651,53 @@ headers:
     description: The number of seconds left in the current period
     schema:
       type: integer`
-		var response Response
-		if err := yaml.Unmarshal([]byte(yml), &response); err != nil {
+		var got Response
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		if response.description != "A simple string response" {
-			t.Errorf("unexpected response.description: %s", response.description)
-			return
+		want := Response{
+			description: "A simple string response",
+			content: map[string]*MediaType{
+				"text/plain": {
+					schema: &Schema{
+						type_: "string",
+					},
+					example: "whoa!",
+				},
+			},
+			headers: map[string]*Header{
+				"X-Rate-Limit-Limit": {
+					description: "The number of allowed requests in the current period",
+					schema: &Schema{
+						type_: "integer",
+					},
+				},
+				"X-Rate-Limit-Remaining": {
+					description: "The number of remaining requests in the current period",
+					schema: &Schema{
+						type_: "integer",
+					},
+				},
+				"X-Rate-Limit-Reset": {
+					description: "The number of seconds left in the current period",
+					schema: &Schema{
+						type_: "integer",
+					},
+				},
+			},
 		}
-		mediaType, ok := response.content["text/plain"]
-		if !ok {
-			t.Error("response.content.text/plain is not found")
-			return
-		}
-		if mediaType.schema.type_ != "string" {
-			t.Errorf("unexpected response.content.text/plain.schema.type: %s", mediaType.schema.type_)
-			return
-		}
-		t.Run("X-Rate-Limit-Limit", func(t *testing.T) {
-			header, ok := response.headers["X-Rate-Limit-Limit"]
-			if !ok {
-				t.Error("response.headers.X-Rate-Limit-Limit is not found")
-				return
-			}
-			if header.description != "The number of allowed requests in the current period" {
-				t.Errorf("unexpected response.headers.X-Rate-Limit-Limit.description: %s", header.description)
-				return
-			}
-			if header.schema.type_ != "integer" {
-				t.Errorf("unexpected response.headers.X-Rate-Limit-Limit.schema.type: %s", header.schema.type_)
-				return
-			}
-		})
-		t.Run("X-Rate-Limit-Remaining", func(t *testing.T) {
-			header, ok := response.headers["X-Rate-Limit-Remaining"]
-			if !ok {
-				t.Error("response.headers.X-Rate-Limit-Remaining is not found")
-				return
-			}
-			if header.description != "The number of remaining requests in the current period" {
-				t.Errorf("unexpected response.headers.X-Rate-Limit-Remaining.description: %s", header.description)
-				return
-			}
-			if header.schema.type_ != "integer" {
-				t.Errorf("unexpected response.headers.X-Rate-Limit-Remaining.schema.type: %s", header.schema.type_)
-				return
-			}
-		})
-		t.Run("X-Rate-Limit-Reset", func(t *testing.T) {
-			header, ok := response.headers["X-Rate-Limit-Reset"]
-			if !ok {
-				t.Error("response.headers.X-Rate-Limit-Reset is not found")
-				return
-			}
-			if header.description != "The number of seconds left in the current period" {
-				t.Errorf("unexpected response.headers.X-Rate-Limit-Reset.description: %s", header.description)
-				return
-			}
-			if header.schema.type_ != "integer" {
-				t.Errorf("unexpected response.headers.X-Rate-Limit-Reset.schema.type: %s", header.schema.type_)
-				return
-			}
-		})
+		assertEqual(t, got, want)
 	})
 	t.Run("no return value", func(t *testing.T) {
 		yml := `description: object created`
-		var response Response
-		if err := yaml.Unmarshal([]byte(yml), &response); err != nil {
+		var got Response
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		if response.description != "object created" {
-			t.Errorf("unexpected response.description: %s", response.description)
-			return
+		want := Response{
+			description: "object created",
 		}
+		assertEqual(t, got, want)
 	})
 }
 
@@ -3430,10 +2729,7 @@ x-foo: bar`,
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected response:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -3470,16 +2766,8 @@ foo: bar`,
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var response Response
-			got := yaml.Unmarshal([]byte(tt.yml), &response)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &Response{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -3497,43 +2785,38 @@ func TestCallbackExampleUnmarshalYAML(t *testing.T) {
       responses:
         '200':
           description: webhook successfully processed and no retries will be performed`
-	var target map[string]*Callback
-	if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
+	var got map[string]*Callback
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
-	callback, ok := target["myWebhook"]
-	if !ok {
-		t.Error("myWebhook is not found")
-		return
+	want := map[string]*Callback{
+		"myWebhook": {
+			callback: map[string]*PathItem{
+				"http://notificationServer.com?transactionId={$request.body#/id}&email={$request.body#/email}": {
+					post: &Operation{
+						requestBody: &RequestBody{
+							description: "Callback payload",
+							content: map[string]*MediaType{
+								"application/json": {
+									schema: &Schema{
+										reference: "#/components/schemas/SomePayload",
+									},
+								},
+							},
+						},
+						responses: &Responses{
+							responses: map[string]*Response{
+								"200": {
+									description: "webhook successfully processed and no retries will be performed",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
-	const wantCBExpr = "http://notificationServer.com?transactionId={$request.body#/id}&email={$request.body#/email}"
-	pathItem, ok := callback.callback[wantCBExpr]
-	if !ok {
-		t.Errorf("myWebhook.%s is not found", wantCBExpr)
-		return
-	}
-	if pathItem.post.requestBody.description != "Callback payload" {
-		t.Errorf("unexpected myWebhook.%s.post.requestBody.description: %s", wantCBExpr, pathItem.post.requestBody.description)
-		return
-	}
-	mediaType, ok := pathItem.post.requestBody.content["application/json"]
-	if !ok {
-		t.Errorf("myWebhook.%s.post.requestBody.content.application/json is not found", wantCBExpr)
-		return
-	}
-	if mediaType.schema.reference != "#/components/schemas/SomePayload" {
-		t.Errorf("unexpected myWebhook.%s.post.requestBody.schema.$ref: %s", wantCBExpr, mediaType.schema.reference)
-		return
-	}
-	response, ok := pathItem.post.responses.responses["200"]
-	if !ok {
-		t.Errorf("myWebhook.%s.post.responses.200 is not found", wantCBExpr)
-		return
-	}
-	if response.description != "webhook successfully processed and no retries will be performed" {
-		t.Errorf("unexpected myWebhook.%s.post.responses.200.description: %s", wantCBExpr, response.description)
-		return
-	}
+	assertEqual(t, got, want)
 }
 
 func TestCallbackUnmarshalYAML(t *testing.T) {
@@ -3562,10 +2845,7 @@ func TestCallbackUnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected callback:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -3586,16 +2866,8 @@ func TestCallbackUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var callback Callback
-			got := yaml.Unmarshal([]byte(tt.yml), &callback)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &Callback{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -3630,124 +2902,82 @@ func TestExampleExampleUnmarshalYAML(t *testing.T) {
 		if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
 			t.Fatal(err)
 		}
-		t.Run("application/json", func(t *testing.T) {
-			mediaType, ok := target.RequestBody.content["application/json"]
-			if !ok {
-				t.Error("requestBody.content.application/json is not found")
-				return
-			}
-			if mediaType.schema.reference != "#/components/schemas/Address" {
-				t.Errorf("unexpected requestBody.content.application/json.schema.$ref: %s", mediaType.schema.reference)
-				return
-			}
-			t.Run("foo", func(t *testing.T) {
-				example, ok := mediaType.examples["foo"]
-				if !ok {
-					t.Error("requestBody.content.application/json.examples.foo is not found")
-					return
-				}
-				if example.summary != "A foo example" {
-					t.Errorf("unexpected requestBody.content.application/json.examples.foo.summary: %s", example.summary)
-					return
-				}
-				if !reflect.DeepEqual(example.value, map[string]interface{}{"foo": "bar"}) {
-					t.Errorf("unexpected requestBody.content.application/json.examples.foo.value: %v", example.value)
-					return
-				}
-			})
-			t.Run("bar", func(t *testing.T) {
-				example, ok := mediaType.examples["bar"]
-				if !ok {
-					t.Error("requestBody.content.application/json.examples.bar is not found")
-					return
-				}
-				if example.summary != "A bar example" {
-					t.Errorf("unexpected requestBody.content.application/json.examples.bar.summary: %s", example.summary)
-					return
-				}
-				if !reflect.DeepEqual(example.value, map[string]interface{}{"bar": "baz"}) {
-					t.Errorf("unexpected requestBody.content.application/json.examples.bar.value: %v", example.value)
-					return
-				}
-			})
-		})
-		t.Run("application/xml", func(t *testing.T) {
-			mediaType, ok := target.RequestBody.content["application/xml"]
-			if !ok {
-				t.Error("requestBody.content.application/xml is not found")
-				return
-			}
-			example, ok := mediaType.examples["xmlExample"]
-			if !ok {
-				t.Error("requestBody.content.application/xml.examples.xmlExample is not found")
-				return
-			}
-			if example.summary != "This is an example in XML" {
-				t.Errorf("unexpected requestBody.content.application/xml.examples.xmlExample.summary: %s", example.summary)
-				return
-			}
-			if example.externalValue != "http://example.org/examples/address-example.xml" {
-				t.Errorf("unexpected requestBody.content.application/xml.examples.xmlExample.externalValue: %s", example.externalValue)
-				return
-			}
-		})
-		t.Run("text/plain", func(t *testing.T) {
-			mediaType, ok := target.RequestBody.content["text/plain"]
-			if !ok {
-				t.Error("requestBody.content.text/plain is not found")
-				return
-			}
-			example, ok := mediaType.examples["textExample"]
-			if !ok {
-				t.Error("requestBody.content.text/plain.examples.textExample is not found")
-				return
-			}
-			if example.summary != "This is a text example" {
-				t.Errorf("unexpected requestBody.content.text/plain.examples.textExample.summary: %s", example.summary)
-				return
-			}
-			if example.externalValue != "http://foo.bar/examples/address-example.txt" {
-				t.Errorf("unexpected requestBody.content.text/plain.examples.textExample.externalValue: %s", example.externalValue)
-				return
-			}
-		})
+		got := target.RequestBody
+		want := RequestBody{
+			content: map[string]*MediaType{
+				"application/json": {
+					schema: &Schema{
+						reference: "#/components/schemas/Address",
+					},
+					examples: map[string]*Example{
+						"foo": {
+							summary: "A foo example",
+							value: map[string]interface{}{
+								"foo": "bar",
+							},
+						},
+						"bar": {
+							summary: "A bar example",
+							value: map[string]interface{}{
+								"bar": "baz",
+							},
+						},
+					},
+				},
+				"application/xml": {
+					examples: map[string]*Example{
+						"xmlExample": {
+							summary:       "This is an example in XML",
+							externalValue: "http://example.org/examples/address-example.xml",
+						},
+					},
+				},
+				"text/plain": {
+					examples: map[string]*Example{
+						"textExample": {
+							summary:       "This is a text example",
+							externalValue: "http://foo.bar/examples/address-example.txt",
+						},
+					},
+				},
+			},
+		}
+		assertEqual(t, got, want)
 	})
-	/*
-		t.Run("in a parameter", func(t *testing.T) {
-			yml := `parameters:
-			  - name: 'zipCode'
-			    in: 'query'
-			    schema:
-			      type: 'string'
-			      format: 'zip-code'
-			      examples:
-			        zip-example:
-			          $ref: '#/components/examples/zip-example'`
-					var target struct {
-						Parameters []*Parameter
-					}
-					if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
-						t.Fatal(err)
-					}
-					parameter := target.Parameters[0]
-					if parameter.name != "zipCode" {
-						t.Errorf("unexpected parameters.0.name: %s", parameter.name)
-						return
-					}
-					if parameter.in != "query" {
-						t.Errorf("unexpected parameters.0.in: %s", parameter.in)
-						return
-					}
-					if parameter.schema.type_ != "string" {
-						t.Errorf("unexpected parameters.0.schema.type: %s", parameter.schema.type_)
-						return
-					}
-					if parameter.schema.format != "zip-code" {
-						t.Errorf("unexpected parameters.0.schema.format: %s", parameter.schema.format)
-						return
-					}
-				})
-	*/
+	t.Run("in a parameter", func(t *testing.T) {
+		yml := `parameters:
+  - name: 'zipCode'
+    in: 'query'
+    schema:
+      type: 'string'
+      format: 'zip-code'
+    examples:
+      zip-example:
+        $ref: '#/components/examples/zip-example'`
+		var target struct {
+			Parameters []*Parameter
+		}
+		if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
+			t.Fatal(err)
+		}
+		got := target.Parameters
+		want := []*Parameter{
+			{
+				name: "zipCode",
+				in:   "query",
+				schema: &Schema{
+					type_:  "string",
+					format: "zip-code",
+				},
+				examples: map[string]*Example{
+					"zip-example": {
+						reference: "#/components/examples/zip-example",
+					},
+				},
+			},
+		}
+		assertEqual(t, got, want)
+	})
 	t.Run("in a response", func(t *testing.T) {
 		yml := `responses:
   '200':
@@ -3765,33 +2995,27 @@ func TestExampleExampleUnmarshalYAML(t *testing.T) {
 		if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
 			t.Fatal(err)
 		}
-		response, ok := target.Responses.responses["200"]
-		if !ok {
-			t.Error("responses.200 is not found")
-			return
+		got := target.Responses
+		want := Responses{
+			responses: map[string]*Response{
+				"200": {
+					description: "your car appointment has been booked",
+					content: map[string]*MediaType{
+						"application/json": {
+							schema: &Schema{
+								reference: "#/components/schemas/SuccessResponse",
+							},
+							examples: map[string]*Example{
+								"confirmation-success": {
+									reference: "#/components/examples/confirmation-success",
+								},
+							},
+						},
+					},
+				},
+			},
 		}
-		if response.description != "your car appointment has been booked" {
-			t.Errorf("unexpected responses.200.description: %s", response.description)
-			return
-		}
-		mediaType, ok := response.content["application/json"]
-		if !ok {
-			t.Error("responses.200.content.application/json is not found")
-			return
-		}
-		if mediaType.schema.reference != "#/components/schemas/SuccessResponse" {
-			t.Errorf("unexpected responses.200.content.application/json.schema.$ref: %s", mediaType.schema.reference)
-			return
-		}
-		example, ok := mediaType.examples["confirmation-success"]
-		if !ok {
-			t.Error("responses.200.content.application/json.examples.confirmation-success is not found")
-			return
-		}
-		if example.reference != "#/components/examples/confirmation-success" {
-			t.Errorf("unexpected responses.200.content.application/json.examples.confirmation-success.$ref: %s", example.reference)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 }
 
@@ -3821,10 +3045,7 @@ func TestExampleUnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected example:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -3841,16 +3062,8 @@ func TestExampleUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var example Example
-			got := yaml.Unmarshal([]byte(tt.yml), &example)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &Example{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -3906,124 +3119,72 @@ func TestLinkExampleUnmarshalYAML(t *testing.T) {
 		if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
 			t.Fatal(err)
 		}
-		t.Run("/users/{id}", func(t *testing.T) {
-			pathItem, ok := target.Paths.paths["/users/{id}"]
-			if !ok {
-				t.Error("paths./users/{id} is not found")
-				return
-			}
-			id := pathItem.parameters[0]
-			if id.name != "id" {
-				t.Errorf("unexpected paths./users/{id}.parameters.0.name: %s", id.name)
-				return
-			}
-			if id.in != "path" {
-				t.Errorf("unexpected paths./users/{id}.parameters.0.in: %s", id.in)
-				return
-			}
-			if id.required != true {
-				t.Errorf("unexpected paths./users/{id}.parameters.0.required: %t", id.required)
-				return
-			}
-			if id.description != "the user identifier, as userId" {
-				t.Errorf("unexpected paths./users/{id}.parameters.0.description: %s", id.description)
-				return
-			}
-			if id.schema.type_ != "string" {
-				t.Errorf("unexpected paths./users/{id}.parameters.0.schema.type: %s", id.schema.type_)
-				return
-			}
-			response, ok := pathItem.get.responses.responses["200"]
-			if !ok {
-				t.Error("paths./users/{id}.get.responses.200 is not found")
-				return
-			}
-			if response.description != "the user being returned" {
-				t.Errorf("unexpected paths./users/{id}.get.responses.200.description: %s", response.description)
-				return
-			}
-			mediaType, ok := response.content["application/json"]
-			if !ok {
-				t.Error("paths./users/{id}.get.responses.200.content.application/json is not found")
-				return
-			}
-			if mediaType.schema.type_ != "object" {
-				t.Errorf("unexpected paths./users/{id}.get.responses.200.content.application/json.schema.type: %s", mediaType.schema.type_)
-				return
-			}
-			property, ok := mediaType.schema.properties["uuid"]
-			if !ok {
-				t.Error("paths./users/{id}.get.responses.200.content.application/json.schema.properties.uuid is not found")
-				return
-			}
-			if property.type_ != "string" {
-				t.Errorf("unexpected paths./users/{id}.get.responses.200.content.application/json.schema.properties.uuid.type: %s", property.type_)
-				return
-			}
-			if property.format != "uuid" {
-				t.Errorf("unexpected paths./users/{id}.get.responses.200.content.application/json.schema.properties.uuid.format: %s", property.format)
-				return
-			}
-			link, ok := response.links["address"]
-			if !ok {
-				t.Error("paths./users/{id}.get.responses.200.links.address is not found")
-				return
-			}
-			if link.operationID != "getUserAddress" {
-				t.Errorf("unexpected paths./users/{id}.get.responses.200.links.address.operationId: %s", link.operationID)
-				return
-			}
-			parameter, ok := link.parameters["userId"]
-			if !ok {
-				t.Error("paths./users/{id}.get.responses.200.links.address.parameters.userId is not found")
-				return
-			}
-			if parameter != "$request.path.id" {
-				t.Errorf("unexpected paths./users/{id}.get.responses.200.links.address.parameters.userId: %v", parameter)
-				return
-			}
-		})
-		t.Run("/users/{userid}/address", func(t *testing.T) {
-			pathItem, ok := target.Paths.paths["/users/{userid}/address"]
-			if !ok {
-				t.Error("paths./users/{userid}/address is not found")
-				return
-			}
-			userid := pathItem.parameters[0]
-			if userid.name != "userid" {
-				t.Errorf("unexpected paths./users/{userid}/address.name: %s", userid.name)
-				return
-			}
-			if userid.in != "path" {
-				t.Errorf("unexpected paths./users/{userid}/address.in: %s", userid.in)
-				return
-			}
-			if userid.required != true {
-				t.Errorf("unexpected paths./users/{userid}/address.required: %t", userid.required)
-				return
-			}
-			if userid.description != "the user identifier, as userId" {
-				t.Errorf("unexpected paths./users/{userid}/address.dEscription: %s", userid.description)
-				return
-			}
-			if userid.schema.type_ != "string" {
-				t.Errorf("unexpected paths./users/{userid}/address.schema.type: %s", userid.schema.type_)
-				return
-			}
-			if pathItem.get.operationID != "getUserAddress" {
-				t.Errorf("unexpected paths./users/{userid}/address.get.operationId: %s", pathItem.get.operationID)
-				return
-			}
-			response, ok := pathItem.get.responses.responses["200"]
-			if !ok {
-				t.Error("paths./users/{userid}/address.get.responses.200 is not found")
-				return
-			}
-			if response.description != "the user's address" {
-				t.Errorf("unexpected paths./users/{userid}/address.get.responses.200.description: %s", response.description)
-				return
-			}
-		})
+		got := target.Paths
+		want := Paths{
+			paths: map[string]*PathItem{
+				"/users/{id}": {
+					parameters: []*Parameter{
+						{
+							name:        "id",
+							in:          "path",
+							required:    true,
+							description: "the user identifier, as userId",
+							schema:      &Schema{type_: "string"},
+						},
+					},
+					get: &Operation{
+						responses: &Responses{
+							responses: map[string]*Response{
+								"200": {
+									description: "the user being returned",
+									content: map[string]*MediaType{
+										"application/json": {
+											schema: &Schema{
+												type_: "object",
+												properties: map[string]*Schema{
+													"uuid": {
+														type_:  "string",
+														format: "uuid",
+													},
+												},
+											},
+										},
+									},
+									links: map[string]*Link{
+										"address": {
+											operationID: "getUserAddress",
+											parameters: map[string]interface{}{
+												"userId": "$request.path.id",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				"/users/{userid}/address": {
+					parameters: []*Parameter{
+						{
+							name:        "userid",
+							in:          "path",
+							required:    true,
+							description: "the user identifier, as userId",
+							schema:      &Schema{type_: "string"},
+						},
+					},
+					get: &Operation{
+						operationID: "getUserAddress",
+						responses: &Responses{
+							responses: map[string]*Response{
+								"200": {description: "the user's address"},
+							},
+						},
+					},
+				},
+			},
+		}
+		assertEqual(t, got, want)
 	})
 	t.Run("can use values from the response body", func(t *testing.T) {
 		yml := `links:
@@ -4038,19 +3199,16 @@ func TestLinkExampleUnmarshalYAML(t *testing.T) {
 		if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
 			t.Fatal(err)
 		}
-		link, ok := target.Links["address"]
-		if !ok {
-			t.Error("links.address is not found")
-			return
+		got := target.Links
+		want := map[string]*Link{
+			"address": {
+				operationID: "getUserAddressByUUID",
+				parameters: map[string]interface{}{
+					"userUuid": "$response.body#/uuid",
+				},
+			},
 		}
-		if link.operationID != "getUserAddressByUUID" {
-			t.Errorf("unexpected links.address.operationId: %s", link.operationID)
-			return
-		}
-		if link.parameters["userUuid"] != "$response.body#/uuid" {
-			t.Errorf("unexpected links.address.parameters.userUuid: %s", link.parameters["userUuid"])
-			return
-		}
+		assertEqual(t, got, want)
 	})
 	t.Run("relative operationRef", func(t *testing.T) {
 		yml := `links:
@@ -4065,18 +3223,16 @@ func TestLinkExampleUnmarshalYAML(t *testing.T) {
 		if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
 			t.Fatal(err)
 		}
-		link, ok := target.Links["UserRepositories"]
-		if !ok {
-			t.Error("links.UserRepositories is not found")
+		got := target.Links
+		want := map[string]*Link{
+			"UserRepositories": {
+				operationRef: "#/paths/~12.0~1repositories~1{username}/get",
+				parameters: map[string]interface{}{
+					"username": "$response.body#/username",
+				},
+			},
 		}
-		if link.operationRef != "#/paths/~12.0~1repositories~1{username}/get" {
-			t.Errorf("unexpected links.UserRepositories.operationRef: %s", link.operationRef)
-			return
-		}
-		if link.parameters["username"] != "$response.body#/username" {
-			t.Errorf("unexpected links.address.parameters.userUuid: %s", link.parameters["username"])
-			return
-		}
+		assertEqual(t, got, want)
 	})
 	t.Run("absolute operationRef", func(t *testing.T) {
 		yml := `links:
@@ -4091,18 +3247,16 @@ func TestLinkExampleUnmarshalYAML(t *testing.T) {
 		if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
 			t.Fatal(err)
 		}
-		link, ok := target.Links["UserRepositories"]
-		if !ok {
-			t.Error("links.UserRepositories is not found")
+		got := target.Links
+		want := map[string]*Link{
+			"UserRepositories": {
+				operationRef: "https://na2.gigantic-server.com/#/paths/~12.0~1repositories~1{username}/get",
+				parameters: map[string]interface{}{
+					"username": "$response.body#/username",
+				},
+			},
 		}
-		if link.operationRef != "https://na2.gigantic-server.com/#/paths/~12.0~1repositories~1{username}/get" {
-			t.Errorf("unexpected links.UserRepositories.operationRef: %s", link.operationRef)
-			return
-		}
-		if link.parameters["username"] != "$response.body#/username" {
-			t.Errorf("unexpected links.address.parameters.userUuid: %s", link.parameters["username"])
-			return
-		}
+		assertEqual(t, got, want)
 	})
 }
 
@@ -4147,10 +3301,7 @@ func TestLinkUnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected link:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -4175,16 +3326,8 @@ func TestLinkUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var link Link
-			got := yaml.Unmarshal([]byte(tt.yml), &link)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &Link{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -4193,18 +3336,17 @@ func TestHeaderExampleUnmarshalYAML(t *testing.T) {
 	yml := `description: The number of allowed requests in the current period
 schema:
   type: integer`
-	var header Header
-	if err := yaml.Unmarshal([]byte(yml), &header); err != nil {
+	var got Header
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
-	if header.description != "The number of allowed requests in the current period" {
-		t.Errorf("unexpected header.description: %s", header.description)
-		return
+	want := Header{
+		description: "The number of allowed requests in the current period",
+		schema: &Schema{
+			type_: "integer",
+		},
 	}
-	if header.schema.type_ != "integer" {
-		t.Errorf("unexpected header.schema.type: %s", header.schema.type_)
-		return
-	}
+	assertEqual(t, got, want)
 }
 
 func TestHeaderUnmarshalYAML(t *testing.T) {
@@ -4296,10 +3438,7 @@ func TestHeaderUnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected header:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -4328,16 +3467,8 @@ func TestHeaderUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var header Header
-			got := yaml.Unmarshal([]byte(tt.yml), &header)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &Header{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -4345,18 +3476,15 @@ func TestHeaderUnmarshalYAMLError(t *testing.T) {
 func TestTagExampleUnmarshal(t *testing.T) {
 	yml := `name: pet
 description: Pets operations`
-	var tag Tag
-	if err := yaml.Unmarshal([]byte(yml), &tag); err != nil {
+	var got Tag
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
-	if tag.name != "pet" {
-		t.Errorf("unexpected tag.name: %s", tag.name)
-		return
+	want := Tag{
+		name:        "pet",
+		description: "Pets operations",
 	}
-	if tag.description != "Pets operations" {
-		t.Errorf("unexpected tag.description: %s", tag.description)
-		return
-	}
+	assertEqual(t, got, want)
 }
 
 func TestTagUnmarshalYAML(t *testing.T) {
@@ -4392,10 +3520,7 @@ externalDocs:
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected tag:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -4422,39 +3547,38 @@ foo: bar`,
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var tag Tag
-			got := yaml.Unmarshal([]byte(tt.yml), &tag)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &Tag{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
 
 func TestSchemaExampleUnmarshalYAML(t *testing.T) {
-	t.Run("primitive", func(t *testing.T) {
-		yml := `type: string
+	t.Run("primitive", testSchemaExampleUnmarshalYAMLPrimitive)
+	t.Run("simple model", testSchemaExampleUnmarshalYAMLSimpleModel)
+	t.Run("simple string to string map", testSchemaExampleUnmarshalYAMLStringToStringMap)
+	t.Run("string to model map", testSchemaExampleUnmarshalYAMLStringToModelMap)
+	t.Run("model with example", testSchemaExampleUnmarshalYAMLModelExample)
+	t.Run("models with composition", testSchemaExampleUnmarshalYAMLComposition)
+	t.Run("models with polymorphism support", testSchemaExampleUnmarshalYAMLPolymorphism)
+}
+
+func testSchemaExampleUnmarshalYAMLPrimitive(t *testing.T) {
+	yml := `type: string
 format: email`
-		var schema Schema
-		if err := yaml.Unmarshal([]byte(yml), &schema); err != nil {
-			t.Fatal(err)
-		}
-		if schema.type_ != "string" {
-			t.Errorf("unexpected schema.type: %s", schema.type_)
-			return
-		}
-		if schema.format != "email" {
-			t.Errorf("unexpected schema.format: %s", schema.format)
-			return
-		}
-	})
-	t.Run("simple model", func(t *testing.T) {
-		yml := `type: object
+	var got Schema
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
+		t.Fatal(err)
+	}
+	want := Schema{
+		type_:  "string",
+		format: "email",
+	}
+	assertEqual(t, got, want)
+}
+
+func testSchemaExampleUnmarshalYAMLSimpleModel(t *testing.T) {
+	yml := `type: object
 required:
 - name
 properties:
@@ -4466,90 +3590,62 @@ properties:
     type: integer
     format: int32
     minimum: 0`
-		var schema Schema
-		if err := yaml.Unmarshal([]byte(yml), &schema); err != nil {
-			t.Fatal(err)
-		}
-		if schema.type_ != "object" {
-			t.Errorf("unexpected schema.type: %s", schema.type_)
-			return
-		}
-		if !reflect.DeepEqual(schema.required, []string{"name"}) {
-			t.Errorf("unexpected schema.required: %q", schema.required)
-			return
-		}
-		name, ok := schema.properties["name"]
-		if !ok {
-			t.Error("schema.properties.name is not found")
-			return
-		}
-		if name.type_ != "string" {
-			t.Errorf("unexpected schema.properties.name.type: %s", name.type_)
-			return
-		}
-		address, ok := schema.properties["address"]
-		if !ok {
-			t.Error("schema.properties.address is not found")
-			return
-		}
-		if address.reference != "#/components/schemas/Address" {
-			t.Errorf("unexpected schema.properties.address.$ref: %s", address.reference)
-			return
-		}
-		age, ok := schema.properties["age"]
-		if !ok {
-			t.Error("schema.properties.age is not found")
-			return
-		}
-		if age.type_ != "integer" {
-			t.Errorf("unexpected schema.properties.age.type: %s", age.type_)
-			return
-		}
-		if age.format != "int32" {
-			t.Errorf("unexpected schema.properties.age.format: %s", age.format)
-			return
-		}
-		if age.minimum != 0 {
-			t.Errorf("unexpected schema.properties.age.minimum: %d", age.minimum)
-			return
-		}
-	})
-	t.Run("simple string to string map", func(t *testing.T) {
-		yml := `type: object
+	var got Schema
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
+		t.Fatal(err)
+	}
+	want := Schema{
+		type_:    "object",
+		required: []string{"name"},
+		properties: map[string]*Schema{
+			"name":    {type_: "string"},
+			"address": {reference: "#/components/schemas/Address"},
+			"age": {
+				type_:   "integer",
+				format:  "int32",
+				minimum: 0,
+			},
+		},
+	}
+	assertEqual(t, got, want)
+}
+
+func testSchemaExampleUnmarshalYAMLStringToStringMap(t *testing.T) {
+	yml := `type: object
 additionalProperties:
   type: string`
-		var schema Schema
-		if err := yaml.Unmarshal([]byte(yml), &schema); err != nil {
-			t.Fatal(err)
-		}
-		if schema.type_ != "object" {
-			t.Errorf("unexpected schema.type: %s", schema.type_)
-			return
-		}
-		if schema.additionalProperties.type_ != "string" {
-			t.Errorf("unexpected schema.additiionalProperties.type: %s", schema.additionalProperties.type_)
-			return
-		}
-	})
-	t.Run("string to model map", func(t *testing.T) {
-		yml := `type: object
+	var got Schema
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
+		t.Fatal(err)
+	}
+	want := Schema{
+		type_: "object",
+		additionalProperties: &Schema{
+			type_: "string",
+		},
+	}
+	assertEqual(t, got, want)
+}
+
+func testSchemaExampleUnmarshalYAMLStringToModelMap(t *testing.T) {
+	yml := `type: object
 additionalProperties:
   $ref: '#/components/schemas/ComplexModel'`
-		var schema Schema
-		if err := yaml.Unmarshal([]byte(yml), &schema); err != nil {
-			t.Fatal(err)
-		}
-		if schema.type_ != "object" {
-			t.Errorf("unexpected schema.type: %s", schema.type_)
-			return
-		}
-		if schema.additionalProperties.reference != "#/components/schemas/ComplexModel" {
-			t.Errorf("unexpected schema.additionalProperties.$ref: %s", schema.additionalProperties.reference)
-			return
-		}
-	})
-	t.Run("model with example", func(t *testing.T) {
-		yml := `type: object
+	var got Schema
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
+		t.Fatal(err)
+	}
+	want := Schema{
+		type_: "object",
+		additionalProperties: &Schema{
+			reference: "#/components/schemas/ComplexModel",
+		},
+	}
+	assertEqual(t, got, want)
+}
+
+func testSchemaExampleUnmarshalYAMLModelExample(t *testing.T) {
+	yml := `type: object
 properties:
   id:
     type: integer
@@ -4561,61 +3657,32 @@ required:
 example:
   name: Puma
   id: 1`
-		var schema Schema
-		if err := yaml.Unmarshal([]byte(yml), &schema); err != nil {
-			t.Fatal(err)
-		}
-		if schema.type_ != "object" {
-			t.Errorf("unexpected schema.type: %s", schema.type_)
-			return
-		}
-		id, ok := schema.properties["id"]
-		if !ok {
-			t.Error("schema.properties.id is not found")
-			return
-		}
-		if id.type_ != "integer" {
-			t.Errorf("unexpected schema.properties.id.type: %s", id.type_)
-			return
-		}
-		if id.format != "int64" {
-			t.Errorf("unexpected schema.properties.id.format: %s", id.format)
-			return
-		}
-		name, ok := schema.properties["name"]
-		if !ok {
-			if !ok {
-				t.Error("schema.properties.name is not found")
-				return
-			}
-			if name.type_ != "string" {
-				t.Errorf("unexpected schema.properties.name.type: %s", name.type_)
-				return
-			}
-		}
-		if !reflect.DeepEqual(schema.required, []string{"name"}) {
-			t.Errorf("unexpected schema.required: %q", schema.required)
-			return
-		}
-		if example, ok := schema.example.(map[string]interface{}); ok {
-			if name, ok := example["name"]; !ok {
-				t.Error("schema.example.name is not found")
-				return
-			} else if name != "Puma" {
-				t.Errorf("unexpected schema.example.name: %s", name)
-				return
-			}
-			if id, ok := example["id"]; !ok {
-				t.Error("schema.example.id is not found")
-				return
-			} else if id != uint64(1) {
-				t.Errorf("unexpected schema.example.id: %d", id)
-				return
-			}
-		}
-	})
-	t.Run("models with composition", func(t *testing.T) {
-		yml := `components:
+	var got Schema
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
+		t.Fatal(err)
+	}
+	want := Schema{
+		type_: "object",
+		properties: map[string]*Schema{
+			"id": {
+				type_:  "integer",
+				format: "int64",
+			},
+			"name": {
+				type_: "string",
+			},
+		},
+		required: []string{"name"},
+		example: map[string]interface{}{
+			"name": "Puma",
+			"id":   uint64(1),
+		},
+	}
+	assertEqual(t, got, want)
+}
+
+func testSchemaExampleUnmarshalYAMLComposition(t *testing.T) {
+	yml := `components:
   schemas:
     ErrorModel:
       type: object
@@ -4638,86 +3705,50 @@ example:
         properties:
           rootCause:
             type: string`
-		var target struct {
-			Components Components
-		}
-		if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
-			t.Fatal(err)
-		}
-		t.Run("ErrorModel", func(t *testing.T) {
-			schema, ok := target.Components.schemas["ErrorModel"]
-			if !ok {
-				t.Error("components.schemas.ErrorModel is not found")
-				return
-			}
-			if schema.type_ != "object" {
-				t.Errorf("unexpected components.schemas.ErrorModel.type: %s", schema.type_)
-				return
-			}
-			if !reflect.DeepEqual(schema.required, []string{"message", "code"}) {
-				t.Errorf("unexpected components.schemas.ErrorModel.required: %q", schema.required)
-				return
-			}
-			message, ok := schema.properties["message"]
-			if !ok {
-				t.Error("components.schemas.ErrorModel.properties.message is not found")
-				return
-			}
-			if message.type_ != "string" {
-				t.Errorf("unexpected components.schemas.ErrorModel.properties.message.type: %s", message.type_)
-				return
-			}
-			code, ok := schema.properties["code"]
-			if !ok {
-				t.Error("components.schemas.ErrorModel.properties.code is not found")
-				return
-			}
-			if code.type_ != "integer" {
-				t.Errorf("unexpected components.schemas.ErrorModel.properties.code.type: %s", code.type_)
-				return
-			}
-			if code.minimum != 100 {
-				t.Errorf("unexpected components.schemas.ErrorModel.properties.code.minimum: %d", code.minimum)
-				return
-			}
-			if code.maximum != 600 {
-				t.Errorf("unexpected components.schemas.ErrorModel.properties.code.maximum: %d", code.maximum)
-				return
-			}
-		})
-		t.Run("ExtendedErrorModel", func(t *testing.T) {
-			schema, ok := target.Components.schemas["ExtendedErrorModel"]
-			if !ok {
-				t.Error("components.schemas.ExtendedErrorModel is not found")
-				return
-			}
-			ref := schema.allOf[0]
-			if ref.reference != "#/components/schemas/ErrorModel" {
-				t.Errorf("unexpected components.schemas.ExtendedErrorModel.allOf.0.$ref: %s", ref.reference)
-				return
-			}
-			ext := schema.allOf[1]
-			if ext.type_ != "object" {
-				t.Errorf("unexpected components.schemas.ExtendedErrorModel.allOf.1.type: %s", ext.type_)
-				return
-			}
-			if !reflect.DeepEqual(ext.required, []string{"rootCause"}) {
-				t.Errorf("unexpected components.schemas.ExtendedErrorModel.allOf.1.required: %q", ext.required)
-				return
-			}
-			rootCause, ok := ext.properties["rootCause"]
-			if !ok {
-				t.Error("components.schemas.ExtendedErrorModel.allOf.1.properties.rootCause is not found")
-				return
-			}
-			if rootCause.type_ != "string" {
-				t.Errorf("unexpected components.schemas.ExtendedErrorModel.allOf.1.properties.rootCause.type: %s", rootCause.type_)
-				return
-			}
-		})
-	})
-	t.Run("models with polymorphism support", func(t *testing.T) {
-		yml := `components:
+	var target struct {
+		Components Components
+	}
+	if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
+		t.Fatal(err)
+	}
+	got := target.Components
+	want := Components{
+		schemas: map[string]*Schema{
+			"ErrorModel": {
+				type_:    "object",
+				required: []string{"message", "code"},
+				properties: map[string]*Schema{
+					"message": {
+						type_: "string",
+					},
+					"code": {
+						type_:   "integer",
+						minimum: 100,
+						maximum: 600,
+					},
+				},
+			},
+			"ExtendedErrorModel": {
+				allOf: []*Schema{
+					{
+						reference: "#/components/schemas/ErrorModel",
+					},
+					{
+						type_:    "object",
+						required: []string{"rootCause"},
+						properties: map[string]*Schema{
+							"rootCause": {type_: "string"},
+						},
+					},
+				},
+			},
+		},
+	}
+	assertEqual(t, got, want)
+}
+
+func testSchemaExampleUnmarshalYAMLPolymorphism(t *testing.T) {
+	yml := `components:
   schemas:
     Pet:
       type: object
@@ -4761,136 +3792,65 @@ example:
             minimum: 0
         required:
         - packSize`
-		var target struct {
-			Components Components
-		}
-		if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
-			t.Fatal(err)
-		}
-		t.Run("Pet", func(t *testing.T) {
-			pet, ok := target.Components.schemas["Pet"]
-			if !ok {
-				t.Error("components.schemas.Pet is not found")
-				return
-			}
-			if pet.type_ != "object" {
-				t.Errorf("unexpected components.schemas.Pet.type: %s", pet.type_)
-				return
-			}
-			if pet.discriminator.propertyName != "petType" {
-				t.Errorf("unexpected components.schemas.discriminator.propertyName: %s", pet.discriminator.propertyName)
-				return
-			}
-			name, ok := pet.properties["name"]
-			if !ok {
-				t.Error("components.schemas.Pet.properties.name is not found")
-				return
-			}
-			if name.type_ != "string" {
-				t.Errorf("unexpected components.schemas.Pet.properties.name.type: %s", name.type_)
-				return
-			}
-			petType, ok := pet.properties["petType"]
-			if !ok {
-				t.Error("components.schemas.Pet.properties.petType is not found")
-				return
-			}
-			if petType.type_ != "string" {
-				t.Errorf("unexpected components.schemas.Pet.properties.petType.type: %s", petType.type_)
-				return
-			}
-			if !reflect.DeepEqual(pet.required, []string{"name", "petType"}) {
-				t.Errorf("unexpected componets.schemas.Pet.required: %q", pet.required)
-				return
-			}
-		})
-		t.Run("Cat", func(t *testing.T) {
-			cat, ok := target.Components.schemas["Cat"]
-			if !ok {
-				t.Error("components.schemas.Cat is not found")
-				return
-			}
-			if cat.description != "A representation of a cat" {
-				t.Errorf("unexpected components.schemas.Cat.description: %s", cat.description)
-				return
-			}
-			if cat.allOf[0].reference != "#/components/schemas/Pet" {
-				t.Errorf("unexpected components.schemas.Cat.allOf.0.$ref: %s", cat.allOf[0].reference)
-				return
-			}
-			schema := cat.allOf[1]
-			if schema.type_ != "object" {
-				t.Errorf("unexpected components.schemas.Cat.allOf.1.type: %s", schema.type_)
-				return
-			}
-			huntingSkill, ok := schema.properties["huntingSkill"]
-			if !ok {
-				t.Error("components.schemas.Cat.allOf.1.properties.huntingSkill is not found")
-				return
-			}
-			if huntingSkill.type_ != "string" {
-				t.Errorf("unexpected components.schemas.Cat.allOf.1.properties.huntingSkill.type: %s", huntingSkill.type_)
-				return
-			}
-			if huntingSkill.description != "The measured skill for hunting" {
-				t.Errorf("unexpected components.schemas.Cat.allOf.1.properties.huntingSkill.description: %s", huntingSkill.description)
-				return
-			}
-			if !reflect.DeepEqual(schema.required, []string{"huntingSkill"}) {
-				t.Errorf("unexpected components.schemas.Cat.allOf.1.required: %q", schema.required)
-				return
-			}
-		})
-		t.Run("Dog", func(t *testing.T) {
-			dog, ok := target.Components.schemas["Dog"]
-			if !ok {
-				t.Error("components.schemas.Dog is not found")
-				return
-			}
-			if dog.description != "A representation of a dog" {
-				t.Errorf("unexpected components.schemas.Dog.description: %s", dog.description)
-				return
-			}
-			if dog.allOf[0].reference != "#/components/schemas/Pet" {
-				t.Errorf("unexpected components.schemas.Dog.allOf.0.$ref: %s", dog.allOf[0].reference)
-				return
-			}
-			schema := dog.allOf[1]
-			if schema.type_ != "object" {
-				t.Errorf("unexpected components.schemas.Dog.allOf.1.type: %s", schema.type_)
-				return
-			}
-			packSize, ok := schema.properties["packSize"]
-			if !ok {
-				t.Error("components.schemas.Dog.allOf.1.properties.packSize is not found")
-				return
-			}
-			if packSize.type_ != "integer" {
-				t.Errorf("unexpected components.schemas.Dog.allOf.1.properties.packSize.type: %s", packSize.type_)
-				return
-			}
-			if packSize.format != "int32" {
-				t.Errorf("unexpected components.schemas.Dog.allOf.1.properties.packSize.format: %s", packSize.format)
-				return
-			}
-			if packSize.description != "the size of the pack the dog is from" {
-				t.Errorf("unexpected components.schemas.Dog.allOf.1.properties.packSize.description: %s", packSize.description)
-				return
-			}
-			if packSize.default_ != "0" {
-				t.Errorf("unexpected components.schemas.Dog.allOf.1.properties.packSize.default: %s", packSize.default_)
-				return
-			}
-			if packSize.minimum != 0 {
-				t.Errorf("unexpected components.schemas.Dog.allOf.1.properties.packSize.minimum: %d", packSize.minimum)
-				return
-			}
-			if !reflect.DeepEqual(schema.required, []string{"packSize"}) {
-				t.Errorf("unexpected components.schemas.Dog.allOf.1.required: %q", schema.required)
-				return
-			}
-		})
-	})
+	var target struct {
+		Components Components
+	}
+	if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
+		t.Fatal(err)
+	}
+	got := target.Components
+	want := Components{
+		schemas: map[string]*Schema{
+			"Pet": {
+				type_: "object",
+				discriminator: &Discriminator{
+					propertyName: "petType",
+				},
+				properties: map[string]*Schema{
+					"name":    {type_: "string"},
+					"petType": {type_: "string"},
+				},
+				required: []string{"name", "petType"},
+			},
+			"Cat": {
+				description: "A representation of a cat",
+				allOf: []*Schema{
+					{reference: "#/components/schemas/Pet"},
+					{
+						type_: "object",
+						properties: map[string]*Schema{
+							"huntingSkill": {
+								type_:       "string",
+								description: "The measured skill for hunting",
+								enum:        []string{"clueless", "lazy", "adventurous", "aggressive"},
+							},
+						},
+						required: []string{"huntingSkill"},
+					},
+				},
+			},
+			"Dog": {
+				description: "A representation of a dog",
+				allOf: []*Schema{
+					{reference: "#/components/schemas/Pet"},
+					{
+						type_: "object",
+						properties: map[string]*Schema{
+							"packSize": {
+								type_:       "integer",
+								format:      "int32",
+								description: "the size of the pack the dog is from",
+								default_:    "0",
+								minimum:     0,
+							},
+						},
+						required: []string{"packSize"},
+					},
+				},
+			},
+		},
+	}
+	assertEqual(t, got, want)
 }
 
 func TestSchemaUnmarshalYAML(t *testing.T) {
@@ -5016,10 +3976,7 @@ url: https://example.com`,
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected schema:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -5076,16 +4033,8 @@ func TestSchemaUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var schema Schema
-			got := yaml.Unmarshal([]byte(tt.yml), &schema)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &Schema{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -5099,31 +4048,23 @@ func TestDiscriminatorExampleUnmarshalYAML(t *testing.T) {
   - $ref: '#/components/schemas/Lizard'
   discriminator:
     propertyName: petType`
-		var target map[string]*Schema
-		if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
+		var got map[string]*Schema
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		schema, ok := target["MyResponseType"]
-		if !ok {
-			t.Error("MyResponseType is not found")
-			return
+		want := map[string]*Schema{
+			"MyResponseType": {
+				oneOf: []*Schema{
+					{reference: "#/components/schemas/Cat"},
+					{reference: "#/components/schemas/Dog"},
+					{reference: "#/components/schemas/Lizard"},
+				},
+				discriminator: &Discriminator{
+					propertyName: "petType",
+				},
+			},
 		}
-		if schema.oneOf[0].reference != "#/components/schemas/Cat" {
-			t.Errorf("unexpected MyResponseType.oneOf.0.$ref: %s", schema.oneOf[0].reference)
-			return
-		}
-		if schema.oneOf[1].reference != "#/components/schemas/Dog" {
-			t.Errorf("unexpected MyResponseType.oneOf.1.$ref: %s", schema.oneOf[1].reference)
-			return
-		}
-		if schema.oneOf[2].reference != "#/components/schemas/Lizard" {
-			t.Errorf("unexpected MyResponseType.oneOf.2.$ref: %s", schema.oneOf[2].reference)
-			return
-		}
-		if schema.discriminator.propertyName != "petType" {
-			t.Errorf("unexpected MyResponseType.discriminator.propertyName: %s", schema.discriminator.propertyName)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 	t.Run("mapping", func(t *testing.T) {
 		yml := `MyResponseType:
@@ -5137,53 +4078,28 @@ func TestDiscriminatorExampleUnmarshalYAML(t *testing.T) {
     mapping:
       dog: '#/components/schemas/Dog'
       monster: 'https://gigantic-server.com/schemas/Monster/schema.json'`
-		var target map[string]*Schema
-		if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
+		var got map[string]*Schema
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		schema, ok := target["MyResponseType"]
-		if !ok {
-			t.Error("MyResponseType is not found")
-			return
+		want := map[string]*Schema{
+			"MyResponseType": {
+				oneOf: []*Schema{
+					{reference: "#/components/schemas/Cat"},
+					{reference: "#/components/schemas/Dog"},
+					{reference: "#/components/schemas/Lizard"},
+					{reference: "https://gigantic-server.com/schemas/Monster/schema.json"},
+				},
+				discriminator: &Discriminator{
+					propertyName: "petType",
+					mapping: map[string]string{
+						"dog":     "#/components/schemas/Dog",
+						"monster": "https://gigantic-server.com/schemas/Monster/schema.json",
+					},
+				},
+			},
 		}
-		if schema.oneOf[0].reference != "#/components/schemas/Cat" {
-			t.Errorf("unexpected MyResponseType.oneOf.0.$ref: %s", schema.oneOf[0].reference)
-			return
-		}
-		if schema.oneOf[1].reference != "#/components/schemas/Dog" {
-			t.Errorf("unexpected MyResponseType.oneOf.1.$ref: %s", schema.oneOf[1].reference)
-			return
-		}
-		if schema.oneOf[2].reference != "#/components/schemas/Lizard" {
-			t.Errorf("unexpected MyResponseType.oneOf.2.$ref: %s", schema.oneOf[2].reference)
-			return
-		}
-		if schema.oneOf[3].reference != "https://gigantic-server.com/schemas/Monster/schema.json" {
-			t.Errorf("unexpected MyResponseType.oneOf.3.$ref: %s", schema.oneOf[3].reference)
-			return
-		}
-		if schema.discriminator.propertyName != "petType" {
-			t.Errorf("unexpected MyResponseType.discriminator.propertyName: %s", schema.discriminator.propertyName)
-			return
-		}
-		dog, ok := schema.discriminator.mapping["dog"]
-		if !ok {
-			t.Error("MyResponseType.discriminator.mapping.dog is not found")
-			return
-		}
-		if dog != "#/components/schemas/Dog" {
-			t.Errorf("unexpected MyResponseType.discriminator.mapping.dog: %s", dog)
-			return
-		}
-		monster, ok := schema.discriminator.mapping["monster"]
-		if !ok {
-			t.Error("MyResponseType.discriminator.mapping.monster is not found")
-			return
-		}
-		if monster != "https://gigantic-server.com/schemas/Monster/schema.json" {
-			t.Errorf("unexpected MyResponseType.discriminator.mapping.monster: %s", monster)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 }
 
@@ -5198,10 +4114,7 @@ func TestDiscriminatorUnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected discriminator:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -5222,16 +4135,8 @@ func TestDiscriminatorUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var discriminator Discriminator
-			got := yaml.Unmarshal([]byte(tt.yml), &discriminator)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &Discriminator{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -5242,23 +4147,19 @@ func TestXMLExampleUnmarshalYAML(t *testing.T) {
   type: string
   xml:
     name: animal`
-		var target map[string]*Schema
-		if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
+		var got map[string]*Schema
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		animals, ok := target["animals"]
-		if !ok {
-			t.Error("animals is not found")
-			return
+		want := map[string]*Schema{
+			"animals": {
+				type_: "string",
+				xml: &XML{
+					name: "animal",
+				},
+			},
 		}
-		if animals.type_ != "string" {
-			t.Errorf("unexpected animals.type: %s", animals.type_)
-			return
-		}
-		if animals.xml.name != "animal" {
-			t.Errorf("unexpected animals.xml.name: %s", animals.xml.name)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 	t.Run("attribute prefix namespace", func(t *testing.T) {
 		yml := `Person:
@@ -5274,53 +4175,30 @@ func TestXMLExampleUnmarshalYAML(t *testing.T) {
       xml:
         namespace: http://example.com/schema/sample
         prefix: sample`
-		var target map[string]*Schema
-		if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
+		var got map[string]*Schema
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		person, ok := target["Person"]
-		if !ok {
-			t.Error("Person is not found")
-			return
+		want := map[string]*Schema{
+			"Person": {
+				type_: "object",
+				properties: map[string]*Schema{
+					"id": {
+						type_:  "integer",
+						format: "int32",
+						xml:    &XML{attribute: true},
+					},
+					"name": {
+						type_: "string",
+						xml: &XML{
+							namespace: "http://example.com/schema/sample",
+							prefix:    "sample",
+						},
+					},
+				},
+			},
 		}
-		if person.type_ != "object" {
-			t.Errorf("unexpected Person.type: %s", person.type_)
-			return
-		}
-		id, ok := person.properties["id"]
-		if !ok {
-			t.Error("Person.properties.id is not found")
-			return
-		}
-		if id.type_ != "integer" {
-			t.Errorf("unexpected Person.properties.id.type: %s", id.type_)
-			return
-		}
-		if id.format != "int32" {
-			t.Errorf("unexpected Person.properties.id.format: %s", id.format)
-			return
-		}
-		if id.xml.attribute != true {
-			t.Errorf("unexpected Person.properties.id.xml.attribute: %t", id.xml.attribute)
-			return
-		}
-		name, ok := person.properties["name"]
-		if !ok {
-			t.Error("Person.properties.name is not found")
-			return
-		}
-		if name.type_ != "string" {
-			t.Errorf("unexpected Person.properties.name.type: %s", name.type_)
-			return
-		}
-		if name.xml.namespace != "http://example.com/schema/sample" {
-			t.Errorf("unexpected Person.properties.name.xml.namespace: %s", name.xml.namespace)
-			return
-		}
-		if name.xml.prefix != "sample" {
-			t.Errorf("unexpected Person.properties.name.xml.prefix: %s", name.xml.prefix)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 	t.Run("wrapped array", func(t *testing.T) {
 		yml := `animals:
@@ -5329,27 +4207,18 @@ func TestXMLExampleUnmarshalYAML(t *testing.T) {
     type: string
   xml:
     wrapped: true`
-		var target map[string]*Schema
-		if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
+		var got map[string]*Schema
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		animals, ok := target["animals"]
-		if !ok {
-			t.Error("animals is not found")
-			return
+		want := map[string]*Schema{
+			"animals": {
+				type_: "array",
+				items: &Schema{type_: "string"},
+				xml:   &XML{wrapped: true},
+			},
 		}
-		if animals.type_ != "array" {
-			t.Errorf("unexpected animals.type: %s", animals.type_)
-			return
-		}
-		if animals.items.type_ != "string" {
-			t.Errorf("unexpected animals.items.type: %s", animals.items.type_)
-			return
-		}
-		if animals.xml.wrapped != true {
-			t.Errorf("unexpected animals.xml.wrapped: %t", animals.xml.wrapped)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 }
 
@@ -5373,10 +4242,7 @@ func TestXMLUnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected xml:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -5393,16 +4259,8 @@ func TestXMLUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var xml XML
-			got := yaml.Unmarshal([]byte(tt.yml), &xml)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &XML{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -5411,60 +4269,45 @@ func TestSecuritySchemeExampleUnmarshalYAML(t *testing.T) {
 	t.Run("basic auth", func(t *testing.T) {
 		yml := `type: http
 scheme: basic`
-		var securityScheme SecurityScheme
-		if err := yaml.Unmarshal([]byte(yml), &securityScheme); err != nil {
+		var got SecurityScheme
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		if securityScheme.type_ != "http" {
-			t.Errorf("unexpected securityScheme.type: %s", securityScheme.type_)
-			return
+		want := SecurityScheme{
+			type_:  "http",
+			scheme: "basic",
 		}
-		if securityScheme.scheme != "basic" {
-			t.Errorf("unexpected securityScheme.scheme: %s", securityScheme.scheme)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 	t.Run("api key", func(t *testing.T) {
 		yml := `type: apiKey
 name: api_key
 in: header`
-		var securityScheme SecurityScheme
-		if err := yaml.Unmarshal([]byte(yml), &securityScheme); err != nil {
+		var got SecurityScheme
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		if securityScheme.type_ != "apiKey" {
-			t.Errorf("unexpected securityScheme.type: %s", securityScheme.type_)
-			return
+		want := SecurityScheme{
+			type_: "apiKey",
+			name:  "api_key",
+			in:    "header",
 		}
-		if securityScheme.name != "api_key" {
-			t.Errorf("unexpected securityScheme.name: %s", securityScheme.name)
-			return
-		}
-		if securityScheme.in != "header" {
-			t.Errorf("unexpected securityScheme.in: %s", securityScheme.in)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 	t.Run("JWT bearer", func(t *testing.T) {
 		yml := `type: http
 scheme: bearer
 bearerFormat: JWT`
-		var securityScheme SecurityScheme
-		if err := yaml.Unmarshal([]byte(yml), &securityScheme); err != nil {
+		var got SecurityScheme
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		if securityScheme.type_ != "http" {
-			t.Errorf("unexpected securityScheme.type: %s", securityScheme.type_)
-			return
+		want := SecurityScheme{
+			type_:        "http",
+			scheme:       "bearer",
+			bearerFormat: "JWT",
 		}
-		if securityScheme.scheme != "bearer" {
-			t.Errorf("unexpected securityScheme.scheme: %s", securityScheme.scheme)
-			return
-		}
-		if securityScheme.bearerFormat != "JWT" {
-			t.Errorf("unexpected securityScheme.bearerFormat: %s", securityScheme.bearerFormat)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 	t.Run("implicit oauth2", func(t *testing.T) {
 		yml := `type: oauth2
@@ -5474,36 +4317,23 @@ flows:
     scopes:
       write:pets: modify pets in your account
       read:pets: read your pets`
-		var securityScheme SecurityScheme
-		if err := yaml.Unmarshal([]byte(yml), &securityScheme); err != nil {
+		var got SecurityScheme
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		if securityScheme.type_ != "oauth2" {
-			t.Errorf("unexpected securityScheme.type: %s", securityScheme.type_)
-			return
+		want := SecurityScheme{
+			type_: "oauth2",
+			flows: &OAuthFlows{
+				implicit: &OAuthFlow{
+					authorizationURL: "https://example.com/api/oauth/dialog",
+					scopes: map[string]string{
+						"write:pets": "modify pets in your account",
+						"read:pets":  "read your pets",
+					},
+				},
+			},
 		}
-		if securityScheme.flows.implicit.authorizationURL != "https://example.com/api/oauth/dialog" {
-			t.Errorf("unexpected securityScheme.flows.implicit.authorizationURL: %s", securityScheme.flows.implicit.authorizationURL)
-			return
-		}
-		write, ok := securityScheme.flows.implicit.scopes["write:pets"]
-		if !ok {
-			t.Error("securityScheme.flows.implicit.scopes.write:pets is not found")
-			return
-		}
-		if write != "modify pets in your account" {
-			t.Errorf("unexpected securityScheme.flows.implicit.scopes.write:pets: %s", write)
-			return
-		}
-		read, ok := securityScheme.flows.implicit.scopes["read:pets"]
-		if !ok {
-			t.Error("securityScheme.flows.implicit.scopes.read:pets is not found")
-			return
-		}
-		if read != "read your pets" {
-			t.Errorf("unexpected securityScheme.flows.implicit.scopes.read:pets: %s", read)
-			return
-		}
+		assertEqual(t, got, want)
 	})
 }
 
@@ -5587,10 +4417,7 @@ func TestSecuritySchemeUnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected securityScheme:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -5624,16 +4451,8 @@ func TestSecuritySchemeUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var securityScheme SecurityScheme
-			got := yaml.Unmarshal([]byte(tt.yml), &securityScheme)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &SecurityScheme{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -5670,10 +4489,7 @@ func TestOAuthFlowsUnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected oAuthFlows:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -5710,16 +4526,8 @@ func TestOAuthFlowsUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var oAuthFlows OAuthFlows
-			got := yaml.Unmarshal([]byte(tt.yml), &oAuthFlows)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &OAuthFlows{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -5738,68 +4546,31 @@ flows:
     scopes:
       write:pets: modify pets in your account
       read:pets: read your pets `
-	var securityScheme SecurityScheme
-	if err := yaml.Unmarshal([]byte(yml), &securityScheme); err != nil {
+	var got SecurityScheme
+	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
-	if securityScheme.type_ != "oauth2" {
-		t.Errorf("unexpected securityScheme.type: %s", securityScheme.type_)
-		return
+	want := SecurityScheme{
+		type_: "oauth2",
+		flows: &OAuthFlows{
+			implicit: &OAuthFlow{
+				authorizationURL: "https://example.com/api/oauth/dialog",
+				scopes: map[string]string{
+					"write:pets": "modify pets in your account",
+					"read:pets":  "read your pets",
+				},
+			},
+			authorizationCode: &OAuthFlow{
+				authorizationURL: "https://example.com/api/oauth/dialog",
+				tokenURL:         "https://example.com/api/oauth/token",
+				scopes: map[string]string{
+					"write:pets": "modify pets in your account",
+					"read:pets":  "read your pets",
+				},
+			},
+		},
 	}
-	t.Run("implicit", func(t *testing.T) {
-		implicit := securityScheme.flows.implicit
-		if implicit.authorizationURL != "https://example.com/api/oauth/dialog" {
-			t.Errorf("unexpected securityScheme.flows.implicit.authorizationUrl: %s", implicit.authorizationURL)
-			return
-		}
-		write, ok := implicit.scopes["write:pets"]
-		if !ok {
-			t.Error("securityScheme.flows.implicit.scopes.write:pets is not found")
-			return
-		}
-		if write != "modify pets in your account" {
-			t.Errorf("unexpected securityScheme.flows.implicit.scopes.write:pets: %s", write)
-			return
-		}
-		read, ok := implicit.scopes["read:pets"]
-		if !ok {
-			t.Error("securityScheme.flows.implicit.scopes.read:pets is not found")
-			return
-		}
-		if read != "read your pets" {
-			t.Errorf("unexpected securityScheme.flows.implicit.scopes.read:pets: %s", read)
-			return
-		}
-	})
-	t.Run("authorizationCode", func(t *testing.T) {
-		authorizationCode := securityScheme.flows.authorizationCode
-		if authorizationCode.authorizationURL != "https://example.com/api/oauth/dialog" {
-			t.Errorf("unexpected securityScheme.flows.authorizationCode.authorizationUrl: %s", authorizationCode.authorizationURL)
-			return
-		}
-		if authorizationCode.tokenURL != "https://example.com/api/oauth/token" {
-			t.Errorf("unexpected securityScheme.flows.authorizationCode.tokenUrl: %s", authorizationCode.tokenURL)
-			return
-		}
-		write, ok := authorizationCode.scopes["write:pets"]
-		if !ok {
-			t.Error("securityScheme.flows.authorizationCode.scopes.write:pets is not found")
-			return
-		}
-		if write != "modify pets in your account" {
-			t.Errorf("unexpected securityScheme.flows.authorizationCode.scopes.write:pets: %s", write)
-			return
-		}
-		read, ok := authorizationCode.scopes["read:pets"]
-		if !ok {
-			t.Error("securityScheme.flows.authorizationCode.scopes.read:pets is not found")
-			return
-		}
-		if read != "read your pets" {
-			t.Errorf("unexpected securityScheme.flows.authorizationCode.scopes.read:pets: %s", read)
-			return
-		}
-	})
+	assertEqual(t, got, want)
 }
 
 func TestOAuthFlowUnmarshalYAML(t *testing.T) {
@@ -5828,10 +4599,7 @@ func TestOAuthFlowUnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected oAuthFlow:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -5868,16 +4636,8 @@ func TestOAuthFlowUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var oAuthFlow OAuthFlow
-			got := yaml.Unmarshal([]byte(tt.yml), &oAuthFlow)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &OAuthFlow{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }
@@ -5885,36 +4645,31 @@ func TestOAuthFlowUnmarshalYAMLError(t *testing.T) {
 func TestSecurityRequirementExampleUnmarshalYAML(t *testing.T) {
 	t.Run("non-oauth2", func(t *testing.T) {
 		yml := `api_key: []`
-		var securityRequirement SecurityRequirement
-		if err := yaml.Unmarshal([]byte(yml), &securityRequirement); err != nil {
+		var got SecurityRequirement
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		if apiKey, ok := securityRequirement.securityRequirement["api_key"]; !ok {
-			t.Error("api_key is not found")
-			return
-		} else if !reflect.DeepEqual(apiKey, []string{}) {
-			t.Errorf("unexpected api_key: %q", apiKey)
-			return
+		want := SecurityRequirement{
+			securityRequirement: map[string][]string{
+				"api_key": {},
+			},
 		}
+		assertEqual(t, got, want)
 	})
 	t.Run("oauth2", func(t *testing.T) {
 		yml := `petstore_auth:
 - write:pets
 - read:pets`
-		var securityRequirement SecurityRequirement
-		if err := yaml.Unmarshal([]byte(yml), &securityRequirement); err != nil {
+		var got SecurityRequirement
+		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
-		if auth, ok := securityRequirement.securityRequirement["petstore_auth"]; !ok {
-			t.Error("petstore_auth is not found")
-			return
-		} else if auth[0] != "write:pets" {
-			t.Errorf("unexpected petstore_auth.0: %s", auth[0])
-			return
-		} else if auth[1] != "read:pets" {
-			t.Errorf("unexpected petstore_auth.1: %s", auth[1])
-			return
+		want := SecurityRequirement{
+			securityRequirement: map[string][]string{
+				"petstore_auth": {"write:pets", "read:pets"},
+			},
 		}
+		assertEqual(t, got, want)
 	})
 }
 
@@ -5929,10 +4684,7 @@ func TestSecurityRequirementUnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected securityRequirement:\n  got:  %#v\n  want: %#v", got, tt.want)
-				return
-			}
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
@@ -5949,16 +4701,8 @@ func TestSecurityRequirementUnmarshalYAMLError(t *testing.T) {
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var securityRequirement SecurityRequirement
-			got := yaml.Unmarshal([]byte(tt.yml), &securityRequirement)
-			if got == nil {
-				t.Error("error is expected but not")
-				return
-			}
-			if got.Error() != tt.want.Error() {
-				t.Errorf("unexpected:\n  got:  %v\n  want: %v", got, tt.want)
-				return
-			}
+			got := yaml.Unmarshal([]byte(tt.yml), &SecurityRequirement{})
+			assertSameError(t, got, tt.want)
 		})
 	}
 }

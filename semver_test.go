@@ -5,6 +5,7 @@ import (
 	"testing"
 )
 
+//nolint:funlen // most of the code is testcases
 func TestSplitSemVer(t *testing.T) {
 	type want struct {
 		ver  string
@@ -123,6 +124,7 @@ func TestSplitSemVer(t *testing.T) {
 	}
 }
 
+//nolint:funlen // most of the code is testcases
 func TestIsValidSemVer(t *testing.T) {
 	tests := []struct {
 		input string
