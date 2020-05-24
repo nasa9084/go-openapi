@@ -1,12 +1,11 @@
 package openapi
 
 import (
-	"reflect"
 	"strconv"
 	"testing"
 )
 
-func TestResolveParameter(t *testing.T) {
+func TestResolve(t *testing.T) {
 	root := &OpenAPI{
 		components: &Components{
 			parameters: map[string]*Parameter{
@@ -14,115 +13,16 @@ func TestResolveParameter(t *testing.T) {
 					name: "FooParameter",
 				},
 			},
-		},
-	}
-
-	root.setRoot(root)
-
-	tests := []struct {
-		ref  string
-		want *Parameter
-	}{
-		{
-			ref:  "#/components/parameters/FooParameter",
-			want: root.components.parameters["FooParameter"],
-		},
-	}
-
-	for i, tt := range tests {
-		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
-			got, err := resolve(root, tt.ref)
-			if err != nil {
-				t.Fatal(err)
-			}
-			tt.want.setRoot(root)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected:\ngot:  %+v\nwant: %+v", got, tt.want)
-				return
-			}
-		})
-	}
-}
-
-func TestResolveRequestBody(t *testing.T) {
-	root := &OpenAPI{
-		components: &Components{
 			requestBodies: map[string]*RequestBody{
 				"FooRequest": {
 					description: "FooRequest",
 				},
 			},
-		},
-	}
-
-	root.setRoot(root)
-
-	tests := []struct {
-		ref  string
-		want *RequestBody
-	}{
-		{
-			ref:  "#/components/requestBodies/FooRequest",
-			want: root.components.requestBodies["FooRequest"],
-		},
-	}
-
-	for i, tt := range tests {
-		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
-			got, err := resolve(root, tt.ref)
-			if err != nil {
-				t.Fatal(err)
-			}
-			tt.want.setRoot(root)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected:\ngot:  %+v\nwant: %+v", got, tt.want)
-				return
-			}
-		})
-	}
-}
-
-func TestResolveResponse(t *testing.T) {
-	root := &OpenAPI{
-		components: &Components{
 			responses: map[string]*Response{
 				"FooResponse": {
 					description: "FooResponse",
 				},
 			},
-		},
-	}
-
-	root.setRoot(root)
-
-	tests := []struct {
-		ref  string
-		want *Response
-	}{
-		{
-			ref:  "#/components/responses/FooResponse",
-			want: root.components.responses["FooResponse"],
-		},
-	}
-
-	for i, tt := range tests {
-		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
-			got, err := resolve(root, tt.ref)
-			if err != nil {
-				t.Fatal(err)
-			}
-			tt.want.setRoot(root)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected:\ngot:  %+v\nwant: %+v", got, tt.want)
-				return
-			}
-		})
-	}
-}
-
-func TestResolveCallback(t *testing.T) {
-	root := &OpenAPI{
-		components: &Components{
 			callbacks: map[string]*Callback{
 				"FooCallback": {
 					callback: map[string]*PathItem{
@@ -132,191 +32,26 @@ func TestResolveCallback(t *testing.T) {
 					},
 				},
 			},
-		},
-	}
-
-	root.setRoot(root)
-
-	tests := []struct {
-		ref  string
-		want *Callback
-	}{
-		{
-			ref:  "#/components/callbacks/FooCallback",
-			want: root.components.callbacks["FooCallback"],
-		},
-	}
-
-	for i, tt := range tests {
-		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
-			got, err := resolve(root, tt.ref)
-			if err != nil {
-				t.Fatal(err)
-			}
-			tt.want.setRoot(root)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected:\ngot:  %+v\nwant: %+v", got, tt.want)
-				return
-			}
-		})
-	}
-}
-
-func TestResolveExample(t *testing.T) {
-	root := &OpenAPI{
-		components: &Components{
 			examples: map[string]*Example{
 				"FooExample": {
 					summary: "FooExample",
 				},
 			},
-		},
-	}
-
-	root.setRoot(root)
-
-	tests := []struct {
-		ref  string
-		want *Example
-	}{
-		{
-			ref:  "#/components/examples/FooExample",
-			want: root.components.examples["FooExample"],
-		},
-	}
-
-	for i, tt := range tests {
-		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
-			got, err := resolve(root, tt.ref)
-			if err != nil {
-				t.Fatal(err)
-			}
-			tt.want.setRoot(root)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected:\ngot:  %+v\nwant: %+v", got, tt.want)
-				return
-			}
-		})
-	}
-}
-
-func TestResolveLink(t *testing.T) {
-	root := &OpenAPI{
-		components: &Components{
 			links: map[string]*Link{
 				"FooLink": {
 					operationID: "FooLink",
 				},
 			},
-		},
-	}
-
-	root.setRoot(root)
-
-	tests := []struct {
-		ref  string
-		want *Link
-	}{
-		{
-			ref:  "#/components/links/FooLink",
-			want: root.components.links["FooLink"],
-		},
-	}
-
-	for i, tt := range tests {
-		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
-			got, err := resolve(root, tt.ref)
-			if err != nil {
-				t.Fatal(err)
-			}
-			tt.want.setRoot(root)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected:\ngot:  %+v\nwant: %+v", got, tt.want)
-				return
-			}
-		})
-	}
-}
-
-func TestResolveHeader(t *testing.T) {
-	root := &OpenAPI{
-		components: &Components{
 			headers: map[string]*Header{
 				"FooHeader": {
 					description: "FooHeader",
 				},
 			},
-		},
-	}
-
-	root.setRoot(root)
-
-	tests := []struct {
-		ref  string
-		want *Header
-	}{
-		{
-			ref:  "#/components/headers/FooHeader",
-			want: root.components.headers["FooHeader"],
-		},
-	}
-
-	for i, tt := range tests {
-		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
-			got, err := resolve(root, tt.ref)
-			if err != nil {
-				t.Fatal(err)
-			}
-			tt.want.setRoot(root)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected:\ngot:  %+v\nwant: %+v", got, tt.want)
-				return
-			}
-		})
-	}
-}
-
-func TestResolveSchema(t *testing.T) {
-	root := &OpenAPI{
-		components: &Components{
 			schemas: map[string]*Schema{
 				"FooSchema": {
 					title: "FooSchema",
 				},
 			},
-		},
-	}
-
-	root.setRoot(root)
-
-	tests := []struct {
-		ref  string
-		want *Schema
-	}{
-		{
-			ref:  "#/components/schemas/FooSchema",
-			want: root.components.schemas["FooSchema"],
-		},
-	}
-
-	for i, tt := range tests {
-		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
-			got, err := resolve(root, tt.ref)
-			if err != nil {
-				t.Fatal(err)
-			}
-			tt.want.setRoot(root)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected:\ngot:  %+v\nwant: %+v", got, tt.want)
-				return
-			}
-		})
-	}
-}
-
-func TestResolveSecurityScheme(t *testing.T) {
-	root := &OpenAPI{
-		components: &Components{
 			securitySchemes: map[string]*SecurityScheme{
 				"FooSecurityScheme": {
 					name: "FooSecurityScheme",
@@ -325,12 +60,57 @@ func TestResolveSecurityScheme(t *testing.T) {
 		},
 	}
 
-	root.setRoot(root)
+	testResolve(t, root)
+	testResolveError(t, root)
 
+	testParameterResolve(t, root)
+	testRequestBodyResolve(t, root)
+	testResponseResolve(t, root)
+	testCallbackResolve(t, root)
+	testExampleResolve(t, root)
+	testLinkResolve(t, root)
+	testHeaderResolve(t, root)
+	testSchemaResolve(t, root)
+	testSecuritySchemeResolve(t, root)
+}
+
+func testResolve(t *testing.T, root *OpenAPI) {
 	tests := []struct {
 		ref  string
-		want *SecurityScheme
+		want interface{}
 	}{
+		{
+			ref:  "#/components/parameters/FooParameter",
+			want: root.components.parameters["FooParameter"],
+		},
+		{
+			ref:  "#/components/requestBodies/FooRequest",
+			want: root.components.requestBodies["FooRequest"],
+		},
+		{
+			ref:  "#/components/responses/FooResponse",
+			want: root.components.responses["FooResponse"],
+		},
+		{
+			ref:  "#/components/callbacks/FooCallback",
+			want: root.components.callbacks["FooCallback"],
+		},
+		{
+			ref:  "#/components/examples/FooExample",
+			want: root.components.examples["FooExample"],
+		},
+		{
+			ref:  "#/components/links/FooLink",
+			want: root.components.links["FooLink"],
+		},
+		{
+			ref:  "#/components/headers/FooHeader",
+			want: root.components.headers["FooHeader"],
+		},
+		{
+			ref:  "#/components/schemas/FooSchema",
+			want: root.components.schemas["FooSchema"],
+		},
 		{
 			ref:  "#/components/securitySchemes/FooSecurityScheme",
 			want: root.components.securitySchemes["FooSecurityScheme"],
@@ -343,29 +123,13 @@ func TestResolveSecurityScheme(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			tt.want.setRoot(root)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("unexpected:\ngot:  %+v\nwant: %+v", got, tt.want)
-				return
-			}
+
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
 
-func TestResolveError(t *testing.T) {
-	root := &OpenAPI{
-		components: &Components{
-			parameters:      map[string]*Parameter{},
-			requestBodies:   map[string]*RequestBody{},
-			responses:       map[string]*Response{},
-			callbacks:       map[string]*Callback{},
-			examples:        map[string]*Example{},
-			links:           map[string]*Link{},
-			headers:         map[string]*Header{},
-			schemas:         map[string]*Schema{},
-			securitySchemes: map[string]*SecurityScheme{},
-		},
-	}
+func testResolveError(t *testing.T, root *OpenAPI) {
 	tests := []struct {
 		ref  string
 		want error
@@ -387,8 +151,8 @@ func TestResolveError(t *testing.T) {
 			want: ErrCannotResolved("#/foo/bar/baz", "only supports to resolve under #/components"),
 		},
 		{
-			ref:  "#/components/schemas/FooSchema",
-			want: ErrCannotResolved("#/components/schemas/FooSchema", "not found"),
+			ref:  "#/components/schemas/UnknownSchema",
+			want: ErrCannotResolved("#/components/schemas/UnknownSchema", "not found"),
 		},
 		{
 			ref:  "#/components/unknown/reference",
@@ -403,10 +167,305 @@ func TestResolveError(t *testing.T) {
 				t.Error("error should not be nil")
 				return
 			}
-			if got != tt.want {
-				t.Errorf("unexpected error:\ngot:  %+v\nwant: %+v", got, tt.want)
-				return
+
+			assertSameError(t, got, tt.want)
+		})
+	}
+}
+
+func testParameterResolve(t *testing.T, root *OpenAPI) {
+	tests := []struct {
+		ref  string
+		want *Parameter
+	}{
+		{
+			ref:  "#/components/parameters/FooParameter",
+			want: root.components.parameters["FooParameter"],
+		},
+		{
+			ref: "",
+			want: &Parameter{
+				root: root,
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
+			v := Parameter{
+				reference: tt.ref,
 			}
+			v.setRoot(root)
+			got, err := v.resolve()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			assertEqual(t, got, tt.want)
+		})
+	}
+}
+
+func testRequestBodyResolve(t *testing.T, root *OpenAPI) {
+	tests := []struct {
+		ref  string
+		want *RequestBody
+	}{
+		{
+			ref:  "#/components/requestBodies/FooRequest",
+			want: root.components.requestBodies["FooRequest"],
+		},
+		{
+			ref: "",
+			want: &RequestBody{
+				root: root,
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
+			v := RequestBody{
+				reference: tt.ref,
+			}
+			v.setRoot(root)
+			got, err := v.resolve()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			assertEqual(t, got, tt.want)
+		})
+	}
+}
+
+func testResponseResolve(t *testing.T, root *OpenAPI) {
+	tests := []struct {
+		ref  string
+		want *Response
+	}{
+		{
+			ref:  "#/components/responses/FooResponse",
+			want: root.components.responses["FooResponse"],
+		},
+		{
+			ref: "",
+			want: &Response{
+				root: root,
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
+			v := Response{
+				reference: tt.ref,
+			}
+			v.setRoot(root)
+			got, err := v.resolve()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			assertEqual(t, got, tt.want)
+		})
+	}
+}
+
+func testCallbackResolve(t *testing.T, root *OpenAPI) {
+	tests := []struct {
+		ref  string
+		want *Callback
+	}{
+		{
+			ref:  "#/components/callbacks/FooCallback",
+			want: root.components.callbacks["FooCallback"],
+		},
+		{
+			ref: "",
+			want: &Callback{
+				root: root,
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
+			v := Callback{
+				reference: tt.ref,
+			}
+			v.setRoot(root)
+			got, err := v.resolve()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			assertEqual(t, got, tt.want)
+		})
+	}
+}
+
+func testExampleResolve(t *testing.T, root *OpenAPI) {
+	tests := []struct {
+		ref  string
+		want *Example
+	}{
+		{
+			ref:  "#/components/examples/FooExample",
+			want: root.components.examples["FooExample"],
+		},
+		{
+			ref: "",
+			want: &Example{
+				root: root,
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
+			v := Example{
+				reference: tt.ref,
+			}
+			v.setRoot(root)
+			got, err := v.resolve()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			assertEqual(t, got, tt.want)
+		})
+	}
+}
+
+func testLinkResolve(t *testing.T, root *OpenAPI) {
+	tests := []struct {
+		ref  string
+		want *Link
+	}{
+		{
+			ref:  "#/components/links/FooLink",
+			want: root.components.links["FooLink"],
+		},
+		{
+			ref: "",
+			want: &Link{
+				root: root,
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
+			v := Link{
+				reference: tt.ref,
+			}
+			v.setRoot(root)
+			got, err := v.resolve()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			assertEqual(t, got, tt.want)
+		})
+	}
+}
+
+func testHeaderResolve(t *testing.T, root *OpenAPI) {
+	tests := []struct {
+		ref  string
+		want *Header
+	}{
+		{
+			ref:  "#/components/headers/FooHeader",
+			want: root.components.headers["FooHeader"],
+		},
+		{
+			ref: "",
+			want: &Header{
+				root: root,
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
+			v := Header{
+				reference: tt.ref,
+			}
+			v.setRoot(root)
+			got, err := v.resolve()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			assertEqual(t, got, tt.want)
+		})
+	}
+}
+
+func testSchemaResolve(t *testing.T, root *OpenAPI) {
+	tests := []struct {
+		ref  string
+		want *Schema
+	}{
+		{
+			ref:  "#/components/schemas/FooSchema",
+			want: root.components.schemas["FooSchema"],
+		},
+		{
+			ref: "",
+			want: &Schema{
+				root: root,
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
+			v := Schema{
+				reference: tt.ref,
+			}
+			v.setRoot(root)
+			got, err := v.resolve()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			assertEqual(t, got, tt.want)
+		})
+	}
+}
+
+func testSecuritySchemeResolve(t *testing.T, root *OpenAPI) {
+	tests := []struct {
+		ref  string
+		want *SecurityScheme
+	}{
+		{
+			ref:  "#/components/securitySchemes/FooSecurityScheme",
+			want: root.components.securitySchemes["FooSecurityScheme"],
+		},
+		{
+			ref: "",
+			want: &SecurityScheme{
+				root: root,
+			},
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
+			v := SecurityScheme{
+				reference: tt.ref,
+			}
+			v.setRoot(root)
+			got, err := v.resolve()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			assertEqual(t, got, tt.want)
 		})
 	}
 }
