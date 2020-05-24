@@ -375,6 +375,10 @@ func TestResolveError(t *testing.T) {
 			want: ErrInvalidReference(""),
 		},
 		{
+			ref:  "#/short/reference",
+			want: ErrInvalidReference("#/short/reference"),
+		},
+		{
 			ref:  "not/begin/with/sharp",
 			want: ErrInvalidReference("not/begin/with/sharp"),
 		},
@@ -385,6 +389,10 @@ func TestResolveError(t *testing.T) {
 		{
 			ref:  "#/components/schemas/FooSchema",
 			want: ErrCannotResolved("#/components/schemas/FooSchema", "not found"),
+		},
+		{
+			ref:  "#/components/unknown/reference",
+			want: ErrCannotResolved("#/components/unknown/reference", "unknown component type"),
 		},
 	}
 
