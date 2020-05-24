@@ -1,4 +1,7 @@
 //nolint:dupl,goconst,funlen
+// dupl: test code contains so many duplicate code: e.g. unmarshal and validate the result
+// goconst: test code contains so many magic numbers, esp. expected values
+// funlen: test function tend to be long, because of definition of test cases
 package openapi
 
 import (
