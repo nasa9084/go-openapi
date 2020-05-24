@@ -1,6 +1,7 @@
 package openapi
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 )
@@ -239,6 +240,30 @@ func TestIsValidSemVer(t *testing.T) {
 			got := isValidSemVer(tt.input)
 			if got != tt.want {
 				t.Errorf("unexpected result:\n  got:  %t\n  want: %t", got, tt.want)
+				return
+			}
+		})
+	}
+}
+
+func TestHasLeadingZero(t *testing.T) {
+	tests := []struct {
+		major, minor, patch string
+		want                bool
+	}{
+		{
+			major: "0",
+			minor: "0",
+			patch: "0",
+			want:  false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("%s.%s.%s", tt.major, tt.minor, tt.patch), func(t *testing.T) {
+			got := hasLeadingZero(tt.major, tt.minor, tt.patch)
+			if got != tt.want {
+				t.Errorf("unexpected result:\n  got  %t\n  want: %t", got, tt.want)
 				return
 			}
 		})

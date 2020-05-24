@@ -42,7 +42,7 @@ func isValidSemVer(version string) bool {
 	major, minor, patch := split[0], split[1], split[2]
 
 	// version number must not contain leading zero
-	if !hasLeadingZero(major, minor, patch) {
+	if hasLeadingZero(major, minor, patch) {
 		return false
 	}
 
