@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"go/ast"
 	"log"
@@ -13,13 +14,38 @@ import (
 
 func main() {
 	flag.Parse()
+
 	g := generator.New("mkunmarshalyaml.go")
 
-	objects, err := astutil.ParseOpenAPIObjects("interfaces.go")
-	if err != nil {
+	if err := generate(g); err != nil {
 		log.Fatal(err)
 	}
+}
 
+func generate(g *generator.Generator) error {
+	objects, err := astutil.ParseOpenAPIObjects("interfaces.go")
+	if err != nil {
+		return err
+	}
+
+	generateQuote(g)
+
+	for _, object := range objects {
+		log.Printf("generate %s.Unmarshal()", object.Name)
+
+		if err := generateUnmarshalYAML(g, object); err != nil {
+			return err
+		}
+	}
+
+	if err := g.Save("unmarshalyaml_gen.go"); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func generateQuote(g *generator.Generator) {
 	g.Printf("\nfunc q(b []byte) []byte {")
 	g.Import("", "bytes")
 	g.Printf("\nif !bytes.HasPrefix(b, []byte(\"|\")) {")
@@ -30,17 +56,9 @@ func main() {
 	g.Printf("\n}")
 	g.Printf("\nreturn b")
 	g.Printf("\n}")
-
-	for _, object := range objects {
-		log.Printf("generate %s.Unmarshal()", object.Name)
-		mkUnmarshalYAML(g, object)
-	}
-	if err := g.Save("unmarshalyaml_gen.go"); err != nil {
-		log.Fatal(err)
-	}
 }
 
-func mkUnmarshalYAML(g *generator.Generator, object astutil.OpenAPIObject) {
+func generateUnmarshalYAML(g *generator.Generator, object astutil.OpenAPIObject) error {
 	g.Printf("\n\nfunc (v *%s) UnmarshalYAML(b []byte) error {", object.Name)
 	g.Printf("\nvar proxy map[string]raw")
 	g.Import("yaml", "github.com/goccy/go-yaml")
@@ -50,16 +68,7 @@ func mkUnmarshalYAML(g *generator.Generator, object astutil.OpenAPIObject) {
 
 	for _, field := range object.Fields {
 		if field.YAMLName() == "$ref" {
-			g.Printf("\nif referenceBytes, ok := proxy[\"$ref\"]; ok {")
-			g.Printf("\nvar referenceVal string")
-			g.Import("yaml", "github.com/goccy/go-yaml")
-			g.Printf("\nif err := yaml.Unmarshal(q(referenceBytes), &referenceVal); err != nil {")
-			g.Printf("\nreturn err")
-			g.Printf("\n}")
-			g.Printf("\nv.reference = referenceVal")
-			g.Printf("\ndelete(proxy, \"$ref\")")
-			g.Printf("\nreturn nil")
-			g.Printf("\n}")
+			generateReferenceUnmarshal(g)
 			continue
 		}
 	}
@@ -76,13 +85,18 @@ func mkUnmarshalYAML(g *generator.Generator, object astutil.OpenAPIObject) {
 				// only overwrites when true
 				noUnknown = true
 			}
+
 			continue
 		}
 
 		g.Printf("\n\n")
 		generateUnmarshalField(g, field)
-		generateFormatValidation(g, field)
+
+		if err := generateFormatValidation(g, field); err != nil {
+			return err
+		}
 	}
+
 	if !noUnknown {
 		g.Printf("\nif len(proxy) != 0 {")
 		g.Printf("\nfor k := range proxy {")
@@ -97,6 +111,21 @@ func mkUnmarshalYAML(g *generator.Generator, object astutil.OpenAPIObject) {
 
 	g.Printf("\nreturn nil")
 	g.Printf("\n}")
+
+	return nil
+}
+
+func generateReferenceUnmarshal(g *generator.Generator) {
+	g.Printf("\nif referenceBytes, ok := proxy[\"$ref\"]; ok {")
+	g.Printf("\nvar referenceVal string")
+	g.Import("yaml", "github.com/goccy/go-yaml")
+	g.Printf("\nif err := yaml.Unmarshal(q(referenceBytes), &referenceVal); err != nil {")
+	g.Printf("\nreturn err")
+	g.Printf("\n}")
+	g.Printf("\nv.reference = referenceVal")
+	g.Printf("\ndelete(proxy, \"$ref\")")
+	g.Printf("\nreturn nil")
+	g.Printf("\n}")
 }
 
 func generateInlineUnmarshal(g *generator.Generator, field astutil.OpenAPIObjectField) (noUnknown bool) {
@@ -104,9 +133,11 @@ func generateInlineUnmarshal(g *generator.Generator, field astutil.OpenAPIObject
 	if !ok {
 		log.Fatalf("expected map for inline %s but %s", field.YAMLName(), field.Type)
 	}
+
 	formatTag := field.Tags["format"]
 	g.Printf("\n%s := map[string]%s{}", field.Name, astutil.TypeString(ft.Value))
 	g.Printf("\nfor key, val := range proxy {")
+
 	if len(formatTag) > 0 {
 		switch formatTag[0] {
 		case "prefix":
@@ -128,20 +159,24 @@ func generateInlineUnmarshal(g *generator.Generator, field astutil.OpenAPIObject
 	} else {
 		noUnknown = true
 	}
+
 	g.Printf("\nvar %sv %s", field.Name, strings.TrimPrefix(astutil.TypeString(ft.Value), "*"))
 	g.Printf("\nif err := yaml.Unmarshal(val, &%sv); err != nil {", field.Name)
 	g.Printf("\nreturn err")
 	g.Printf("\n}")
 	g.Printf("\n%s[key] = ", field.Name)
+
 	if _, ok := ft.Value.(*ast.StarExpr); ok {
 		g.Printf("&")
 	}
+
 	g.Printf("%sv", field.Name)
 	g.Printf("\ndelete(proxy, key)")
 	g.Printf("\n}")
 	g.Printf("\nif len(%s) != 0 {", field.Name)
 	g.Printf("\nv.%s = %s", field.Name, field.Name)
 	g.Printf("\n}")
+
 	return noUnknown
 }
 
@@ -157,22 +192,26 @@ func generateUnmarshalField(g *generator.Generator, field astutil.OpenAPIObjectF
 	}
 
 	g.Printf("\nvar %sVal %s", field.Name, strings.TrimPrefix(field.TypeString(), "*"))
+
 	if field.IsStringType() {
 		g.Printf("\nif err := yaml.Unmarshal(q(%sBytes), &%[1]sVal); err != nil {", field.Name)
 	} else {
 		g.Printf("\nif err := yaml.Unmarshal(%sBytes, &%[1]sVal); err != nil {", field.Name)
 	}
+
 	g.Printf("\nreturn err")
 	g.Printf("\n}")
 	g.Printf("\nv.%s = ", field.Name)
+
 	if field.IsPointerType() {
 		g.Printf("&")
 	}
+
 	g.Printf("%sVal", field.Name)
 	g.Printf("\ndelete(proxy, `%s`)", field.YAMLName())
 }
 
-func generateFormatValidation(g *generator.Generator, field astutil.OpenAPIObjectField) {
+func generateFormatValidation(g *generator.Generator, field astutil.OpenAPIObjectField) error {
 	switch field.Tags.Get("format") {
 	case "semver":
 		g.Printf("\n\nif !isValidSemVer(v.%s) {", field.Name)
@@ -180,87 +219,112 @@ func generateFormatValidation(g *generator.Generator, field astutil.OpenAPIObjec
 		g.Printf("\nreturn errors.New(`\"%s\" field must be a valid semantic version but not`)", field.YAMLName())
 		g.Printf("\n}")
 	case "url":
-		g.Printf("\n")
-		if !field.IsRequired() {
-			g.Printf("\nif v.%s != \"\" {", field.Name)
+		generateURLValidation(g, field)
+	case "email":
+		generateEmailValidation(g, field)
+	case "runtime":
+		if _, ok := field.Type.(*ast.MapType); !ok {
+			return errors.New("`runtime` validation constraints can only be used for map value")
 		}
 
-		if len(field.Tags["format"]) > 1 && field.Tags["format"][1] == "template" {
-			g.Printf("\nif err := validateURLTemplate(v.%s)", field.Name)
-		} else {
-			g.Import("", "net/url")
-			g.Printf("\nif _, err := url.ParseRequestURI(v.%s)", field.Name)
-		}
-		g.Printf("; err != nil {")
-		g.Printf("\nreturn err")
-		g.Printf("\n}")
-		if !field.IsRequired() {
-			g.Printf("\n}")
-		}
-	case "email":
-		g.Printf("\n")
-		if !field.IsRequired() {
-			g.Printf("\nif v.%s != \"\" {", field.Name)
-		}
-		g.Printf("\n\nif v.%s != \"\" && !emailRegexp.MatchString(v.%[1]s) {", field.Name)
+		g.Printf("\n\nfor key := range v.%s {", field.Name)
+		g.Printf("\nif !matchRuntimeExpr(key) {")
 		g.Import("", "errors")
-		g.Printf("\nreturn errors.New(`\"%s\" field must be an email address`)", field.YAMLName())
+		g.Printf("\nreturn errors.New(`the keys of \"%s\" must be a runtime expression`)", field.YAMLName())
 		g.Printf("\n}")
-		if !field.IsRequired() {
-			g.Printf("\n}")
-		}
-	case "runtime":
-		if _, ok := field.Type.(*ast.MapType); ok {
-			g.Printf("\n\nfor key := range v.%s {", field.Name)
-			g.Printf("\nif !matchRuntimeExpr(key) {")
-			g.Import("", "errors")
-			g.Printf("\nreturn errors.New(`the keys of \"%s\" must be a runtime expression`)", field.YAMLName())
-			g.Printf("\n}")
-			g.Printf("\n}")
-		}
+		g.Printf("\n}")
 	case "regexp":
-		if _, ok := field.Type.(*ast.MapType); ok {
-			g.Import("", "regexp")
-			g.Printf("\n\n%sRegexp := regexp.MustCompile(`%s`)", field.Name, field.Tags["format"][1])
-			g.Printf("\nfor key := range v.%s {", field.Name)
-			g.Printf("\nif !%sRegexp.MatchString(v.%s) {", field.Name, field.Name)
-			g.Import("", "errors")
-			g.Printf("\nreturn errors.New(`the keys of \"%s\" must be match \"%s\"`)", field.YAMLName(), field.Tags["format"][1])
-			g.Printf("\n}")
+		if _, ok := field.Type.(*ast.MapType); !ok {
+			return errors.New("`regexp` validation contraints can only be used for map value")
 		}
-	}
-	if list, ok := field.Tags["oneof"]; ok {
-		g.Printf("\n")
-		if !field.IsRequired() {
-			g.Printf("\nif v.%s != \"\" {", field.Name)
-		}
-		g.Printf("\nif !isOneOf(v.%s, %#v) {", field.Name, list)
+
+		g.Import("", "regexp")
+		g.Printf("\n\n%sRegexp := regexp.MustCompile(`%s`)", field.Name, field.Tags["format"][1])
+		g.Printf("\nfor key := range v.%s {", field.Name)
+		g.Printf("\nif !%sRegexp.MatchString(v.%s) {", field.Name, field.Name)
 		g.Import("", "errors")
-		g.Printf("\nreturn errors.New(`\"%s\" field must be one of [%s]`)", field.YAMLName(), strings.Join(quoteEachString(list), ", "))
+		g.Printf("\nreturn errors.New(`the keys of \"%s\" must be match \"%s\"`)", field.YAMLName(), field.Tags["format"][1])
 		g.Printf("\n}")
-		if !field.IsRequired() {
-			g.Printf("\n}")
-		}
 	}
+
+	if list, ok := field.Tags["oneof"]; ok {
+		generateOneOfValidation(g, field, list)
+	}
+
+	return nil
+}
+
+func generateURLValidation(g *generator.Generator, field astutil.OpenAPIObjectField) {
+	g.Printf("\n")
+
+	if !field.IsRequired() {
+		g.Printf("\nif v.%s != \"\" {", field.Name)
+		defer g.Printf("\n}")
+	}
+
+	if len(field.Tags["format"]) > 1 && field.Tags["format"][1] == "template" {
+		g.Printf("\nif err := validateURLTemplate(v.%s)", field.Name)
+	} else {
+		g.Import("", "net/url")
+		g.Printf("\nif _, err := url.ParseRequestURI(v.%s)", field.Name)
+	}
+
+	g.Printf("; err != nil {")
+	g.Printf("\nreturn err")
+	g.Printf("\n}")
+}
+
+func generateEmailValidation(g *generator.Generator, field astutil.OpenAPIObjectField) {
+	g.Printf("\n")
+
+	if !field.IsRequired() {
+		g.Printf("\nif v.%s != \"\" {", field.Name)
+		defer g.Printf("\n}")
+	}
+
+	g.Printf("\nif v.%s != \"\" && !emailRegexp.MatchString(v.%[1]s) {", field.Name)
+	g.Import("", "errors")
+	g.Printf("\nreturn errors.New(`\"%s\" field must be an email address`)", field.YAMLName())
+	g.Printf("\n}")
+}
+
+func generateOneOfValidation(g *generator.Generator, field astutil.OpenAPIObjectField, list []string) {
+	g.Printf("\n")
+
+	if !field.IsRequired() {
+		g.Printf("\nif v.%s != \"\" {", field.Name)
+		defer g.Printf("\n}")
+	}
+
+	g.Printf("\nif !isOneOf(v.%s, %#v) {", field.Name, list)
+	g.Import("", "errors")
+	g.Printf("\nreturn errors.New(`\"%s\" field must be one of [%s]`)",
+		field.YAMLName(), strings.Join(quoteEachString(list), ", "))
+	g.Printf("\n}")
 }
 
 func isInline(t astutil.Tags) bool {
 	vs := t["yaml"]
+
 	if len(vs) < 2 {
 		return false
 	}
+
 	for _, v := range vs[1:] {
 		if v == "inline" {
 			return true
 		}
 	}
+
 	return false
 }
 
 func quoteEachString(list []string) []string {
 	ret := make([]string, len(list))
+
 	for i := range list {
 		ret[i] = strconv.Quote(list[i])
 	}
+
 	return ret
 }

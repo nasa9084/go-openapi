@@ -12,9 +12,11 @@ import (
 
 func main() {
 	flag.Parse()
+
 	g := generator.New("mksetroot.go")
 
 	objects, err := astutil.ParseOpenAPIObjects("interfaces.go")
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -23,6 +25,7 @@ func main() {
 		log.Printf("generate %s.setRoot()", object.Name)
 		mkSetRoot(g, object)
 	}
+
 	if err := g.Save("setroot_gen.go"); err != nil {
 		log.Fatal(err)
 	}
@@ -40,6 +43,7 @@ func mkSetRoot(g *generator.Generator, object astutil.OpenAPIObject) {
 				g.Printf("\nv.root = root")
 				continue
 			}
+
 			g.Printf("\nif v.%s != nil {", field.Name)
 			g.Printf("\nv.%s.setRoot(root)", field.Name)
 			g.Printf("\n}")

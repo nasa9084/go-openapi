@@ -8,19 +8,23 @@ func IsRuntimeExpr(expr string) bool {
 	if !strings.Contains(expr, "{") {
 		return isRuntimeExpr(expr)
 	}
+
 	for i, b := range expr {
 		if b != '{' {
 			continue
 		}
+
 		for j, e := range expr[i+1:] {
 			if e != '}' {
 				continue
 			}
+
 			if !isRuntimeExpr(expr[i+1 : j+i]) {
 				return false
 			}
 		}
 	}
+
 	return true
 }
 
@@ -29,7 +33,9 @@ func isRuntimeExpr(expr string) bool {
 	if isOneOf(expr, []string{"$url", "$method", "$statusCode"}) {
 		return true
 	}
+
 	var source string
+
 	switch {
 	case strings.HasPrefix(expr, "$request."):
 		source = expr[9:]
@@ -38,6 +44,7 @@ func isRuntimeExpr(expr string) bool {
 	default:
 		return false
 	}
+
 	// source = ( header-reference | query-reference | path-reference | body-reference )
 	switch {
 	case strings.HasPrefix(source, "header."):
@@ -68,10 +75,12 @@ func isRFC7230Token(s string) bool {
 	if len(s) == 0 {
 		return false
 	}
+
 	for _, r := range s {
 		if !strings.ContainsRune(rfc7230tchar, r) {
 			return false
 		}
 	}
+
 	return true
 }

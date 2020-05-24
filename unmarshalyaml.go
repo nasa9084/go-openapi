@@ -14,6 +14,7 @@ type raw []byte
 
 func (v *raw) UnmarshalYAML(b []byte) error {
 	*v = b
+
 	return nil
 }
 
@@ -23,5 +24,6 @@ func isOneOf(s string, list []string) bool {
 			return true
 		}
 	}
+
 	return false
 }

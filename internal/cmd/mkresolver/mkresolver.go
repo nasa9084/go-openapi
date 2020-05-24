@@ -10,6 +10,7 @@ import (
 
 func main() {
 	flag.Parse()
+
 	g := generator.New("mkresolver.go")
 
 	objects, err := astutil.ParseOpenAPIObjects("interfaces.go")
@@ -19,6 +20,7 @@ func main() {
 
 	for _, object := range objects {
 		var hasReference bool
+
 		for _, field := range object.Fields {
 			if field.Tags.Get("yaml") == "$ref" {
 				hasReference = true
@@ -46,6 +48,7 @@ func main() {
 		g.Printf("\npanic(fmt.Sprintf(\"type assertion error in resolving %%s\", v.reference))")
 		g.Printf("\n}")
 	}
+
 	if err := g.Save("resolve_gen.go"); err != nil {
 		log.Fatal(err)
 	}

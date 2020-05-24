@@ -31,12 +31,15 @@ func ParseOpenAPIObjects(filename string) ([]OpenAPIObject, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var ret []OpenAPIObject
+
 	for _, decl := range f.Decls {
 		genDecl, ok := decl.(*ast.GenDecl)
 		if !ok {
 			continue
 		}
+
 		if isNotOpenAPIObject(genDecl) {
 			continue
 		}
@@ -67,6 +70,7 @@ func ParseOpenAPIObjects(filename string) ([]OpenAPIObject, error) {
 			ret = append(ret, o)
 		}
 	}
+
 	return ret, nil
 }
 
@@ -74,6 +78,7 @@ func (field OpenAPIObjectField) YAMLName() string {
 	if yamlName := field.Tags.Get("yaml"); yamlName != "" {
 		return yamlName
 	}
+
 	return field.Name
 }
 
@@ -89,6 +94,7 @@ func (field OpenAPIObjectField) IsStringType() bool {
 	if t, ok := field.Type.(*ast.Ident); ok {
 		return t.Name == "string"
 	}
+
 	return false
 }
 
@@ -112,6 +118,7 @@ func TypeString(expr ast.Expr) string {
 	default:
 		log.Fatalf("unknown type: %s", reflect.TypeOf(t))
 	}
+
 	return ""
 }
 
@@ -121,15 +128,19 @@ func ParseTags(f *ast.Field) Tags {
 	if f.Tag == nil {
 		return nil
 	}
+
 	s := strings.Trim(f.Tag.Value, "`")
 	if s == "" {
 		return nil
 	}
+
 	t := Tags{}
+
 	for _, tt := range strings.Fields(s) {
 		kv := strings.Split(tt, ":")
 		t[kv[0]] = append(t[kv[0]], strings.Split(strings.Trim(kv[1], `"`), ",")...)
 	}
+
 	return t
 }
 
@@ -137,5 +148,6 @@ func (t Tags) Get(key string) string {
 	if vs, ok := t[key]; ok {
 		return vs[0]
 	}
+
 	return ""
 }

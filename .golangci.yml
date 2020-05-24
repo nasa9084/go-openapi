@@ -10,6 +10,7 @@ linters:
     - dupl
     - errcheck
     - funlen
+    - gocognit
     - goconst
     - gocritic
     - gocyclo
@@ -35,3 +36,4 @@ linters:
     - unused
     - varcheck
     - whitespace
+    - wsl

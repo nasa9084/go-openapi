@@ -18,6 +18,7 @@ func assertSameError(t *testing.T, got, want error) {
 	if want == nil && got == nil {
 		return
 	}
+
 	if got.Error() != want.Error() {
 		unexpected(t, "error", got.Error(), want.Error())
 		return

@@ -161,6 +161,7 @@ externalDocs:
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got OpenAPI
@@ -344,6 +345,7 @@ x-foo: bar`,
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got Info
@@ -396,6 +398,7 @@ foo: bar`,
 			want: errors.New(`unknown key: foo`),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &Info{})
@@ -413,6 +416,7 @@ email: support@example.com`
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := Contact{
 		name:  "API Support",
 		url:   "http://www.example.com/support",
@@ -441,6 +445,7 @@ func TestContactUnmarshalYAML(t *testing.T) {
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got Contact
@@ -470,6 +475,7 @@ func TestContactUnmarshalYAMLError(t *testing.T) {
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &Contact{})
@@ -517,6 +523,7 @@ x-foo: bar`,
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got License
@@ -548,6 +555,7 @@ foo: bar`,
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &License{})
@@ -673,6 +681,7 @@ x-foo: bar`,
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got Server
@@ -711,6 +720,7 @@ foo: bar`,
 			want: errors.New(`unknown key: foo`),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &Server{})
@@ -741,6 +751,7 @@ x-foo: bar`,
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got ServerVariable
@@ -773,6 +784,7 @@ foo: bar`,
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &ServerVariable{})
@@ -849,12 +861,15 @@ func TestComponentsExampleUnmarshalYAML(t *testing.T) {
           scopes:
             write:pets: modify pets in your account
             read:pets: read your pets`
+
 	var target struct {
 		Components *Components
 	}
+
 	if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
 		t.Fatal(err)
 	}
+
 	got := target.Components
 	want := &Components{
 		schemas: map[string]*Schema{
@@ -1031,6 +1046,7 @@ func TestComponentsUnmarshalYAML(t *testing.T) {
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got Components
@@ -1087,6 +1103,7 @@ func TestComponentsUnmarshalYAMLError(t *testing.T) {
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &Components{})
@@ -1108,10 +1125,12 @@ func TestPathsExampleUnmarshalYAML(t *testing.T) {
               type: array
               items:
                 $ref: '#/components/schemas/pet'`
+
 	var got Paths
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := Paths{
 		paths: map[string]*PathItem{
 			"/pets": {
@@ -1155,6 +1174,7 @@ func TestPathsUnmarshalYAML(t *testing.T) {
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got Paths
@@ -1176,6 +1196,7 @@ func TestPathsUnmarshalYAMLError(t *testing.T) {
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &Paths{})
@@ -1215,10 +1236,12 @@ parameters:
     # style: simple
     items:
       type: string  `
+
 	var got PathItem
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := PathItem{
 		get: &Operation{
 			description: "Returns pets based on ID",
@@ -1388,6 +1411,7 @@ description: this is description`,
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got PathItem
@@ -1441,6 +1465,7 @@ func TestPathItemUnmarshalYAMLError(t *testing.T) {
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &PathItem{})
@@ -1489,10 +1514,12 @@ security:
 - petstore_auth:
   - write:pets
   - read:pets`
+
 	var got Operation
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := Operation{
 		tags:        []string{"pet"},
 		summary:     "Updates a pet in the store with form data",
@@ -1602,6 +1629,7 @@ x-foo: bar`,
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got Operation
@@ -1665,6 +1693,7 @@ foo: bar`,
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &Operation{})
@@ -1676,10 +1705,12 @@ foo: bar`,
 func TestExternalDocumentationExampleUnmarshalYAML(t *testing.T) {
 	yml := `description: Find more info here
 url: https://example.com`
+
 	var got ExternalDocumentation
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := ExternalDocumentation{
 		description: "Find more info here",
 		url:         "https://example.com",
@@ -1709,6 +1740,7 @@ x-foo: bar`,
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got ExternalDocumentation
@@ -1739,6 +1771,7 @@ foo: bar`,
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &ExternalDocumentation{})
@@ -1978,6 +2011,7 @@ x-foo: bar`,
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got Parameter
@@ -2032,6 +2066,7 @@ foo: bar`,
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &Parameter{})
@@ -2170,6 +2205,7 @@ x-foo: bar`,
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got RequestBody
@@ -2201,6 +2237,7 @@ foo: bar`,
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &RequestBody{})
@@ -2232,10 +2269,12 @@ func TestMediaTypeExampleUnmarshalYAML(t *testing.T) {
         breed: Mixed
     frog:
       $ref: "#/components/examples/frog-example"`
+
 	var got map[string]*MediaType
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := map[string]*MediaType{
 		"application/json": {
 			schema: &Schema{
@@ -2285,6 +2324,7 @@ func TestMediaTypeUnmarshalYAML(t *testing.T) {
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got MediaType
@@ -2314,6 +2354,7 @@ func TestMediaTypeUnmarshalYAMLError(t *testing.T) {
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &MediaType{})
@@ -2358,12 +2399,15 @@ func TestEncodingExampleUnmarshalYAML(t *testing.T) {
               description: The number of allowed requests in the current period
               schema:
                 type: integer`
+
 	var target struct {
 		RequestBody RequestBody `yaml:"requestBody"`
 	}
+
 	if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
 		t.Fatal(err)
 	}
+
 	got := target.RequestBody
 	want := RequestBody{
 		content: map[string]*MediaType{
@@ -2444,6 +2488,7 @@ func TestEncodingUnmarshalYAML(t *testing.T) {
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got Encoding
@@ -2469,6 +2514,7 @@ func TestEncodingUnmarshalYAMLError(t *testing.T) {
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &Encoding{})
@@ -2490,10 +2536,12 @@ default:
     application/json:
       schema:
         $ref: '#/components/schemas/ErrorModel'`
+
 	var got Responses
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := Responses{
 		responses: map[string]*Response{
 			"200": {
@@ -2546,6 +2594,7 @@ func TestResponsesUnmarshalYAML(t *testing.T) {
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got Responses
@@ -2576,6 +2625,7 @@ func TestResponsesUnmarshalYAMLError(t *testing.T) {
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &Responses{})
@@ -2593,10 +2643,12 @@ content:
       type: array
       items:
         $ref: '#/components/schemas/VeryComplexType'`
+
 		var got Response
 		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
+
 		want := Response{
 			description: "A complex object array response",
 			content: map[string]*MediaType{
@@ -2618,10 +2670,12 @@ content:
   text/plain:
     schema:
       type: string`
+
 		var got Response
 		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
+
 		want := Response{
 			description: "A simple string response",
 			content: map[string]*MediaType{
@@ -2654,10 +2708,12 @@ headers:
     description: The number of seconds left in the current period
     schema:
       type: integer`
+
 		var got Response
 		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
+
 		want := Response{
 			description: "A simple string response",
 			content: map[string]*MediaType{
@@ -2697,6 +2753,7 @@ headers:
 		if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 			t.Fatal(err)
 		}
+
 		want := Response{
 			description: "object created",
 		}
@@ -2726,6 +2783,7 @@ x-foo: bar`,
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got Response
@@ -2767,6 +2825,7 @@ foo: bar`,
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &Response{})
@@ -2788,10 +2847,12 @@ func TestCallbackExampleUnmarshalYAML(t *testing.T) {
       responses:
         '200':
           description: webhook successfully processed and no retries will be performed`
+
 	var got map[string]*Callback
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := map[string]*Callback{
 		"myWebhook": {
 			callback: map[string]*PathItem{
@@ -2842,6 +2903,7 @@ func TestCallbackUnmarshalYAML(t *testing.T) {
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got Callback
@@ -2867,6 +2929,7 @@ func TestCallbackUnmarshalYAMLError(t *testing.T) {
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &Callback{})
@@ -2899,12 +2962,14 @@ func TestExampleExampleUnmarshalYAML(t *testing.T) {
         textExample:
           summary: This is a text example
           externalValue: 'http://foo.bar/examples/address-example.txt'`
+
 		var target struct {
 			RequestBody RequestBody `yaml:"requestBody"`
 		}
 		if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
 			t.Fatal(err)
 		}
+
 		got := target.RequestBody
 		want := RequestBody{
 			content: map[string]*MediaType{
@@ -3042,6 +3107,7 @@ func TestExampleUnmarshalYAML(t *testing.T) {
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got Example
@@ -3063,6 +3129,7 @@ func TestExampleUnmarshalYAMLError(t *testing.T) {
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &Example{})
@@ -3298,6 +3365,7 @@ func TestLinkUnmarshalYAML(t *testing.T) {
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got Link
@@ -3327,6 +3395,7 @@ func TestLinkUnmarshalYAMLError(t *testing.T) {
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &Link{})
@@ -3339,10 +3408,12 @@ func TestHeaderExampleUnmarshalYAML(t *testing.T) {
 	yml := `description: The number of allowed requests in the current period
 schema:
   type: integer`
+
 	var got Header
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := Header{
 		description: "The number of allowed requests in the current period",
 		schema: &Schema{
@@ -3435,6 +3506,7 @@ func TestHeaderUnmarshalYAML(t *testing.T) {
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got Header
@@ -3468,6 +3540,7 @@ func TestHeaderUnmarshalYAMLError(t *testing.T) {
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &Header{})
@@ -3479,10 +3552,12 @@ func TestHeaderUnmarshalYAMLError(t *testing.T) {
 func TestTagExampleUnmarshal(t *testing.T) {
 	yml := `name: pet
 description: Pets operations`
+
 	var got Tag
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := Tag{
 		name:        "pet",
 		description: "Pets operations",
@@ -3517,6 +3592,7 @@ externalDocs:
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got Tag
@@ -3548,6 +3624,7 @@ foo: bar`,
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &Tag{})
@@ -3569,10 +3646,12 @@ func TestSchemaExampleUnmarshalYAML(t *testing.T) {
 func testSchemaExampleUnmarshalYAMLPrimitive(t *testing.T) {
 	yml := `type: string
 format: email`
+
 	var got Schema
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := Schema{
 		type_:  "string",
 		format: "email",
@@ -3593,10 +3672,12 @@ properties:
     type: integer
     format: int32
     minimum: 0`
+
 	var got Schema
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := Schema{
 		type_:    "object",
 		required: []string{"name"},
@@ -3617,10 +3698,12 @@ func testSchemaExampleUnmarshalYAMLStringToStringMap(t *testing.T) {
 	yml := `type: object
 additionalProperties:
   type: string`
+
 	var got Schema
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := Schema{
 		type_: "object",
 		additionalProperties: &Schema{
@@ -3634,10 +3717,12 @@ func testSchemaExampleUnmarshalYAMLStringToModelMap(t *testing.T) {
 	yml := `type: object
 additionalProperties:
   $ref: '#/components/schemas/ComplexModel'`
+
 	var got Schema
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := Schema{
 		type_: "object",
 		additionalProperties: &Schema{
@@ -3660,10 +3745,12 @@ required:
 example:
   name: Puma
   id: 1`
+
 	var got Schema
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := Schema{
 		type_: "object",
 		properties: map[string]*Schema{
@@ -3708,12 +3795,15 @@ func testSchemaExampleUnmarshalYAMLComposition(t *testing.T) {
         properties:
           rootCause:
             type: string`
+
 	var target struct {
 		Components Components
 	}
+
 	if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
 		t.Fatal(err)
 	}
+
 	got := target.Components
 	want := Components{
 		schemas: map[string]*Schema{
@@ -3795,12 +3885,15 @@ func testSchemaExampleUnmarshalYAMLPolymorphism(t *testing.T) {
             minimum: 0
         required:
         - packSize`
+
 	var target struct {
 		Components Components
 	}
+
 	if err := yaml.Unmarshal([]byte(yml), &target); err != nil {
 		t.Fatal(err)
 	}
+
 	got := target.Components
 	want := Components{
 		schemas: map[string]*Schema{
@@ -3973,6 +4066,7 @@ url: https://example.com`,
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got Schema
@@ -4034,6 +4128,7 @@ func TestSchemaUnmarshalYAMLError(t *testing.T) {
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &Schema{})
@@ -4111,6 +4206,7 @@ func TestDiscriminatorUnmarshalYAML(t *testing.T) {
 		yml  string
 		want Discriminator
 	}{}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got Discriminator
@@ -4136,6 +4232,7 @@ func TestDiscriminatorUnmarshalYAMLError(t *testing.T) {
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &Discriminator{})
@@ -4239,6 +4336,7 @@ func TestXMLUnmarshalYAML(t *testing.T) {
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got XML
@@ -4260,6 +4358,7 @@ func TestXMLUnmarshalYAMLError(t *testing.T) {
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &XML{})
@@ -4414,6 +4513,7 @@ func TestSecuritySchemeUnmarshalYAML(t *testing.T) {
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got SecurityScheme
@@ -4452,6 +4552,7 @@ func TestSecuritySchemeUnmarshalYAMLError(t *testing.T) {
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &SecurityScheme{})
@@ -4486,6 +4587,7 @@ func TestOAuthFlowsUnmarshalYAML(t *testing.T) {
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got OAuthFlows
@@ -4527,6 +4629,7 @@ func TestOAuthFlowsUnmarshalYAMLError(t *testing.T) {
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &OAuthFlows{})
@@ -4549,10 +4652,12 @@ flows:
     scopes:
       write:pets: modify pets in your account
       read:pets: read your pets `
+
 	var got SecurityScheme
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := SecurityScheme{
 		type_: "oauth2",
 		flows: &OAuthFlows{
@@ -4596,6 +4701,7 @@ func TestOAuthFlowUnmarshalYAML(t *testing.T) {
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got OAuthFlow
@@ -4637,6 +4743,7 @@ func TestOAuthFlowUnmarshalYAMLError(t *testing.T) {
 			want: ErrUnknownKey("foo"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &OAuthFlow{})
@@ -4681,6 +4788,7 @@ func TestSecurityRequirementUnmarshalYAML(t *testing.T) {
 		yml  string
 		want SecurityRequirement
 	}{}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			var got SecurityRequirement
@@ -4702,6 +4810,7 @@ func TestSecurityRequirementUnmarshalYAMLError(t *testing.T) {
 			want: errors.New("String node doesn't ArrayNode"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := yaml.Unmarshal([]byte(tt.yml), &SecurityRequirement{})
@@ -4737,6 +4846,7 @@ func TestIsOneOf(t *testing.T) {
 			want: false,
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			got := isOneOf(tt.s, tt.list)

@@ -11,16 +11,22 @@ func resolve(root *OpenAPI, ref string) (interface{}, error) {
 	}
 
 	parts := strings.Split(ref, "/")
+
 	if len(parts) != 4 {
 		return nil, ErrInvalidReference(ref)
 	}
+
 	if parts[1] != "components" {
 		return nil, ErrCannotResolved(ref, "only supports to resolve under #/components")
 	}
 
-	var ret interface{}
-	var ok bool
+	var (
+		ret interface{}
+		ok  bool
+	)
+
 	next := parts[3]
+
 	switch parts[2] {
 	case "schemas":
 		ret, ok = root.components.schemas[next]
@@ -43,8 +49,10 @@ func resolve(root *OpenAPI, ref string) (interface{}, error) {
 	default:
 		return nil, ErrCannotResolved(ref, "unknown component type")
 	}
+
 	if !ok {
 		return nil, ErrCannotResolved(ref, "not found")
 	}
+
 	return ret, nil
 }

@@ -12,6 +12,7 @@ func TestSplitSemVer(t *testing.T) {
 		pre  string
 		meta string
 	}
+
 	tests := []struct {
 		input string
 		want  want
@@ -105,6 +106,7 @@ func TestSplitSemVer(t *testing.T) {
 			},
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i)+"/"+tt.input, func(t *testing.T) {
 			ver, pre, meta := splitSemVer(tt.input)
@@ -231,6 +233,7 @@ func TestIsValidSemVer(t *testing.T) {
 			want:  false,
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i)+"/"+tt.input, func(t *testing.T) {
 			got := isValidSemVer(tt.input)
@@ -268,6 +271,7 @@ func TestIsValidPrerelease(t *testing.T) {
 			want:  false,
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i)+"/"+tt.input, func(t *testing.T) {
 			got := isValidPrerelease(tt.input)
@@ -301,6 +305,7 @@ func TestIsValidBuildmetadata(t *testing.T) {
 			want:  false,
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i)+"/"+tt.input, func(t *testing.T) {
 			got := isValidBuildmetadata(tt.input)

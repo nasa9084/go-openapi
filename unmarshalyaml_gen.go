@@ -265,7 +265,6 @@ func (v *Contact) UnmarshalYAML(b []byte) error {
 	}
 
 	if v.email != "" {
-
 		if v.email != "" && !emailRegexp.MatchString(v.email) {
 			return errors.New(`"email" field must be an email address`)
 		}

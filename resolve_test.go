@@ -16,7 +16,9 @@ func TestResolveParameter(t *testing.T) {
 			},
 		},
 	}
+
 	root.setRoot(root)
+
 	tests := []struct {
 		ref  string
 		want *Parameter
@@ -26,6 +28,7 @@ func TestResolveParameter(t *testing.T) {
 			want: root.components.parameters["FooParameter"],
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
 			got, err := resolve(root, tt.ref)
@@ -51,7 +54,9 @@ func TestResolveRequestBody(t *testing.T) {
 			},
 		},
 	}
+
 	root.setRoot(root)
+
 	tests := []struct {
 		ref  string
 		want *RequestBody
@@ -61,6 +66,7 @@ func TestResolveRequestBody(t *testing.T) {
 			want: root.components.requestBodies["FooRequest"],
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
 			got, err := resolve(root, tt.ref)
@@ -86,7 +92,9 @@ func TestResolveResponse(t *testing.T) {
 			},
 		},
 	}
+
 	root.setRoot(root)
+
 	tests := []struct {
 		ref  string
 		want *Response
@@ -96,6 +104,7 @@ func TestResolveResponse(t *testing.T) {
 			want: root.components.responses["FooResponse"],
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
 			got, err := resolve(root, tt.ref)
@@ -125,7 +134,9 @@ func TestResolveCallback(t *testing.T) {
 			},
 		},
 	}
+
 	root.setRoot(root)
+
 	tests := []struct {
 		ref  string
 		want *Callback
@@ -135,6 +146,7 @@ func TestResolveCallback(t *testing.T) {
 			want: root.components.callbacks["FooCallback"],
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
 			got, err := resolve(root, tt.ref)
@@ -160,7 +172,9 @@ func TestResolveExample(t *testing.T) {
 			},
 		},
 	}
+
 	root.setRoot(root)
+
 	tests := []struct {
 		ref  string
 		want *Example
@@ -170,6 +184,7 @@ func TestResolveExample(t *testing.T) {
 			want: root.components.examples["FooExample"],
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
 			got, err := resolve(root, tt.ref)
@@ -195,7 +210,9 @@ func TestResolveLink(t *testing.T) {
 			},
 		},
 	}
+
 	root.setRoot(root)
+
 	tests := []struct {
 		ref  string
 		want *Link
@@ -205,6 +222,7 @@ func TestResolveLink(t *testing.T) {
 			want: root.components.links["FooLink"],
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
 			got, err := resolve(root, tt.ref)
@@ -230,7 +248,9 @@ func TestResolveHeader(t *testing.T) {
 			},
 		},
 	}
+
 	root.setRoot(root)
+
 	tests := []struct {
 		ref  string
 		want *Header
@@ -240,6 +260,7 @@ func TestResolveHeader(t *testing.T) {
 			want: root.components.headers["FooHeader"],
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
 			got, err := resolve(root, tt.ref)
@@ -265,7 +286,9 @@ func TestResolveSchema(t *testing.T) {
 			},
 		},
 	}
+
 	root.setRoot(root)
+
 	tests := []struct {
 		ref  string
 		want *Schema
@@ -275,6 +298,7 @@ func TestResolveSchema(t *testing.T) {
 			want: root.components.schemas["FooSchema"],
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
 			got, err := resolve(root, tt.ref)
@@ -300,7 +324,9 @@ func TestResolveSecurityScheme(t *testing.T) {
 			},
 		},
 	}
+
 	root.setRoot(root)
+
 	tests := []struct {
 		ref  string
 		want *SecurityScheme
@@ -310,6 +336,7 @@ func TestResolveSecurityScheme(t *testing.T) {
 			want: root.components.securitySchemes["FooSecurityScheme"],
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
 			got, err := resolve(root, tt.ref)
@@ -360,6 +387,7 @@ func TestResolveError(t *testing.T) {
 			want: ErrCannotResolved("#/components/schemas/FooSchema", "not found"),
 		},
 	}
+
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			_, got := resolve(root, tt.ref)
