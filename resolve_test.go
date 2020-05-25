@@ -73,6 +73,16 @@ func TestResolve(t *testing.T) {
 	testSchemaResolve(t, root)
 	testSecuritySchemeResolve(t, root)
 
+	testParameterResolveError(t, root)
+	testRequestBodyResolveError(t, root)
+	testResponseResolveError(t, root)
+	testCallbackResolveError(t, root)
+	testExampleResolveError(t, root)
+	testLinkResolveError(t, root)
+	testHeaderResolveError(t, root)
+	testSchemaResolveError(t, root)
+	testSecuritySchemeResolveError(t, root)
+
 	testResolveTypeAssertionPanicParameter(t, root)
 	testResolveTypeAssertionPanicRequestBody(t, root)
 	testResolveTypeAssertionPanicResponse(t, root)
@@ -216,6 +226,21 @@ func testParameterResolve(t *testing.T, root *OpenAPI) {
 	}
 }
 
+func testParameterResolveError(t *testing.T, root *OpenAPI) {
+	t.Run("parameter.resolve error", func(t *testing.T) {
+		parameter := Parameter{
+			reference: "#/components/unknown/Unknown",
+			root:      root,
+		}
+
+		_, got := parameter.resolve()
+
+		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+
+		assertSameError(t, got, want)
+	})
+}
+
 func testRequestBodyResolve(t *testing.T, root *OpenAPI) {
 	tests := []struct {
 		ref  string
@@ -247,6 +272,21 @@ func testRequestBodyResolve(t *testing.T, root *OpenAPI) {
 			assertEqual(t, got, tt.want)
 		})
 	}
+}
+
+func testRequestBodyResolveError(t *testing.T, root *OpenAPI) {
+	t.Run("requestBody.resolve error", func(t *testing.T) {
+		requestBody := RequestBody{
+			reference: "#/components/unknown/Unknown",
+			root:      root,
+		}
+
+		_, got := requestBody.resolve()
+
+		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+
+		assertSameError(t, got, want)
+	})
 }
 
 func testResponseResolve(t *testing.T, root *OpenAPI) {
@@ -282,6 +322,21 @@ func testResponseResolve(t *testing.T, root *OpenAPI) {
 	}
 }
 
+func testResponseResolveError(t *testing.T, root *OpenAPI) {
+	t.Run("response.resolve error", func(t *testing.T) {
+		response := Response{
+			reference: "#/components/unknown/Unknown",
+			root:      root,
+		}
+
+		_, got := response.resolve()
+
+		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+
+		assertSameError(t, got, want)
+	})
+}
+
 func testCallbackResolve(t *testing.T, root *OpenAPI) {
 	tests := []struct {
 		ref  string
@@ -313,6 +368,21 @@ func testCallbackResolve(t *testing.T, root *OpenAPI) {
 			assertEqual(t, got, tt.want)
 		})
 	}
+}
+
+func testCallbackResolveError(t *testing.T, root *OpenAPI) {
+	t.Run("callback.resolve error", func(t *testing.T) {
+		callback := Callback{
+			reference: "#/components/unknown/Unknown",
+			root:      root,
+		}
+
+		_, got := callback.resolve()
+
+		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+
+		assertSameError(t, got, want)
+	})
 }
 
 func testExampleResolve(t *testing.T, root *OpenAPI) {
@@ -348,6 +418,21 @@ func testExampleResolve(t *testing.T, root *OpenAPI) {
 	}
 }
 
+func testExampleResolveError(t *testing.T, root *OpenAPI) {
+	t.Run("example.resolve error", func(t *testing.T) {
+		example := Example{
+			reference: "#/components/unknown/Unknown",
+			root:      root,
+		}
+
+		_, got := example.resolve()
+
+		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+
+		assertSameError(t, got, want)
+	})
+}
+
 func testLinkResolve(t *testing.T, root *OpenAPI) {
 	tests := []struct {
 		ref  string
@@ -379,6 +464,21 @@ func testLinkResolve(t *testing.T, root *OpenAPI) {
 			assertEqual(t, got, tt.want)
 		})
 	}
+}
+
+func testLinkResolveError(t *testing.T, root *OpenAPI) {
+	t.Run("link.resolve error", func(t *testing.T) {
+		link := Link{
+			reference: "#/components/unknown/Unknown",
+			root:      root,
+		}
+
+		_, got := link.resolve()
+
+		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+
+		assertSameError(t, got, want)
+	})
 }
 
 func testHeaderResolve(t *testing.T, root *OpenAPI) {
@@ -414,6 +514,21 @@ func testHeaderResolve(t *testing.T, root *OpenAPI) {
 	}
 }
 
+func testHeaderResolveError(t *testing.T, root *OpenAPI) {
+	t.Run("header.resolve error", func(t *testing.T) {
+		header := Header{
+			reference: "#/components/unknown/Unknown",
+			root:      root,
+		}
+
+		_, got := header.resolve()
+
+		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+
+		assertSameError(t, got, want)
+	})
+}
+
 func testSchemaResolve(t *testing.T, root *OpenAPI) {
 	tests := []struct {
 		ref  string
@@ -447,6 +562,21 @@ func testSchemaResolve(t *testing.T, root *OpenAPI) {
 	}
 }
 
+func testSchemaResolveError(t *testing.T, root *OpenAPI) {
+	t.Run("schema.resolve error", func(t *testing.T) {
+		schema := Schema{
+			reference: "#/components/unknown/Unknown",
+			root:      root,
+		}
+
+		_, got := schema.resolve()
+
+		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+
+		assertSameError(t, got, want)
+	})
+}
+
 func testSecuritySchemeResolve(t *testing.T, root *OpenAPI) {
 	tests := []struct {
 		ref  string
@@ -478,6 +608,21 @@ func testSecuritySchemeResolve(t *testing.T, root *OpenAPI) {
 			assertEqual(t, got, tt.want)
 		})
 	}
+}
+
+func testSecuritySchemeResolveError(t *testing.T, root *OpenAPI) {
+	t.Run("securityScheme.resolve error", func(t *testing.T) {
+		securityScheme := SecurityScheme{
+			reference: "#/components/unknown/Unknown",
+			root:      root,
+		}
+
+		_, got := securityScheme.resolve()
+
+		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+
+		assertSameError(t, got, want)
+	})
 }
 
 func testResolveTypeAssertionPanicParameter(t *testing.T, root *OpenAPI) {
