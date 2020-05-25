@@ -1,5 +1,4 @@
 ---
-tests: false
 linters:
   disable-all: true
   enable:
@@ -7,7 +6,6 @@ linters:
     - deadcode
     - depguard
     - dogsled
-    - dupl
     - errcheck
     - funlen
     - gocognit
