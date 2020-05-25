@@ -72,6 +72,16 @@ func TestResolve(t *testing.T) {
 	testHeaderResolve(t, root)
 	testSchemaResolve(t, root)
 	testSecuritySchemeResolve(t, root)
+
+	testResolveTypeAssertionPanicParameter(t, root)
+	testResolveTypeAssertionPanicRequestBody(t, root)
+	testResolveTypeAssertionPanicResponse(t, root)
+	testResolveTypeAssertionPanicCallback(t, root)
+	testResolveTypeAssertionPanicExample(t, root)
+	testResolveTypeAssertionPanicLink(t, root)
+	testResolveTypeAssertionPanicHeader(t, root)
+	testResolveTypeAssertionPanicSchema(t, root)
+	testResolveTypeAssertionPanicSecurityScheme(t, root)
 }
 
 func testResolve(t *testing.T, root *OpenAPI) {
@@ -468,4 +478,157 @@ func testSecuritySchemeResolve(t *testing.T, root *OpenAPI) {
 			assertEqual(t, got, tt.want)
 		})
 	}
+}
+
+func testResolveTypeAssertionPanicParameter(t *testing.T, root *OpenAPI) {
+	t.Run("type assertion panic parameter", func(t *testing.T) {
+		parameter := Parameter{
+			reference: "#/components/requestBodies/FooRequest",
+			root:      root,
+		}
+
+		defer func() {
+			if err := recover(); err == nil {
+				t.Error("panic is expected but not")
+			}
+		}()
+
+		parameter.resolve() //nolint:errcheck // it panics
+	})
+}
+
+func testResolveTypeAssertionPanicRequestBody(t *testing.T, root *OpenAPI) {
+	t.Run("type assertion panic requestBody", func(t *testing.T) {
+		requestBody := RequestBody{
+			reference: "#/components/responses/FooResponse",
+			root:      root,
+		}
+
+		defer func() {
+			if err := recover(); err == nil {
+				t.Error("panic is expected but not")
+			}
+		}()
+
+		requestBody.resolve() //nolint:errcheck // it panics
+	})
+}
+
+func testResolveTypeAssertionPanicResponse(t *testing.T, root *OpenAPI) {
+	t.Run("type assertion panic response", func(t *testing.T) {
+		response := Response{
+			reference: "#/components/callbacks/FooCallback",
+			root:      root,
+		}
+
+		defer func() {
+			if err := recover(); err == nil {
+				t.Error("panic is expected but not")
+			}
+		}()
+
+		response.resolve() //nolint:errcheck // it panics
+	})
+}
+
+func testResolveTypeAssertionPanicCallback(t *testing.T, root *OpenAPI) {
+	t.Run("type assertion panic callback", func(t *testing.T) {
+		callback := Callback{
+			reference: "#/components/examples/FooExample",
+			root:      root,
+		}
+
+		defer func() {
+			if err := recover(); err == nil {
+				t.Error("panic is expected but not")
+			}
+		}()
+
+		callback.resolve() //nolint:errcheck // it panics
+	})
+}
+
+func testResolveTypeAssertionPanicExample(t *testing.T, root *OpenAPI) {
+	t.Run("type assertion panic example", func(t *testing.T) {
+		example := Example{
+			reference: "#/components/links/FooLink",
+			root:      root,
+		}
+
+		defer func() {
+			if err := recover(); err == nil {
+				t.Error("panic is expected but not")
+			}
+		}()
+
+		example.resolve() //nolint:errcheck // it panics
+	})
+}
+
+func testResolveTypeAssertionPanicLink(t *testing.T, root *OpenAPI) {
+	t.Run("type assertion panic link", func(t *testing.T) {
+		link := Link{
+			reference: "#/components/headers/FooHeader",
+			root:      root,
+		}
+
+		defer func() {
+			if err := recover(); err == nil {
+				t.Error("panic is expected but not")
+			}
+		}()
+
+		link.resolve() //nolint:errcheck // it panics
+	})
+}
+
+func testResolveTypeAssertionPanicHeader(t *testing.T, root *OpenAPI) {
+	t.Run("type assertion panic header", func(t *testing.T) {
+		header := Header{
+			reference: "#/components/schemas/FooSchema",
+			root:      root,
+		}
+
+		defer func() {
+			if err := recover(); err == nil {
+				t.Error("panic is expected but not")
+			}
+		}()
+
+		header.resolve() //nolint:errcheck // it panics
+	})
+}
+
+func testResolveTypeAssertionPanicSchema(t *testing.T, root *OpenAPI) {
+	t.Run("type assertion panic schema", func(t *testing.T) {
+		schema := Schema{
+			reference: "#/components/securitySchemes/FooSecurityScheme",
+			root:      root,
+		}
+
+		defer func() {
+			if err := recover(); err == nil {
+				t.Error("panic is expected but not")
+			}
+		}()
+
+		schema.resolve() //nolint:errcheck // it panics
+	})
+}
+
+func testResolveTypeAssertionPanicSecurityScheme(t *testing.T, root *OpenAPI) {
+	t.Run("type assertion panic securityScheme", func(t *testing.T) {
+		securityScheme := SecurityScheme{
+			reference: "#/components/parameters/FooParameter",
+			root:      root,
+		}
+
+		defer func() {
+			if err := recover(); err == nil {
+				t.Error("panic is expected but not")
+			}
+		}()
+
+		securityScheme.resolve() //nolint:errcheck // it panics
+	})
 }
