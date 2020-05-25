@@ -18,10 +18,12 @@ func testXMLUnmarshalYAMLBasicString(t *testing.T) {
   type: string
   xml:
     name: animal`
+
 	var got map[string]*Schema
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := map[string]*Schema{
 		"animals": {
 			type_: "string",
@@ -30,6 +32,7 @@ func testXMLUnmarshalYAMLBasicString(t *testing.T) {
 			},
 		},
 	}
+
 	assertEqual(t, got, want)
 }
 
@@ -47,10 +50,12 @@ func testXMLUnmarshalYAMLAttributePrefixNamespace(t *testing.T) {
       xml:
         namespace: http://example.com/schema/sample
         prefix: sample`
+
 	var got map[string]*Schema
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := map[string]*Schema{
 		"Person": {
 			type_: "object",
@@ -70,6 +75,7 @@ func testXMLUnmarshalYAMLAttributePrefixNamespace(t *testing.T) {
 			},
 		},
 	}
+
 	assertEqual(t, got, want)
 }
 
@@ -80,10 +86,12 @@ func testXMLUnmarshalYAMLWrappedArray(t *testing.T) {
     type: string
   xml:
     wrapped: true`
+
 	var got map[string]*Schema
 	if err := yaml.Unmarshal([]byte(yml), &got); err != nil {
 		t.Fatal(err)
 	}
+
 	want := map[string]*Schema{
 		"animals": {
 			type_: "array",
@@ -91,6 +99,7 @@ func testXMLUnmarshalYAMLWrappedArray(t *testing.T) {
 			xml:   &XML{wrapped: true},
 		},
 	}
+
 	assertEqual(t, got, want)
 }
 
@@ -115,6 +124,7 @@ func TestXMLUnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.yml), &got); err != nil {
 				t.Fatal(err)
 			}
+
 			assertEqual(t, got, tt.want)
 		})
 	}
