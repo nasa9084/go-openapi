@@ -2,6 +2,10 @@
 
 package openapi
 
+func (v *OpenAPI) OpenAPI() string {
+	return v.openapi
+}
+
 func (v *OpenAPI) Info() *Info {
 	if v.info == nil {
 		return &Info{}

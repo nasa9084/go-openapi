@@ -49,7 +49,7 @@ func generateGetter(g *generator.Generator, object astutil.OpenAPIObject) {
 	for _, field := range object.Fields {
 		ft := astutil.TypeString(field.Type)
 
-		if object.Name == expose(field.Name) {
+		if object.Name == expose(field.Name) && object.Name != "OpenAPI" && field.Name != "openapi" {
 			continue
 		}
 
