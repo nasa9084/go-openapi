@@ -115,18 +115,36 @@ func testParameterResolve(t *testing.T, root *OpenAPI) {
 }
 
 func testParameterResolveError(t *testing.T, root *OpenAPI) {
-	t.Run("parameter.resolve error", func(t *testing.T) {
-		parameter := Parameter{
+	tests := []struct {
+		label     string
+		reference string
+		msg       string
+	}{
+		{
+			label:     "invalid component type",
 			reference: "#/components/unknown/Unknown",
-			root:      root,
-		}
+			msg:       "local Parameter reference must begin with `#/components/parameters/`",
+		},
+		{
+			label:     "not local reference",
+			reference: "https://example.com/example.json#/components/parameters/FooParameter",
+			msg:       "not supported reference type",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.label, func(t *testing.T) {
+			parameter := Parameter{
+				reference: tt.reference,
+				root:      root,
+			}
 
-		_, got := parameter.resolve()
+			_, got := parameter.resolve()
 
-		want := ErrCannotResolved(parameter.reference, "local Parameter reference must begin with `#/components/parameters/`")
+			want := ErrCannotResolved(tt.reference, tt.msg)
 
-		assertSameError(t, got, want)
-	})
+			assertSameError(t, got, want)
+		})
+	}
 }
 
 func testRequestBodyResolve(t *testing.T, root *OpenAPI) {
@@ -163,21 +181,36 @@ func testRequestBodyResolve(t *testing.T, root *OpenAPI) {
 }
 
 func testRequestBodyResolveError(t *testing.T, root *OpenAPI) {
-	t.Run("requestBody.resolve error", func(t *testing.T) {
-		requestBody := RequestBody{
+	tests := []struct {
+		label     string
+		reference string
+		msg       string
+	}{
+		{
+			label:     "invalid component type",
 			reference: "#/components/unknown/Unknown",
-			root:      root,
-		}
+			msg:       "local RequestBody reference must begin with `#/components/requestBodies/`",
+		},
+		{
+			label:     "not local reference",
+			reference: "https://example.com/example.json#/components/requestBodies/FooRequestBody",
+			msg:       "not supported reference type",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.label, func(t *testing.T) {
+			requestBody := RequestBody{
+				reference: tt.reference,
+				root:      root,
+			}
 
-		_, got := requestBody.resolve()
+			_, got := requestBody.resolve()
 
-		want := ErrCannotResolved(
-			requestBody.reference,
-			"local RequestBody reference must begin with `#/components/requestBodies/`",
-		)
+			want := ErrCannotResolved(tt.reference, tt.msg)
 
-		assertSameError(t, got, want)
-	})
+			assertSameError(t, got, want)
+		})
+	}
 }
 
 func testResponseResolve(t *testing.T, root *OpenAPI) {
@@ -214,18 +247,36 @@ func testResponseResolve(t *testing.T, root *OpenAPI) {
 }
 
 func testResponseResolveError(t *testing.T, root *OpenAPI) {
-	t.Run("response.resolve error", func(t *testing.T) {
-		response := Response{
+	tests := []struct {
+		label     string
+		reference string
+		msg       string
+	}{
+		{
+			label:     "invalid component type",
 			reference: "#/components/unknown/Unknown",
-			root:      root,
-		}
+			msg:       "local Response reference must begin with `#/components/responses/`",
+		},
+		{
+			label:     "not local reference",
+			reference: "https://example.com/example.json#/components/responses/FooResponse",
+			msg:       "not supported reference type",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.label, func(t *testing.T) {
+			response := Response{
+				reference: tt.reference,
+				root:      root,
+			}
 
-		_, got := response.resolve()
+			_, got := response.resolve()
 
-		want := ErrCannotResolved(response.reference, "local Response reference must begin with `#/components/responses/`")
+			want := ErrCannotResolved(tt.reference, tt.msg)
 
-		assertSameError(t, got, want)
-	})
+			assertSameError(t, got, want)
+		})
+	}
 }
 
 func testCallbackResolve(t *testing.T, root *OpenAPI) {
@@ -262,18 +313,36 @@ func testCallbackResolve(t *testing.T, root *OpenAPI) {
 }
 
 func testCallbackResolveError(t *testing.T, root *OpenAPI) {
-	t.Run("callback.resolve error", func(t *testing.T) {
-		callback := Callback{
+	tests := []struct {
+		label     string
+		reference string
+		msg       string
+	}{
+		{
+			label:     "invalid component type",
 			reference: "#/components/unknown/Unknown",
-			root:      root,
-		}
+			msg:       "local Callback reference must begin with `#/components/callbacks/`",
+		},
+		{
+			label:     "not local reference",
+			reference: "https://example.com/example.json#/components/callbacks/FooCallback",
+			msg:       "not supported reference type",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.label, func(t *testing.T) {
+			callback := Callback{
+				reference: tt.reference,
+				root:      root,
+			}
 
-		_, got := callback.resolve()
+			_, got := callback.resolve()
 
-		want := ErrCannotResolved(callback.reference, "local Callback reference must begin with `#/components/callbacks/`")
+			want := ErrCannotResolved(tt.reference, tt.msg)
 
-		assertSameError(t, got, want)
-	})
+			assertSameError(t, got, want)
+		})
+	}
 }
 
 func testExampleResolve(t *testing.T, root *OpenAPI) {
@@ -310,18 +379,36 @@ func testExampleResolve(t *testing.T, root *OpenAPI) {
 }
 
 func testExampleResolveError(t *testing.T, root *OpenAPI) {
-	t.Run("example.resolve error", func(t *testing.T) {
-		example := Example{
+	tests := []struct {
+		label     string
+		reference string
+		msg       string
+	}{
+		{
+			label:     "invalid component type",
 			reference: "#/components/unknown/Unknown",
-			root:      root,
-		}
+			msg:       "local Example reference must begin with `#/components/examples/`",
+		},
+		{
+			label:     "not local reference",
+			reference: "https://example.com/example.json#/components/examples/FooExample",
+			msg:       "not supported reference type",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.label, func(t *testing.T) {
+			example := Example{
+				reference: tt.reference,
+				root:      root,
+			}
 
-		_, got := example.resolve()
+			_, got := example.resolve()
 
-		want := ErrCannotResolved(example.reference, "local Example reference must begin with `#/components/examples/`")
+			want := ErrCannotResolved(tt.reference, tt.msg)
 
-		assertSameError(t, got, want)
-	})
+			assertSameError(t, got, want)
+		})
+	}
 }
 
 func testLinkResolve(t *testing.T, root *OpenAPI) {
@@ -358,18 +445,36 @@ func testLinkResolve(t *testing.T, root *OpenAPI) {
 }
 
 func testLinkResolveError(t *testing.T, root *OpenAPI) {
-	t.Run("link.resolve error", func(t *testing.T) {
-		link := Link{
+	tests := []struct {
+		label     string
+		reference string
+		msg       string
+	}{
+		{
+			label:     "invalid component type",
 			reference: "#/components/unknown/Unknown",
-			root:      root,
-		}
+			msg:       "local Link reference must begin with `#/components/links/`",
+		},
+		{
+			label:     "not local reference",
+			reference: "https://example.com/example.json#/components/links/FooLink",
+			msg:       "not supported reference type",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.label, func(t *testing.T) {
+			link := Link{
+				reference: tt.reference,
+				root:      root,
+			}
 
-		_, got := link.resolve()
+			_, got := link.resolve()
 
-		want := ErrCannotResolved(link.reference, "local Link reference must begin with `#/components/links/`")
+			want := ErrCannotResolved(tt.reference, tt.msg)
 
-		assertSameError(t, got, want)
-	})
+			assertSameError(t, got, want)
+		})
+	}
 }
 
 func testHeaderResolve(t *testing.T, root *OpenAPI) {
@@ -406,18 +511,36 @@ func testHeaderResolve(t *testing.T, root *OpenAPI) {
 }
 
 func testHeaderResolveError(t *testing.T, root *OpenAPI) {
-	t.Run("header.resolve error", func(t *testing.T) {
-		header := Header{
+	tests := []struct {
+		label     string
+		reference string
+		msg       string
+	}{
+		{
+			label:     "invalid component type",
 			reference: "#/components/unknown/Unknown",
-			root:      root,
-		}
+			msg:       "local Header reference must begin with `#/components/headers/`",
+		},
+		{
+			label:     "not local reference",
+			reference: "https://example.com/example.json#/components/headers/FooHeader",
+			msg:       "not supported reference type",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.label, func(t *testing.T) {
+			header := Header{
+				reference: tt.reference,
+				root:      root,
+			}
 
-		_, got := header.resolve()
+			_, got := header.resolve()
 
-		want := ErrCannotResolved(header.reference, "local Header reference must begin with `#/components/headers/`")
+			want := ErrCannotResolved(tt.reference, tt.msg)
 
-		assertSameError(t, got, want)
-	})
+			assertSameError(t, got, want)
+		})
+	}
 }
 
 func testSchemaResolve(t *testing.T, root *OpenAPI) {
@@ -454,18 +577,36 @@ func testSchemaResolve(t *testing.T, root *OpenAPI) {
 }
 
 func testSchemaResolveError(t *testing.T, root *OpenAPI) {
-	t.Run("schema.resolve error", func(t *testing.T) {
-		schema := Schema{
+	tests := []struct {
+		label     string
+		reference string
+		msg       string
+	}{
+		{
+			label:     "invalid component type",
 			reference: "#/components/unknown/Unknown",
-			root:      root,
-		}
+			msg:       "local Schema reference must begin with `#/components/schemas/`",
+		},
+		{
+			label:     "not local reference",
+			reference: "https://example.com/example.json#/components/schemas/FooSchema",
+			msg:       "not supported reference type",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.label, func(t *testing.T) {
+			schema := Schema{
+				reference: tt.reference,
+				root:      root,
+			}
 
-		_, got := schema.resolve()
+			_, got := schema.resolve()
 
-		want := ErrCannotResolved(schema.reference, "local Schema reference must begin with `#/components/schemas/`")
+			want := ErrCannotResolved(tt.reference, tt.msg)
 
-		assertSameError(t, got, want)
-	})
+			assertSameError(t, got, want)
+		})
+	}
 }
 
 func testSecuritySchemeResolve(t *testing.T, root *OpenAPI) {
@@ -502,19 +643,34 @@ func testSecuritySchemeResolve(t *testing.T, root *OpenAPI) {
 }
 
 func testSecuritySchemeResolveError(t *testing.T, root *OpenAPI) {
-	t.Run("securityScheme.resolve error", func(t *testing.T) {
-		securityScheme := SecurityScheme{
+	tests := []struct {
+		label     string
+		reference string
+		msg       string
+	}{
+		{
+			label:     "invalid component type",
 			reference: "#/components/unknown/Unknown",
-			root:      root,
-		}
+			msg:       "local SecurityScheme reference must begin with `#/components/securitySchemes/`",
+		},
+		{
+			label:     "not local reference",
+			reference: "https://example.com/example.json#/components/securitySchemes/FooSecurityScheme",
+			msg:       "not supported reference type",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.label, func(t *testing.T) {
+			securityScheme := SecurityScheme{
+				reference: tt.reference,
+				root:      root,
+			}
 
-		_, got := securityScheme.resolve()
+			_, got := securityScheme.resolve()
 
-		want := ErrCannotResolved(
-			securityScheme.reference,
-			"local SecurityScheme reference must begin with `#/components/securitySchemes/`",
-		)
+			want := ErrCannotResolved(tt.reference, tt.msg)
 
-		assertSameError(t, got, want)
-	})
+			assertSameError(t, got, want)
+		})
+	}
 }

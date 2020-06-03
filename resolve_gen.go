@@ -20,7 +20,7 @@ func (v *Parameter) resolve() (*Parameter, error) {
 		return v.resolveLocal()
 	}
 
-	return nil, ErrCannotResolved(v.reference, `not supported reference`)
+	return nil, ErrCannotResolved(v.reference, `not supported reference type`)
 }
 
 func (v *Parameter) resolveLocal() (*Parameter, error) {
@@ -52,7 +52,7 @@ func (v *RequestBody) resolve() (*RequestBody, error) {
 		return v.resolveLocal()
 	}
 
-	return nil, ErrCannotResolved(v.reference, `not supported reference`)
+	return nil, ErrCannotResolved(v.reference, `not supported reference type`)
 }
 
 func (v *RequestBody) resolveLocal() (*RequestBody, error) {
@@ -84,7 +84,7 @@ func (v *Response) resolve() (*Response, error) {
 		return v.resolveLocal()
 	}
 
-	return nil, ErrCannotResolved(v.reference, `not supported reference`)
+	return nil, ErrCannotResolved(v.reference, `not supported reference type`)
 }
 
 func (v *Response) resolveLocal() (*Response, error) {
@@ -116,7 +116,7 @@ func (v *Callback) resolve() (*Callback, error) {
 		return v.resolveLocal()
 	}
 
-	return nil, ErrCannotResolved(v.reference, `not supported reference`)
+	return nil, ErrCannotResolved(v.reference, `not supported reference type`)
 }
 
 func (v *Callback) resolveLocal() (*Callback, error) {
@@ -148,7 +148,7 @@ func (v *Example) resolve() (*Example, error) {
 		return v.resolveLocal()
 	}
 
-	return nil, ErrCannotResolved(v.reference, `not supported reference`)
+	return nil, ErrCannotResolved(v.reference, `not supported reference type`)
 }
 
 func (v *Example) resolveLocal() (*Example, error) {
@@ -180,7 +180,7 @@ func (v *Link) resolve() (*Link, error) {
 		return v.resolveLocal()
 	}
 
-	return nil, ErrCannotResolved(v.reference, `not supported reference`)
+	return nil, ErrCannotResolved(v.reference, `not supported reference type`)
 }
 
 func (v *Link) resolveLocal() (*Link, error) {
@@ -212,7 +212,7 @@ func (v *Header) resolve() (*Header, error) {
 		return v.resolveLocal()
 	}
 
-	return nil, ErrCannotResolved(v.reference, `not supported reference`)
+	return nil, ErrCannotResolved(v.reference, `not supported reference type`)
 }
 
 func (v *Header) resolveLocal() (*Header, error) {
@@ -244,7 +244,7 @@ func (v *Schema) resolve() (*Schema, error) {
 		return v.resolveLocal()
 	}
 
-	return nil, ErrCannotResolved(v.reference, `not supported reference`)
+	return nil, ErrCannotResolved(v.reference, `not supported reference type`)
 }
 
 func (v *Schema) resolveLocal() (*Schema, error) {
@@ -276,7 +276,7 @@ func (v *SecurityScheme) resolve() (*SecurityScheme, error) {
 		return v.resolveLocal()
 	}
 
-	return nil, ErrCannotResolved(v.reference, `not supported reference`)
+	return nil, ErrCannotResolved(v.reference, `not supported reference type`)
 }
 
 func (v *SecurityScheme) resolveLocal() (*SecurityScheme, error) {

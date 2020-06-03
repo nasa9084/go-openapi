@@ -50,7 +50,7 @@ func generateResolve(g *generator.Generator, object astutil.OpenAPIObject) {
 	g.Printf("\nreturn v.resolveLocal()")
 	g.Printf("\n}")
 
-	g.Printf("\n\nreturn nil, ErrCannotResolved(v.reference, `not supported reference`)")
+	g.Printf("\n\nreturn nil, ErrCannotResolved(v.reference, `not supported reference type`)")
 }
 
 func generateResolveLocal(g *generator.Generator, object astutil.OpenAPIObject) {
