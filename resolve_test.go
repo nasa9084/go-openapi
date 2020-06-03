@@ -1,3 +1,5 @@
+//nolint:lll
+
 package openapi
 
 import (
