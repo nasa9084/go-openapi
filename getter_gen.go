@@ -46,8 +46,8 @@ func (v *OpenAPI) ExternalDocs() *ExternalDocumentation {
 	return v.externalDocs
 }
 
-func (v *OpenAPI) Extension() map[string]interface{} {
-	return v.extension
+func (v *OpenAPI) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *Info) Root() *OpenAPI {
@@ -87,8 +87,8 @@ func (v *Info) Version() string {
 	return v.version
 }
 
-func (v *Info) Extension() map[string]interface{} {
-	return v.extension
+func (v *Info) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *Contact) Root() *OpenAPI {
@@ -110,8 +110,8 @@ func (v *Contact) Email() string {
 	return v.email
 }
 
-func (v *Contact) Extension() map[string]interface{} {
-	return v.extension
+func (v *Contact) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *License) Root() *OpenAPI {
@@ -129,8 +129,8 @@ func (v *License) URL() string {
 	return v.url
 }
 
-func (v *License) Extension() map[string]interface{} {
-	return v.extension
+func (v *License) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *Server) Root() *OpenAPI {
@@ -152,8 +152,8 @@ func (v *Server) Variables() map[string]*ServerVariable {
 	return v.variables
 }
 
-func (v *Server) Extension() map[string]interface{} {
-	return v.extension
+func (v *Server) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *ServerVariable) Root() *OpenAPI {
@@ -175,8 +175,8 @@ func (v *ServerVariable) Description() string {
 	return v.description
 }
 
-func (v *ServerVariable) Extension() map[string]interface{} {
-	return v.extension
+func (v *ServerVariable) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *Components) Root() *OpenAPI {
@@ -222,8 +222,8 @@ func (v *Components) Callbacks() map[string]*Callback {
 	return v.callbacks
 }
 
-func (v *Components) Extension() map[string]interface{} {
-	return v.extension
+func (v *Components) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *Paths) Root() *OpenAPI {
@@ -233,8 +233,15 @@ func (v *Paths) Root() *OpenAPI {
 	return v.root
 }
 
-func (v *Paths) Extension() map[string]interface{} {
-	return v.extension
+func (v *Paths) Get(key string) *PathItem {
+	if val, ok := v.paths[key]; ok {
+		return val
+	}
+	return &PathItem{}
+}
+
+func (v *Paths) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *PathItem) Root() *OpenAPI {
@@ -316,8 +323,8 @@ func (v *PathItem) Parameters() []*Parameter {
 	return v.parameters
 }
 
-func (v *PathItem) Extension() map[string]interface{} {
-	return v.extension
+func (v *PathItem) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *Operation) Root() *OpenAPI {
@@ -384,8 +391,8 @@ func (v *Operation) Servers() []*Server {
 	return v.servers
 }
 
-func (v *Operation) Extension() map[string]interface{} {
-	return v.extension
+func (v *Operation) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *ExternalDocumentation) Root() *OpenAPI {
@@ -403,11 +410,18 @@ func (v *ExternalDocumentation) URL() string {
 	return v.url
 }
 
-func (v *ExternalDocumentation) Extension() map[string]interface{} {
-	return v.extension
+func (v *ExternalDocumentation) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *Parameter) Root() *OpenAPI {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
 	if v.root == nil {
 		return &OpenAPI{}
 	}
@@ -420,7 +434,7 @@ func (v *Parameter) Name() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.name
+		v = resolved
 	}
 	return v.name
 }
@@ -431,7 +445,7 @@ func (v *Parameter) In() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.in
+		v = resolved
 	}
 	return v.in
 }
@@ -442,7 +456,7 @@ func (v *Parameter) Description() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.description
+		v = resolved
 	}
 	return v.description
 }
@@ -453,7 +467,7 @@ func (v *Parameter) Required() bool {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.required
+		v = resolved
 	}
 	return v.required
 }
@@ -464,7 +478,7 @@ func (v *Parameter) Deprecated() bool {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.deprecated
+		v = resolved
 	}
 	return v.deprecated
 }
@@ -475,7 +489,7 @@ func (v *Parameter) AllowEmptyValue() bool {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.allowEmptyValue
+		v = resolved
 	}
 	return v.allowEmptyValue
 }
@@ -486,7 +500,7 @@ func (v *Parameter) Style() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.style
+		v = resolved
 	}
 	return v.style
 }
@@ -497,7 +511,7 @@ func (v *Parameter) Explode() bool {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.explode
+		v = resolved
 	}
 	return v.explode
 }
@@ -508,7 +522,7 @@ func (v *Parameter) AllowReserved() bool {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.allowReserved
+		v = resolved
 	}
 	return v.allowReserved
 }
@@ -519,7 +533,7 @@ func (v *Parameter) Schema() *Schema {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.schema
+		v = resolved
 	}
 	if v.schema == nil {
 		return &Schema{}
@@ -533,7 +547,7 @@ func (v *Parameter) Example() interface{} {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.example
+		v = resolved
 	}
 	return v.example
 }
@@ -544,7 +558,7 @@ func (v *Parameter) Examples() map[string]*Example {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.examples
+		v = resolved
 	}
 	return v.examples
 }
@@ -555,20 +569,20 @@ func (v *Parameter) Content() map[string]*MediaType {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.content
+		v = resolved
 	}
 	return v.content
 }
 
-func (v *Parameter) Extension() map[string]interface{} {
+func (v *Parameter) Extension(key string) interface{} {
 	if v.reference != "" {
 		resolved, err := v.resolve()
 		if err != nil {
 			panic(err)
 		}
-		return resolved.extension
+		v = resolved
 	}
-	return v.extension
+	return v.extension[key]
 }
 
 func (v *Parameter) Reference() string {
@@ -577,12 +591,33 @@ func (v *Parameter) Reference() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.reference
+		v = resolved
 	}
 	return v.reference
 }
 
+func (v *Parameter) Resolved() *Parameter {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
+	if v.resolved == nil {
+		return &Parameter{}
+	}
+	return v.resolved
+}
+
 func (v *RequestBody) Root() *OpenAPI {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
 	if v.root == nil {
 		return &OpenAPI{}
 	}
@@ -595,7 +630,7 @@ func (v *RequestBody) Description() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.description
+		v = resolved
 	}
 	return v.description
 }
@@ -606,7 +641,7 @@ func (v *RequestBody) Content() map[string]*MediaType {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.content
+		v = resolved
 	}
 	return v.content
 }
@@ -617,20 +652,20 @@ func (v *RequestBody) Required() bool {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.required
+		v = resolved
 	}
 	return v.required
 }
 
-func (v *RequestBody) Extension() map[string]interface{} {
+func (v *RequestBody) Extension(key string) interface{} {
 	if v.reference != "" {
 		resolved, err := v.resolve()
 		if err != nil {
 			panic(err)
 		}
-		return resolved.extension
+		v = resolved
 	}
-	return v.extension
+	return v.extension[key]
 }
 
 func (v *RequestBody) Reference() string {
@@ -639,9 +674,23 @@ func (v *RequestBody) Reference() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.reference
+		v = resolved
 	}
 	return v.reference
+}
+
+func (v *RequestBody) Resolved() *RequestBody {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
+	if v.resolved == nil {
+		return &RequestBody{}
+	}
+	return v.resolved
 }
 
 func (v *MediaType) Root() *OpenAPI {
@@ -670,8 +719,8 @@ func (v *MediaType) Encoding() map[string]*Encoding {
 	return v.encoding
 }
 
-func (v *MediaType) Extension() map[string]interface{} {
-	return v.extension
+func (v *MediaType) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *Encoding) Root() *OpenAPI {
@@ -701,8 +750,8 @@ func (v *Encoding) AllowReserved() bool {
 	return v.allowReserved
 }
 
-func (v *Encoding) Extension() map[string]interface{} {
-	return v.extension
+func (v *Encoding) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *Responses) Root() *OpenAPI {
@@ -712,11 +761,25 @@ func (v *Responses) Root() *OpenAPI {
 	return v.root
 }
 
-func (v *Responses) Extension() map[string]interface{} {
-	return v.extension
+func (v *Responses) Get(key string) *Response {
+	if val, ok := v.responses[key]; ok {
+		return val
+	}
+	return &Response{}
+}
+
+func (v *Responses) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *Response) Root() *OpenAPI {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
 	if v.root == nil {
 		return &OpenAPI{}
 	}
@@ -729,7 +792,7 @@ func (v *Response) Description() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.description
+		v = resolved
 	}
 	return v.description
 }
@@ -740,7 +803,7 @@ func (v *Response) Headers() map[string]*Header {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.headers
+		v = resolved
 	}
 	return v.headers
 }
@@ -751,7 +814,7 @@ func (v *Response) Content() map[string]*MediaType {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.content
+		v = resolved
 	}
 	return v.content
 }
@@ -762,20 +825,20 @@ func (v *Response) Links() map[string]*Link {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.links
+		v = resolved
 	}
 	return v.links
 }
 
-func (v *Response) Extension() map[string]interface{} {
+func (v *Response) Extension(key string) interface{} {
 	if v.reference != "" {
 		resolved, err := v.resolve()
 		if err != nil {
 			panic(err)
 		}
-		return resolved.extension
+		v = resolved
 	}
-	return v.extension
+	return v.extension[key]
 }
 
 func (v *Response) Reference() string {
@@ -784,27 +847,62 @@ func (v *Response) Reference() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.reference
+		v = resolved
 	}
 	return v.reference
 }
 
+func (v *Response) Resolved() *Response {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
+	if v.resolved == nil {
+		return &Response{}
+	}
+	return v.resolved
+}
+
 func (v *Callback) Root() *OpenAPI {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
 	if v.root == nil {
 		return &OpenAPI{}
 	}
 	return v.root
 }
 
-func (v *Callback) Extension() map[string]interface{} {
+func (v *Callback) Get(key string) *PathItem {
 	if v.reference != "" {
 		resolved, err := v.resolve()
 		if err != nil {
 			panic(err)
 		}
-		return resolved.extension
+		v = resolved
 	}
-	return v.extension
+	if val, ok := v.callback[key]; ok {
+		return val
+	}
+	return &PathItem{}
+}
+
+func (v *Callback) Extension(key string) interface{} {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
+	return v.extension[key]
 }
 
 func (v *Callback) Reference() string {
@@ -813,12 +911,33 @@ func (v *Callback) Reference() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.reference
+		v = resolved
 	}
 	return v.reference
 }
 
+func (v *Callback) Resolved() *Callback {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
+	if v.resolved == nil {
+		return &Callback{}
+	}
+	return v.resolved
+}
+
 func (v *Example) Root() *OpenAPI {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
 	if v.root == nil {
 		return &OpenAPI{}
 	}
@@ -831,7 +950,7 @@ func (v *Example) Summary() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.summary
+		v = resolved
 	}
 	return v.summary
 }
@@ -842,7 +961,7 @@ func (v *Example) Description() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.description
+		v = resolved
 	}
 	return v.description
 }
@@ -853,7 +972,7 @@ func (v *Example) Value() interface{} {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.value
+		v = resolved
 	}
 	return v.value
 }
@@ -864,20 +983,20 @@ func (v *Example) ExternalValue() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.externalValue
+		v = resolved
 	}
 	return v.externalValue
 }
 
-func (v *Example) Extension() map[string]interface{} {
+func (v *Example) Extension(key string) interface{} {
 	if v.reference != "" {
 		resolved, err := v.resolve()
 		if err != nil {
 			panic(err)
 		}
-		return resolved.extension
+		v = resolved
 	}
-	return v.extension
+	return v.extension[key]
 }
 
 func (v *Example) Reference() string {
@@ -886,12 +1005,33 @@ func (v *Example) Reference() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.reference
+		v = resolved
 	}
 	return v.reference
 }
 
+func (v *Example) Resolved() *Example {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
+	if v.resolved == nil {
+		return &Example{}
+	}
+	return v.resolved
+}
+
 func (v *Link) Root() *OpenAPI {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
 	if v.root == nil {
 		return &OpenAPI{}
 	}
@@ -904,7 +1044,7 @@ func (v *Link) OperationRef() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.operationRef
+		v = resolved
 	}
 	return v.operationRef
 }
@@ -915,7 +1055,7 @@ func (v *Link) OperationID() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.operationID
+		v = resolved
 	}
 	return v.operationID
 }
@@ -926,7 +1066,7 @@ func (v *Link) Parameters() map[string]interface{} {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.parameters
+		v = resolved
 	}
 	return v.parameters
 }
@@ -937,7 +1077,7 @@ func (v *Link) RequestBody() interface{} {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.requestBody
+		v = resolved
 	}
 	return v.requestBody
 }
@@ -948,7 +1088,7 @@ func (v *Link) Description() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.description
+		v = resolved
 	}
 	return v.description
 }
@@ -959,7 +1099,7 @@ func (v *Link) Server() *Server {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.server
+		v = resolved
 	}
 	if v.server == nil {
 		return &Server{}
@@ -967,15 +1107,15 @@ func (v *Link) Server() *Server {
 	return v.server
 }
 
-func (v *Link) Extension() map[string]interface{} {
+func (v *Link) Extension(key string) interface{} {
 	if v.reference != "" {
 		resolved, err := v.resolve()
 		if err != nil {
 			panic(err)
 		}
-		return resolved.extension
+		v = resolved
 	}
-	return v.extension
+	return v.extension[key]
 }
 
 func (v *Link) Reference() string {
@@ -984,12 +1124,33 @@ func (v *Link) Reference() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.reference
+		v = resolved
 	}
 	return v.reference
 }
 
+func (v *Link) Resolved() *Link {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
+	if v.resolved == nil {
+		return &Link{}
+	}
+	return v.resolved
+}
+
 func (v *Header) Root() *OpenAPI {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
 	if v.root == nil {
 		return &OpenAPI{}
 	}
@@ -1002,7 +1163,7 @@ func (v *Header) Description() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.description
+		v = resolved
 	}
 	return v.description
 }
@@ -1013,7 +1174,7 @@ func (v *Header) Required() bool {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.required
+		v = resolved
 	}
 	return v.required
 }
@@ -1024,7 +1185,7 @@ func (v *Header) Deprecated() bool {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.deprecated
+		v = resolved
 	}
 	return v.deprecated
 }
@@ -1035,7 +1196,7 @@ func (v *Header) AllowEmptyValue() bool {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.allowEmptyValue
+		v = resolved
 	}
 	return v.allowEmptyValue
 }
@@ -1046,7 +1207,7 @@ func (v *Header) Style() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.style
+		v = resolved
 	}
 	return v.style
 }
@@ -1057,7 +1218,7 @@ func (v *Header) Explode() bool {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.explode
+		v = resolved
 	}
 	return v.explode
 }
@@ -1068,7 +1229,7 @@ func (v *Header) AllowReserved() bool {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.allowReserved
+		v = resolved
 	}
 	return v.allowReserved
 }
@@ -1079,7 +1240,7 @@ func (v *Header) Schema() *Schema {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.schema
+		v = resolved
 	}
 	if v.schema == nil {
 		return &Schema{}
@@ -1093,7 +1254,7 @@ func (v *Header) Example() interface{} {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.example
+		v = resolved
 	}
 	return v.example
 }
@@ -1104,7 +1265,7 @@ func (v *Header) Examples() map[string]*Example {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.examples
+		v = resolved
 	}
 	return v.examples
 }
@@ -1115,20 +1276,20 @@ func (v *Header) Content() map[string]*MediaType {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.content
+		v = resolved
 	}
 	return v.content
 }
 
-func (v *Header) Extension() map[string]interface{} {
+func (v *Header) Extension(key string) interface{} {
 	if v.reference != "" {
 		resolved, err := v.resolve()
 		if err != nil {
 			panic(err)
 		}
-		return resolved.extension
+		v = resolved
 	}
-	return v.extension
+	return v.extension[key]
 }
 
 func (v *Header) Reference() string {
@@ -1137,9 +1298,23 @@ func (v *Header) Reference() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.reference
+		v = resolved
 	}
 	return v.reference
+}
+
+func (v *Header) Resolved() *Header {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
+	if v.resolved == nil {
+		return &Header{}
+	}
+	return v.resolved
 }
 
 func (v *Tag) Root() *OpenAPI {
@@ -1164,11 +1339,18 @@ func (v *Tag) ExternalDocs() *ExternalDocumentation {
 	return v.externalDocs
 }
 
-func (v *Tag) Extension() map[string]interface{} {
-	return v.extension
+func (v *Tag) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *Schema) Root() *OpenAPI {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
 	if v.root == nil {
 		return &OpenAPI{}
 	}
@@ -1181,7 +1363,7 @@ func (v *Schema) Title() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.title
+		v = resolved
 	}
 	return v.title
 }
@@ -1192,7 +1374,7 @@ func (v *Schema) MultipleOf() int {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.multipleOf
+		v = resolved
 	}
 	return v.multipleOf
 }
@@ -1203,7 +1385,7 @@ func (v *Schema) Maximum() int {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.maximum
+		v = resolved
 	}
 	return v.maximum
 }
@@ -1214,7 +1396,7 @@ func (v *Schema) ExclusiveMaximum() bool {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.exclusiveMaximum
+		v = resolved
 	}
 	return v.exclusiveMaximum
 }
@@ -1225,7 +1407,7 @@ func (v *Schema) Minimum() int {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.minimum
+		v = resolved
 	}
 	return v.minimum
 }
@@ -1236,7 +1418,7 @@ func (v *Schema) ExclusiveMinimum() bool {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.exclusiveMinimum
+		v = resolved
 	}
 	return v.exclusiveMinimum
 }
@@ -1247,7 +1429,7 @@ func (v *Schema) MaxLength() int {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.maxLength
+		v = resolved
 	}
 	return v.maxLength
 }
@@ -1258,7 +1440,7 @@ func (v *Schema) MinLength() int {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.minLength
+		v = resolved
 	}
 	return v.minLength
 }
@@ -1269,7 +1451,7 @@ func (v *Schema) Pattern() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.pattern
+		v = resolved
 	}
 	return v.pattern
 }
@@ -1280,7 +1462,7 @@ func (v *Schema) MaxItems() int {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.maxItems
+		v = resolved
 	}
 	return v.maxItems
 }
@@ -1291,7 +1473,7 @@ func (v *Schema) MinItems() int {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.minItems
+		v = resolved
 	}
 	return v.minItems
 }
@@ -1302,7 +1484,7 @@ func (v *Schema) MaxProperties() int {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.maxProperties
+		v = resolved
 	}
 	return v.maxProperties
 }
@@ -1313,7 +1495,7 @@ func (v *Schema) MinProperties() int {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.minProperties
+		v = resolved
 	}
 	return v.minProperties
 }
@@ -1324,7 +1506,7 @@ func (v *Schema) Required() []string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.required
+		v = resolved
 	}
 	return v.required
 }
@@ -1335,7 +1517,7 @@ func (v *Schema) Enum() []string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.enum
+		v = resolved
 	}
 	return v.enum
 }
@@ -1346,7 +1528,7 @@ func (v *Schema) Type() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.type_
+		v = resolved
 	}
 	return v.type_
 }
@@ -1357,7 +1539,7 @@ func (v *Schema) AllOf() []*Schema {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.allOf
+		v = resolved
 	}
 	return v.allOf
 }
@@ -1368,7 +1550,7 @@ func (v *Schema) OneOf() []*Schema {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.oneOf
+		v = resolved
 	}
 	return v.oneOf
 }
@@ -1379,7 +1561,7 @@ func (v *Schema) AnyOf() []*Schema {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.anyOf
+		v = resolved
 	}
 	return v.anyOf
 }
@@ -1390,7 +1572,7 @@ func (v *Schema) Not() *Schema {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.not
+		v = resolved
 	}
 	if v.not == nil {
 		return &Schema{}
@@ -1404,7 +1586,7 @@ func (v *Schema) Items() *Schema {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.items
+		v = resolved
 	}
 	if v.items == nil {
 		return &Schema{}
@@ -1418,7 +1600,7 @@ func (v *Schema) Properties() map[string]*Schema {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.properties
+		v = resolved
 	}
 	return v.properties
 }
@@ -1429,7 +1611,7 @@ func (v *Schema) AdditionalProperties() *Schema {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.additionalProperties
+		v = resolved
 	}
 	if v.additionalProperties == nil {
 		return &Schema{}
@@ -1443,7 +1625,7 @@ func (v *Schema) Description() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.description
+		v = resolved
 	}
 	return v.description
 }
@@ -1454,7 +1636,7 @@ func (v *Schema) Format() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.format
+		v = resolved
 	}
 	return v.format
 }
@@ -1465,7 +1647,7 @@ func (v *Schema) Default() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.default_
+		v = resolved
 	}
 	return v.default_
 }
@@ -1476,7 +1658,7 @@ func (v *Schema) Nullable() bool {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.nullable
+		v = resolved
 	}
 	return v.nullable
 }
@@ -1487,7 +1669,7 @@ func (v *Schema) Discriminator() *Discriminator {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.discriminator
+		v = resolved
 	}
 	if v.discriminator == nil {
 		return &Discriminator{}
@@ -1501,7 +1683,7 @@ func (v *Schema) ReadOnly() bool {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.readOnly
+		v = resolved
 	}
 	return v.readOnly
 }
@@ -1512,7 +1694,7 @@ func (v *Schema) WriteOnly() bool {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.writeOnly
+		v = resolved
 	}
 	return v.writeOnly
 }
@@ -1523,7 +1705,7 @@ func (v *Schema) XML() *XML {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.xml
+		v = resolved
 	}
 	if v.xml == nil {
 		return &XML{}
@@ -1537,7 +1719,7 @@ func (v *Schema) ExternalDocs() *ExternalDocumentation {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.externalDocs
+		v = resolved
 	}
 	if v.externalDocs == nil {
 		return &ExternalDocumentation{}
@@ -1551,7 +1733,7 @@ func (v *Schema) Example() interface{} {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.example
+		v = resolved
 	}
 	return v.example
 }
@@ -1562,20 +1744,20 @@ func (v *Schema) Deprecated() bool {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.deprecated
+		v = resolved
 	}
 	return v.deprecated
 }
 
-func (v *Schema) Extension() map[string]interface{} {
+func (v *Schema) Extension(key string) interface{} {
 	if v.reference != "" {
 		resolved, err := v.resolve()
 		if err != nil {
 			panic(err)
 		}
-		return resolved.extension
+		v = resolved
 	}
-	return v.extension
+	return v.extension[key]
 }
 
 func (v *Schema) Reference() string {
@@ -1584,9 +1766,23 @@ func (v *Schema) Reference() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.reference
+		v = resolved
 	}
 	return v.reference
+}
+
+func (v *Schema) Resolved() *Schema {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
+	if v.resolved == nil {
+		return &Schema{}
+	}
+	return v.resolved
 }
 
 func (v *Discriminator) Root() *OpenAPI {
@@ -1631,11 +1827,18 @@ func (v *XML) Wrapped() bool {
 	return v.wrapped
 }
 
-func (v *XML) Extension() map[string]interface{} {
-	return v.extension
+func (v *XML) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *SecurityScheme) Root() *OpenAPI {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
 	if v.root == nil {
 		return &OpenAPI{}
 	}
@@ -1648,7 +1851,7 @@ func (v *SecurityScheme) Type() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.type_
+		v = resolved
 	}
 	return v.type_
 }
@@ -1659,7 +1862,7 @@ func (v *SecurityScheme) Description() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.description
+		v = resolved
 	}
 	return v.description
 }
@@ -1670,7 +1873,7 @@ func (v *SecurityScheme) Name() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.name
+		v = resolved
 	}
 	return v.name
 }
@@ -1681,7 +1884,7 @@ func (v *SecurityScheme) In() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.in
+		v = resolved
 	}
 	return v.in
 }
@@ -1692,7 +1895,7 @@ func (v *SecurityScheme) Scheme() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.scheme
+		v = resolved
 	}
 	return v.scheme
 }
@@ -1703,7 +1906,7 @@ func (v *SecurityScheme) BearerFormat() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.bearerFormat
+		v = resolved
 	}
 	return v.bearerFormat
 }
@@ -1714,7 +1917,7 @@ func (v *SecurityScheme) Flows() *OAuthFlows {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.flows
+		v = resolved
 	}
 	if v.flows == nil {
 		return &OAuthFlows{}
@@ -1728,20 +1931,20 @@ func (v *SecurityScheme) OpenIDConnectURL() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.openIDConnectURL
+		v = resolved
 	}
 	return v.openIDConnectURL
 }
 
-func (v *SecurityScheme) Extension() map[string]interface{} {
+func (v *SecurityScheme) Extension(key string) interface{} {
 	if v.reference != "" {
 		resolved, err := v.resolve()
 		if err != nil {
 			panic(err)
 		}
-		return resolved.extension
+		v = resolved
 	}
-	return v.extension
+	return v.extension[key]
 }
 
 func (v *SecurityScheme) Reference() string {
@@ -1750,9 +1953,23 @@ func (v *SecurityScheme) Reference() string {
 		if err != nil {
 			panic(err)
 		}
-		return resolved.reference
+		v = resolved
 	}
 	return v.reference
+}
+
+func (v *SecurityScheme) Resolved() *SecurityScheme {
+	if v.reference != "" {
+		resolved, err := v.resolve()
+		if err != nil {
+			panic(err)
+		}
+		v = resolved
+	}
+	if v.resolved == nil {
+		return &SecurityScheme{}
+	}
+	return v.resolved
 }
 
 func (v *OAuthFlows) Root() *OpenAPI {
@@ -1790,8 +2007,8 @@ func (v *OAuthFlows) AuthorizationCode() *OAuthFlow {
 	return v.authorizationCode
 }
 
-func (v *OAuthFlows) Extension() map[string]interface{} {
-	return v.extension
+func (v *OAuthFlows) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *OAuthFlow) Root() *OpenAPI {
@@ -1817,8 +2034,8 @@ func (v *OAuthFlow) Scopes() map[string]string {
 	return v.scopes
 }
 
-func (v *OAuthFlow) Extension() map[string]interface{} {
-	return v.extension
+func (v *OAuthFlow) Extension(key string) interface{} {
+	return v.extension[key]
 }
 
 func (v *SecurityRequirement) Root() *OpenAPI {
@@ -1826,4 +2043,11 @@ func (v *SecurityRequirement) Root() *OpenAPI {
 		return &OpenAPI{}
 	}
 	return v.root
+}
+
+func (v *SecurityRequirement) Get(key string) []string {
+	if val, ok := v.securityRequirement[key]; ok {
+		return val
+	}
+	return []string{}
 }

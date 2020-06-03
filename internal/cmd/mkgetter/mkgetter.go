@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"go/ast"
 	"log"
 	"strings"
@@ -24,7 +25,9 @@ func main() {
 	for _, object := range objects {
 		log.Printf("generate getters for %s", object.Name)
 
-		generateGetter(g, object)
+		if err := generateGetters(g, object); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	if err := g.Save("getter_gen.go"); err != nil {
@@ -32,51 +35,104 @@ func main() {
 	}
 }
 
-func generateGetter(g *generator.Generator, object astutil.OpenAPIObject) {
-	var hasReference bool
-
+func generateGetters(g *generator.Generator, object astutil.OpenAPIObject) error {
 	for _, field := range object.Fields {
-		if field.Name == "reference" {
-			hasReference = true
-			break
-		}
-	}
+		if object.Name == expose(field.Name) && (object.Name != "OpenAPI" && field.Name != "openapi") {
+			if err := generateMapGetter(g, field, "Get"); err != nil {
+				return err
+			}
 
-	if hasReference {
-		log.Printf("  %s has reference field", object.Name)
-	}
-
-	for _, field := range object.Fields {
-		ft := astutil.TypeString(field.Type)
-
-		if object.Name == expose(field.Name) && object.Name != "OpenAPI" && field.Name != "openapi" {
 			continue
 		}
 
-		log.Printf("  generate %s.%s()", object.Name, expose(field.Name))
+		if field.Name == "extension" {
+			if err := generateMapGetter(g, field, "Extension"); err != nil {
+				return err
+			}
 
-		g.Printf("\n\nfunc (v *%s) %s() %s {", object.Name, expose(field.Name), ft)
-
-		if field.Name != "root" && hasReference {
-			g.Printf("\nif v.reference != \"\" {")
-			g.Printf("\nresolved, err := v.resolve()")
-			g.Printf("\nif err != nil {")
-			g.Printf("\npanic(err)")
-			g.Printf("\n}")
-			g.Printf("\nreturn resolved.%s", field.Name)
-			g.Printf("\n}")
+			continue
 		}
 
-		if _, ok := field.Type.(*ast.StarExpr); ok {
-			g.Printf("\nif v.%s == nil {", field.Name)
-			// trim "*"
-			g.Printf("\nreturn &%s{}", ft[1:])
-			g.Printf("\n}")
+		if err := generateGetter(g, field); err != nil {
+			return err
 		}
+	}
+	return nil
+}
 
-		g.Printf("\nreturn v.%s", field.Name)
+func generateGetter(g *generator.Generator, field astutil.OpenAPIObjectField) error {
+	log.Printf("  generate %s.%s()", field.ParentObject.Name, expose(field.Name))
+
+	fieldType := astutil.TypeString(field.Type)
+
+	g.Printf("\n\nfunc (v *%s) %s() %s {", field.ParentObject.Name, expose(field.Name), fieldType)
+	defer g.Printf("\n}")
+
+	if field.ParentObject.HasReference {
+		resolveReference(g)
+	}
+
+	if _, ok := field.Type.(*ast.StarExpr); ok {
+		g.Printf("\nif v.%s == nil {", field.Name)
+		g.Printf("\nreturn &%s{}", strings.TrimPrefix(fieldType, "*"))
 		g.Printf("\n}")
 	}
+
+	g.Printf("\nreturn v.%s", field.Name)
+
+	return nil
+}
+
+func generateMapGetter(g *generator.Generator, field astutil.OpenAPIObjectField, fnName string) error {
+	log.Printf("  generate %s.%s()", field.ParentObject.Name, fnName)
+
+	var keyType, valType string
+	var isValueStarExpr bool
+
+	if m, ok := field.Type.(*ast.MapType); !ok {
+		return fmt.Errorf("%s.%s must be a map type", field.ParentObject.Name, field.Name)
+	} else {
+		keyType = astutil.TypeString(m.Key)
+		valType = astutil.TypeString(m.Value)
+
+		if _, ok := m.Value.(*ast.StarExpr); ok {
+			isValueStarExpr = true
+		}
+	}
+
+	g.Printf("\n\nfunc (v *%s) %s(key %s) %s {", field.ParentObject.Name, fnName, keyType, valType)
+	defer g.Printf("\n}")
+
+	if field.ParentObject.HasReference {
+		resolveReference(g)
+	}
+
+	if valType != "interface{}" {
+		g.Printf("\nif val, ok := v.%s[key]; ok {", field.Name)
+		g.Printf("\nreturn val")
+		g.Printf("\n}")
+		g.Printf("\nreturn ")
+
+		if isValueStarExpr {
+			g.Printf("&")
+		}
+
+		g.Printf("%s{}", strings.TrimPrefix(valType, "*"))
+	} else {
+		g.Printf("\nreturn v.%s[key]", field.Name)
+	}
+
+	return nil
+}
+
+func resolveReference(g *generator.Generator) {
+	g.Printf("\nif v.reference != \"\" {")
+	g.Printf("\nresolved, err := v.resolve()")
+	g.Printf("\nif err != nil {")
+	g.Printf("\npanic(err)")
+	g.Printf("\n}")
+	g.Printf("\nv = resolved")
+	g.Printf("\n}")
 }
 
 func expose(ident string) string {

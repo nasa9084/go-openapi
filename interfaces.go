@@ -179,7 +179,8 @@ type Parameter struct {
 
 	extension map[string]interface{} `yaml:",omitempty,inline" format:"prefix,x-"`
 
-	reference string `yaml:"$ref,omitempty"`
+	reference string     `yaml:"$ref,omitempty"`
+	resolved  *Parameter `yaml:"-"`
 }
 
 //+object
@@ -193,7 +194,8 @@ type RequestBody struct {
 
 	extension map[string]interface{} `yaml:",omitempty,inline" format:"prefix,x-"`
 
-	reference string `yaml:"$ref,omitempty"`
+	reference string       `yaml:"$ref,omitempty"`
+	resolved  *RequestBody `yaml:"-"`
 }
 
 //+object
@@ -247,7 +249,8 @@ type Response struct {
 
 	extension map[string]interface{} `yaml:",omitempty,inline" format:"prefix,x-"`
 
-	reference string `yaml:"$ref,omitempty"`
+	reference string    `yaml:"$ref,omitempty"`
+	resolved  *Response `yaml:"-"`
 }
 
 //+object
@@ -259,7 +262,8 @@ type Callback struct {
 
 	extension map[string]interface{} `yaml:",omitempty,inline" format:"prefix,x-"`
 
-	reference string `yaml:"$ref,omitempty"`
+	reference string    `yaml:"$ref,omitempty"`
+	resolved  *Callback `yaml:"-"`
 }
 
 //+object
@@ -274,7 +278,8 @@ type Example struct {
 
 	extension map[string]interface{} `yaml:",omitempty,inline" format:"prefix,x-"`
 
-	reference string `yaml:"$ref,omitempty"`
+	reference string   `yaml:"$ref,omitempty"`
+	resolved  *Example `yaml:"-"`
 }
 
 //+object
@@ -292,6 +297,7 @@ type Link struct {
 	extension map[string]interface{} `yaml:",omitempty,inline" format:"prefix,x-"`
 
 	reference string `yaml:"$ref,omitempty"`
+	resolved  *Link  `yaml:"-"`
 }
 
 //+object
@@ -313,7 +319,8 @@ type Header struct {
 
 	extension map[string]interface{} `yaml:",omitempty,inline" format:"prefix,x-"`
 
-	reference string `yaml:"$ref,omitempty"`
+	reference string  `yaml:"$ref,omitempty"`
+	resolved  *Header `yaml:"-"`
 }
 
 //+object
@@ -372,7 +379,8 @@ type Schema struct {
 
 	extension map[string]interface{} `yaml:",omitempty,inline" format:"prefix,x-"`
 
-	reference string `yaml:"$ref,omitempty"`
+	reference string  `yaml:"$ref,omitempty"`
+	resolved  *Schema `yaml:"-"`
 }
 
 //+object
@@ -414,7 +422,8 @@ type SecurityScheme struct {
 
 	extension map[string]interface{} `yaml:",omitempty,inline" format:"prefix,x-"`
 
-	reference string `yaml:"$ref,omitempty"`
+	reference string          `yaml:"$ref,omitempty"`
+	resolved  *SecurityScheme `yaml:"-"`
 }
 
 //+object

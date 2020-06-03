@@ -33,20 +33,6 @@ func (e unknownKeyError) Error() string {
 	return fmt.Sprintf("unknown key: %s", e.Key)
 }
 
-type invalidReferenceError struct {
-	Ref string
-}
-
-func ErrInvalidReference(ref string) error {
-	return invalidReferenceError{
-		Ref: ref,
-	}
-}
-
-func (e invalidReferenceError) Error() string {
-	return fmt.Sprintf("invalid JSON reference: %s", e.Ref)
-}
-
 type cannotResolvedError struct {
 	Ref string
 	Msg string

@@ -10,6 +10,8 @@ import (
 	"github.com/nasa9084/go-openapi/internal/generator"
 )
 
+var ignoreFields = []string{"resolved"}
+
 func main() {
 	flag.Parse()
 
@@ -35,6 +37,10 @@ func mkSetRoot(g *generator.Generator, object astutil.OpenAPIObject) {
 	g.Printf("\n\nfunc (v *%s) setRoot(root *OpenAPI) {", object.Name)
 
 	for _, field := range object.Fields {
+		if oneOf(field.Name, ignoreFields) {
+			continue
+		}
+
 		switch t := field.Type.(type) {
 		case *ast.Ident, *ast.InterfaceType:
 			// nothing to do
@@ -83,4 +89,13 @@ func mkSetRoot(g *generator.Generator, object astutil.OpenAPIObject) {
 	}
 
 	g.Printf("\n}")
+}
+
+func oneOf(s string, list []string) bool {
+	for _, t := range list {
+		if s == t {
+			return true
+		}
+	}
+	return false
 }

@@ -18,12 +18,16 @@ func isNotOpenAPIObject(genDecl *ast.GenDecl) bool {
 type OpenAPIObject struct {
 	Name   string
 	Fields []OpenAPIObjectField
+
+	HasReference bool
 }
 
 type OpenAPIObjectField struct {
 	Name string
 	Type ast.Expr
 	Tags Tags
+
+	ParentObject *OpenAPIObject
 }
 
 func ParseOpenAPIObjects(filename string) ([]OpenAPIObject, error) {
@@ -61,10 +65,15 @@ func ParseOpenAPIObjects(filename string) ([]OpenAPIObject, error) {
 
 			for _, field := range st.Fields.List {
 				o.Fields = append(o.Fields, OpenAPIObjectField{
-					Name: field.Names[0].Name,
-					Type: field.Type,
-					Tags: ParseTags(field),
+					Name:         field.Names[0].Name,
+					Type:         field.Type,
+					Tags:         ParseTags(field),
+					ParentObject: &o,
 				})
+
+				if field.Names[0].Name == "reference" {
+					o.HasReference = true
+				}
 			}
 
 			ret = append(ret, o)

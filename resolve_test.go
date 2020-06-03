@@ -60,9 +60,6 @@ func TestResolve(t *testing.T) {
 		},
 	}
 
-	testResolve(t, root)
-	testResolveError(t, root)
-
 	testParameterResolve(t, root)
 	testRequestBodyResolve(t, root)
 	testResponseResolve(t, root)
@@ -82,115 +79,6 @@ func TestResolve(t *testing.T) {
 	testHeaderResolveError(t, root)
 	testSchemaResolveError(t, root)
 	testSecuritySchemeResolveError(t, root)
-
-	testResolveTypeAssertionPanicParameter(t, root)
-	testResolveTypeAssertionPanicRequestBody(t, root)
-	testResolveTypeAssertionPanicResponse(t, root)
-	testResolveTypeAssertionPanicCallback(t, root)
-	testResolveTypeAssertionPanicExample(t, root)
-	testResolveTypeAssertionPanicLink(t, root)
-	testResolveTypeAssertionPanicHeader(t, root)
-	testResolveTypeAssertionPanicSchema(t, root)
-	testResolveTypeAssertionPanicSecurityScheme(t, root)
-}
-
-func testResolve(t *testing.T, root *OpenAPI) {
-	tests := []struct {
-		ref  string
-		want interface{}
-	}{
-		{
-			ref:  "#/components/parameters/FooParameter",
-			want: root.components.parameters["FooParameter"],
-		},
-		{
-			ref:  "#/components/requestBodies/FooRequest",
-			want: root.components.requestBodies["FooRequest"],
-		},
-		{
-			ref:  "#/components/responses/FooResponse",
-			want: root.components.responses["FooResponse"],
-		},
-		{
-			ref:  "#/components/callbacks/FooCallback",
-			want: root.components.callbacks["FooCallback"],
-		},
-		{
-			ref:  "#/components/examples/FooExample",
-			want: root.components.examples["FooExample"],
-		},
-		{
-			ref:  "#/components/links/FooLink",
-			want: root.components.links["FooLink"],
-		},
-		{
-			ref:  "#/components/headers/FooHeader",
-			want: root.components.headers["FooHeader"],
-		},
-		{
-			ref:  "#/components/schemas/FooSchema",
-			want: root.components.schemas["FooSchema"],
-		},
-		{
-			ref:  "#/components/securitySchemes/FooSecurityScheme",
-			want: root.components.securitySchemes["FooSecurityScheme"],
-		},
-	}
-
-	for i, tt := range tests {
-		t.Run(strconv.Itoa(i)+"_"+tt.ref, func(t *testing.T) {
-			got, err := resolve(root, tt.ref)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			assertEqual(t, got, tt.want)
-		})
-	}
-}
-
-func testResolveError(t *testing.T, root *OpenAPI) {
-	tests := []struct {
-		ref  string
-		want error
-	}{
-		{
-			ref:  "",
-			want: ErrInvalidReference(""),
-		},
-		{
-			ref:  "#/short/reference",
-			want: ErrInvalidReference("#/short/reference"),
-		},
-		{
-			ref:  "not/begin/with/sharp",
-			want: ErrInvalidReference("not/begin/with/sharp"),
-		},
-		{
-			ref:  "#/foo/bar/baz",
-			want: ErrCannotResolved("#/foo/bar/baz", "only supports to resolve under #/components"),
-		},
-		{
-			ref:  "#/components/schemas/UnknownSchema",
-			want: ErrCannotResolved("#/components/schemas/UnknownSchema", "not found"),
-		},
-		{
-			ref:  "#/components/unknown/reference",
-			want: ErrCannotResolved("#/components/unknown/reference", "unknown component type"),
-		},
-	}
-
-	for i, tt := range tests {
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			_, got := resolve(root, tt.ref)
-			if got == nil {
-				t.Error("error should not be nil")
-				return
-			}
-
-			assertSameError(t, got, tt.want)
-		})
-	}
 }
 
 func testParameterResolve(t *testing.T, root *OpenAPI) {
@@ -235,7 +123,7 @@ func testParameterResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := parameter.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+		want := ErrCannotResolved("#/components/unknown/Unknown", "local Parameter reference must begin with `#/components/parameters/`")
 
 		assertSameError(t, got, want)
 	})
@@ -283,7 +171,7 @@ func testRequestBodyResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := requestBody.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+		want := ErrCannotResolved("#/components/unknown/Unknown", "local RequestBody reference must begin with `#/components/requestBodies/`")
 
 		assertSameError(t, got, want)
 	})
@@ -331,7 +219,7 @@ func testResponseResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := response.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+		want := ErrCannotResolved("#/components/unknown/Unknown", "local Response reference must begin with `#/components/responses/`")
 
 		assertSameError(t, got, want)
 	})
@@ -379,7 +267,7 @@ func testCallbackResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := callback.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+		want := ErrCannotResolved("#/components/unknown/Unknown", "local Callback reference must begin with `#/components/callbacks/`")
 
 		assertSameError(t, got, want)
 	})
@@ -427,7 +315,7 @@ func testExampleResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := example.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+		want := ErrCannotResolved("#/components/unknown/Unknown", "local Example reference must begin with `#/components/examples/`")
 
 		assertSameError(t, got, want)
 	})
@@ -475,7 +363,7 @@ func testLinkResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := link.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+		want := ErrCannotResolved("#/components/unknown/Unknown", "local Link reference must begin with `#/components/links/`")
 
 		assertSameError(t, got, want)
 	})
@@ -523,7 +411,7 @@ func testHeaderResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := header.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+		want := ErrCannotResolved("#/components/unknown/Unknown", "local Header reference must begin with `#/components/headers/`")
 
 		assertSameError(t, got, want)
 	})
@@ -571,7 +459,7 @@ func testSchemaResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := schema.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+		want := ErrCannotResolved("#/components/unknown/Unknown", "local Schema reference must begin with `#/components/schemas/`")
 
 		assertSameError(t, got, want)
 	})
@@ -619,161 +507,8 @@ func testSecuritySchemeResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := securityScheme.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "unknown component type")
+		want := ErrCannotResolved("#/components/unknown/Unknown", "local SecurityScheme reference must begin with `#/components/securitySchemes/`")
 
 		assertSameError(t, got, want)
-	})
-}
-
-func testResolveTypeAssertionPanicParameter(t *testing.T, root *OpenAPI) {
-	t.Run("type assertion panic parameter", func(t *testing.T) {
-		parameter := Parameter{
-			reference: "#/components/requestBodies/FooRequest",
-			root:      root,
-		}
-
-		defer func() {
-			if err := recover(); err == nil {
-				t.Error("panic is expected but not")
-			}
-		}()
-
-		parameter.resolve() //nolint:errcheck // it panics
-	})
-}
-
-func testResolveTypeAssertionPanicRequestBody(t *testing.T, root *OpenAPI) {
-	t.Run("type assertion panic requestBody", func(t *testing.T) {
-		requestBody := RequestBody{
-			reference: "#/components/responses/FooResponse",
-			root:      root,
-		}
-
-		defer func() {
-			if err := recover(); err == nil {
-				t.Error("panic is expected but not")
-			}
-		}()
-
-		requestBody.resolve() //nolint:errcheck // it panics
-	})
-}
-
-func testResolveTypeAssertionPanicResponse(t *testing.T, root *OpenAPI) {
-	t.Run("type assertion panic response", func(t *testing.T) {
-		response := Response{
-			reference: "#/components/callbacks/FooCallback",
-			root:      root,
-		}
-
-		defer func() {
-			if err := recover(); err == nil {
-				t.Error("panic is expected but not")
-			}
-		}()
-
-		response.resolve() //nolint:errcheck // it panics
-	})
-}
-
-func testResolveTypeAssertionPanicCallback(t *testing.T, root *OpenAPI) {
-	t.Run("type assertion panic callback", func(t *testing.T) {
-		callback := Callback{
-			reference: "#/components/examples/FooExample",
-			root:      root,
-		}
-
-		defer func() {
-			if err := recover(); err == nil {
-				t.Error("panic is expected but not")
-			}
-		}()
-
-		callback.resolve() //nolint:errcheck // it panics
-	})
-}
-
-func testResolveTypeAssertionPanicExample(t *testing.T, root *OpenAPI) {
-	t.Run("type assertion panic example", func(t *testing.T) {
-		example := Example{
-			reference: "#/components/links/FooLink",
-			root:      root,
-		}
-
-		defer func() {
-			if err := recover(); err == nil {
-				t.Error("panic is expected but not")
-			}
-		}()
-
-		example.resolve() //nolint:errcheck // it panics
-	})
-}
-
-func testResolveTypeAssertionPanicLink(t *testing.T, root *OpenAPI) {
-	t.Run("type assertion panic link", func(t *testing.T) {
-		link := Link{
-			reference: "#/components/headers/FooHeader",
-			root:      root,
-		}
-
-		defer func() {
-			if err := recover(); err == nil {
-				t.Error("panic is expected but not")
-			}
-		}()
-
-		link.resolve() //nolint:errcheck // it panics
-	})
-}
-
-func testResolveTypeAssertionPanicHeader(t *testing.T, root *OpenAPI) {
-	t.Run("type assertion panic header", func(t *testing.T) {
-		header := Header{
-			reference: "#/components/schemas/FooSchema",
-			root:      root,
-		}
-
-		defer func() {
-			if err := recover(); err == nil {
-				t.Error("panic is expected but not")
-			}
-		}()
-
-		header.resolve() //nolint:errcheck // it panics
-	})
-}
-
-func testResolveTypeAssertionPanicSchema(t *testing.T, root *OpenAPI) {
-	t.Run("type assertion panic schema", func(t *testing.T) {
-		schema := Schema{
-			reference: "#/components/securitySchemes/FooSecurityScheme",
-			root:      root,
-		}
-
-		defer func() {
-			if err := recover(); err == nil {
-				t.Error("panic is expected but not")
-			}
-		}()
-
-		schema.resolve() //nolint:errcheck // it panics
-	})
-}
-
-func testResolveTypeAssertionPanicSecurityScheme(t *testing.T, root *OpenAPI) {
-	t.Run("type assertion panic securityScheme", func(t *testing.T) {
-		securityScheme := SecurityScheme{
-			reference: "#/components/parameters/FooParameter",
-			root:      root,
-		}
-
-		defer func() {
-			if err := recover(); err == nil {
-				t.Error("panic is expected but not")
-			}
-		}()
-
-		securityScheme.resolve() //nolint:errcheck // it panics
 	})
 }
