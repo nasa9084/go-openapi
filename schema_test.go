@@ -419,7 +419,7 @@ readOnly: true`,
 		},
 		{
 			yml: `externalDocs:
-url: https://example.com`,
+  url: https://example.com`,
 			want: Schema{
 				externalDocs: &ExternalDocumentation{
 					url: "https://example.com",
