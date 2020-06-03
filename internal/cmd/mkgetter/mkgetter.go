@@ -89,15 +89,15 @@ func generateMapGetter(g *generator.Generator, field astutil.OpenAPIObjectField,
 	var keyType, valType string
 	var isValueStarExpr bool
 
-	if m, ok := field.Type.(*ast.MapType); !ok {
+	m, ok := field.Type.(*ast.MapType)
+	if !ok {
 		return fmt.Errorf("%s.%s must be a map type", field.ParentObject.Name, field.Name)
-	} else {
-		keyType = astutil.TypeString(m.Key)
-		valType = astutil.TypeString(m.Value)
+	}
+	keyType = astutil.TypeString(m.Key)
+	valType = astutil.TypeString(m.Value)
 
-		if _, ok := m.Value.(*ast.StarExpr); ok {
-			isValueStarExpr = true
-		}
+	if _, ok := m.Value.(*ast.StarExpr); ok {
+		isValueStarExpr = true
 	}
 
 	g.Printf("\n\nfunc (v *%s) %s(key %s) %s {", field.ParentObject.Name, fnName, keyType, valType)
