@@ -1,3 +1,4 @@
 ---
 ignore:
   - getter_gen.go
+  - setroot_gen.go
