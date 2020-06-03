@@ -3,7 +3,6 @@ package openapi
 
 import (
 	"io/ioutil"
-	"reflect"
 	"testing"
 
 	yaml "github.com/goccy/go-yaml"
@@ -220,10 +219,7 @@ func TestAPIWithExample(t *testing.T) {
 	}
 	want.setRoot(&want)
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("unexpected:\n  got:  %#v\n  want: %#v", got, want)
-		return
-	}
+	assertEqual(t, got, want)
 }
 
 func TestCallbackExample(t *testing.T) {
@@ -332,10 +328,7 @@ func TestCallbackExample(t *testing.T) {
 	}
 	want.setRoot(&want)
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("unexpected:\n  got:  %#v\n  want: %#v", got, want)
-		return
-	}
+	assertEqual(t, got, want)
 }
 
 func TestLinkExample(t *testing.T) {
@@ -688,10 +681,7 @@ func TestLinkExample(t *testing.T) {
 	}
 	want.setRoot(&want)
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("unexpected:\n  got: %#v\n  want: %#v", got, want)
-		return
-	}
+	assertEqual(t, got, want)
 }
 
 func TestPetstoreExpanded(t *testing.T) {
@@ -957,10 +947,7 @@ Sed tempus felis lobortis leo pulvinar rutrum. Nam mattis velit nisl, eu condime
 	}
 	want.setRoot(&want)
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("unexpected:\n  got:  %#v\n  want: %#v", got, want)
-		return
-	}
+	assertEqual(t, got, want)
 }
 
 func TestPetstore(t *testing.T) {
@@ -1149,10 +1136,7 @@ func TestPetstore(t *testing.T) {
 	}
 	want.setRoot(&want)
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("unexpected:\n  got: %#v\n  want: %#v", got, want)
-		return
-	}
+	assertEqual(t, got, want)
 }
 
 func TestUspto(t *testing.T) {
@@ -1452,8 +1436,5 @@ the dataset.`,
 	}
 	want.setRoot(&want)
 
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("unexpected:\n  got:  %#v\n  want: %#v", got, want)
-		return
-	}
+	assertEqual(t, got, want)
 }
