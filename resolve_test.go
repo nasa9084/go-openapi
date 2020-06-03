@@ -128,6 +128,11 @@ func testParameterResolveError(t *testing.T, root *OpenAPI) {
 			msg:       "local Parameter reference must begin with `#/components/parameters/`",
 		},
 		{
+			label:     "not found",
+			reference: "#/components/parameters/NotExist",
+			msg:       "not found",
+		},
+		{
 			label:     "not local reference",
 			reference: "https://example.com/example.json#/components/parameters/FooParameter",
 			msg:       "not supported reference type",
@@ -192,6 +197,11 @@ func testRequestBodyResolveError(t *testing.T, root *OpenAPI) {
 			label:     "invalid component type",
 			reference: "#/components/unknown/Unknown",
 			msg:       "local RequestBody reference must begin with `#/components/requestBodies/`",
+		},
+		{
+			label:     "not found",
+			reference: "#/components/requestBodies/NotExist",
+			msg:       "not found",
 		},
 		{
 			label:     "not local reference",
@@ -260,6 +270,11 @@ func testResponseResolveError(t *testing.T, root *OpenAPI) {
 			msg:       "local Response reference must begin with `#/components/responses/`",
 		},
 		{
+			label:     "not found",
+			reference: "#/components/responses/NotExist",
+			msg:       "not found",
+		},
+		{
 			label:     "not local reference",
 			reference: "https://example.com/example.json#/components/responses/FooResponse",
 			msg:       "not supported reference type",
@@ -324,6 +339,11 @@ func testCallbackResolveError(t *testing.T, root *OpenAPI) {
 			label:     "invalid component type",
 			reference: "#/components/unknown/Unknown",
 			msg:       "local Callback reference must begin with `#/components/callbacks/`",
+		},
+		{
+			label:     "not found",
+			reference: "#/components/callbacks/NotExist",
+			msg:       "not found",
 		},
 		{
 			label:     "not local reference",
@@ -392,6 +412,11 @@ func testExampleResolveError(t *testing.T, root *OpenAPI) {
 			msg:       "local Example reference must begin with `#/components/examples/`",
 		},
 		{
+			label:     "not found",
+			reference: "#/components/examples/NotExist",
+			msg:       "not found",
+		},
+		{
 			label:     "not local reference",
 			reference: "https://example.com/example.json#/components/examples/FooExample",
 			msg:       "not supported reference type",
@@ -456,6 +481,11 @@ func testLinkResolveError(t *testing.T, root *OpenAPI) {
 			label:     "invalid component type",
 			reference: "#/components/unknown/Unknown",
 			msg:       "local Link reference must begin with `#/components/links/`",
+		},
+		{
+			label:     "not found",
+			reference: "#/components/links/NotExist",
+			msg:       "not found",
 		},
 		{
 			label:     "not local reference",
@@ -524,6 +554,11 @@ func testHeaderResolveError(t *testing.T, root *OpenAPI) {
 			msg:       "local Header reference must begin with `#/components/headers/`",
 		},
 		{
+			label:     "not found",
+			reference: "#/components/headers/NotExist",
+			msg:       "not found",
+		},
+		{
 			label:     "not local reference",
 			reference: "https://example.com/example.json#/components/headers/FooHeader",
 			msg:       "not supported reference type",
@@ -590,6 +625,11 @@ func testSchemaResolveError(t *testing.T, root *OpenAPI) {
 			msg:       "local Schema reference must begin with `#/components/schemas/`",
 		},
 		{
+			label:     "not found",
+			reference: "#/components/schemas/NotExist",
+			msg:       "not found",
+		},
+		{
 			label:     "not local reference",
 			reference: "https://example.com/example.json#/components/schemas/FooSchema",
 			msg:       "not supported reference type",
@@ -654,6 +694,11 @@ func testSecuritySchemeResolveError(t *testing.T, root *OpenAPI) {
 			label:     "invalid component type",
 			reference: "#/components/unknown/Unknown",
 			msg:       "local SecurityScheme reference must begin with `#/components/securitySchemes/`",
+		},
+		{
+			label:     "not found",
+			reference: "#/components/securitySchemes/NotExist",
+			msg:       "not found",
 		},
 		{
 			label:     "not local reference",
