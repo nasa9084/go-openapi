@@ -64,6 +64,7 @@ func generateResolveLocal(g *generator.Generator, object astutil.OpenAPIObject) 
 
 	g.Printf("\n\nif !strings.HasPrefix(v.reference, prefix) {")
 	g.Import("", "fmt")
+	//nolint:lll // cannot fix
 	g.Printf("\nreturn nil, ErrCannotResolved(v.reference, fmt.Sprintf(\"local %s reference must begin with `%%s`\", prefix))", object.Name)
 	g.Printf("\n}")
 

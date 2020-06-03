@@ -92,6 +92,7 @@ func (g *Generator) Save(filepath string) error {
 	if err != nil {
 		log.Printf("error on formatting source code: %v", err)
 		printSource(buf.Bytes())
+
 		return err
 	}
 

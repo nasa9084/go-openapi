@@ -57,6 +57,7 @@ func generateGetters(g *generator.Generator, object astutil.OpenAPIObject) error
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -86,13 +87,16 @@ func generateGetter(g *generator.Generator, field astutil.OpenAPIObjectField) er
 func generateMapGetter(g *generator.Generator, field astutil.OpenAPIObjectField, fnName string) error {
 	log.Printf("  generate %s.%s()", field.ParentObject.Name, fnName)
 
-	var keyType, valType string
-	var isValueStarExpr bool
+	var (
+		keyType, valType string
+		isValueStarExpr  bool
+	)
 
 	m, ok := field.Type.(*ast.MapType)
 	if !ok {
 		return fmt.Errorf("%s.%s must be a map type", field.ParentObject.Name, field.Name)
 	}
+
 	keyType = astutil.TypeString(m.Key)
 	valType = astutil.TypeString(m.Value)
 

@@ -97,5 +97,6 @@ func oneOf(s string, list []string) bool {
 			return true
 		}
 	}
+
 	return false
 }

@@ -123,7 +123,7 @@ func testParameterResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := parameter.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "local Parameter reference must begin with `#/components/parameters/`")
+		want := ErrCannotResolved(parameter.reference, "local Parameter reference must begin with `#/components/parameters/`")
 
 		assertSameError(t, got, want)
 	})
@@ -171,7 +171,10 @@ func testRequestBodyResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := requestBody.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "local RequestBody reference must begin with `#/components/requestBodies/`")
+		want := ErrCannotResolved(
+			requestBody.reference,
+			"local RequestBody reference must begin with `#/components/requestBodies/`",
+		)
 
 		assertSameError(t, got, want)
 	})
@@ -219,7 +222,7 @@ func testResponseResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := response.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "local Response reference must begin with `#/components/responses/`")
+		want := ErrCannotResolved(response.reference, "local Response reference must begin with `#/components/responses/`")
 
 		assertSameError(t, got, want)
 	})
@@ -267,7 +270,7 @@ func testCallbackResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := callback.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "local Callback reference must begin with `#/components/callbacks/`")
+		want := ErrCannotResolved(callback.reference, "local Callback reference must begin with `#/components/callbacks/`")
 
 		assertSameError(t, got, want)
 	})
@@ -315,7 +318,7 @@ func testExampleResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := example.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "local Example reference must begin with `#/components/examples/`")
+		want := ErrCannotResolved(example.reference, "local Example reference must begin with `#/components/examples/`")
 
 		assertSameError(t, got, want)
 	})
@@ -363,7 +366,7 @@ func testLinkResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := link.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "local Link reference must begin with `#/components/links/`")
+		want := ErrCannotResolved(link.reference, "local Link reference must begin with `#/components/links/`")
 
 		assertSameError(t, got, want)
 	})
@@ -411,7 +414,7 @@ func testHeaderResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := header.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "local Header reference must begin with `#/components/headers/`")
+		want := ErrCannotResolved(header.reference, "local Header reference must begin with `#/components/headers/`")
 
 		assertSameError(t, got, want)
 	})
@@ -459,7 +462,7 @@ func testSchemaResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := schema.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "local Schema reference must begin with `#/components/schemas/`")
+		want := ErrCannotResolved(schema.reference, "local Schema reference must begin with `#/components/schemas/`")
 
 		assertSameError(t, got, want)
 	})
@@ -507,7 +510,10 @@ func testSecuritySchemeResolveError(t *testing.T, root *OpenAPI) {
 
 		_, got := securityScheme.resolve()
 
-		want := ErrCannotResolved("#/components/unknown/Unknown", "local SecurityScheme reference must begin with `#/components/securitySchemes/`")
+		want := ErrCannotResolved(
+			securityScheme.reference,
+			"local SecurityScheme reference must begin with `#/components/securitySchemes/`",
+		)
 
 		assertSameError(t, got, want)
 	})
