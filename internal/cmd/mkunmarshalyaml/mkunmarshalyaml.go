@@ -59,10 +59,9 @@ func generateQuote(g *generator.Generator) {
 }
 
 func generateUnmarshalYAML(g *generator.Generator, object astutil.OpenAPIObject) error {
-	g.Printf("\n\nfunc (v *%s) UnmarshalYAML(b []byte) error {", object.Name)
-	g.Printf("\nvar proxy map[string]raw")
-	g.Import("yaml", "github.com/goccy/go-yaml")
-	g.Printf("\nif err := yaml.Unmarshal(b, &proxy); err != nil {")
+	g.Printf("\n\nfunc (v *%s) UnmarshalYAML(unmarshal func(interface{}) error) error {", object.Name)
+	g.Printf("\nvar proxy map[string]rawMessage")
+	g.Printf("\nif err := unmarshal(&proxy); err != nil {")
 	g.Printf("\nreturn err")
 	g.Printf("\n}")
 
@@ -116,10 +115,9 @@ func generateUnmarshalYAML(g *generator.Generator, object astutil.OpenAPIObject)
 }
 
 func generateReferenceUnmarshal(g *generator.Generator) {
-	g.Printf("\nif referenceBytes, ok := proxy[\"$ref\"]; ok {")
+	g.Printf("\nif p, ok := proxy[\"$ref\"]; ok {")
 	g.Printf("\nvar referenceVal string")
-	g.Import("yaml", "github.com/goccy/go-yaml")
-	g.Printf("\nif err := yaml.Unmarshal(q(referenceBytes), &referenceVal); err != nil {")
+	g.Printf("\nif err := p.unmarshal(&referenceVal); err != nil {")
 	g.Printf("\nreturn err")
 	g.Printf("\n}")
 	g.Printf("\nv.reference = referenceVal")
@@ -161,7 +159,7 @@ func generateInlineUnmarshal(g *generator.Generator, field astutil.OpenAPIObject
 	}
 
 	g.Printf("\nvar %sv %s", field.Name, strings.TrimPrefix(astutil.TypeString(ft.Value), "*"))
-	g.Printf("\nif err := yaml.Unmarshal(val, &%sv); err != nil {", field.Name)
+	g.Printf("\nif err := val.unmarshal(&%sv); err != nil {", field.Name)
 	g.Printf("\nreturn err")
 	g.Printf("\n}")
 	g.Printf("\n%s[key] = ", field.Name)
@@ -182,21 +180,21 @@ func generateInlineUnmarshal(g *generator.Generator, field astutil.OpenAPIObject
 
 func generateUnmarshalField(g *generator.Generator, field astutil.OpenAPIObjectField) {
 	if field.IsRequired() {
-		g.Printf("%sBytes, ok := proxy[\"%s\"]", field.Name, field.YAMLName())
+		g.Printf("%sUnmarshal, ok := proxy[\"%s\"]", field.Name, field.YAMLName())
 		g.Printf("\nif !ok {")
 		g.Printf("\nreturn ErrRequired(%s)", strconv.Quote(field.YAMLName()))
 		g.Printf("\n}")
 	} else {
-		g.Printf("if %sBytes, ok := proxy[\"%s\"]; ok {", field.Name, field.YAMLName())
+		g.Printf("if %sUnmarshal, ok := proxy[\"%s\"]; ok {", field.Name, field.YAMLName())
 		defer g.Printf("\n}")
 	}
 
 	g.Printf("\nvar %sVal %s", field.Name, strings.TrimPrefix(field.TypeString(), "*"))
 
 	if field.IsStringType() {
-		g.Printf("\nif err := yaml.Unmarshal(q(%sBytes), &%[1]sVal); err != nil {", field.Name)
+		g.Printf("\nif err := %sUnmarshal.unmarshal(&%[1]sVal); err != nil {", field.Name)
 	} else {
-		g.Printf("\nif err := yaml.Unmarshal(%sBytes, &%[1]sVal); err != nil {", field.Name)
+		g.Printf("\nif err := %sUnmarshal.unmarshal(&%[1]sVal); err != nil {", field.Name)
 	}
 
 	g.Printf("\nreturn err")
@@ -207,7 +205,16 @@ func generateUnmarshalField(g *generator.Generator, field astutil.OpenAPIObjectF
 		g.Printf("&")
 	}
 
+	if field.IsStringType() {
+		g.Printf("strings.TrimSuffix(")
+	}
+
 	g.Printf("%sVal", field.Name)
+
+	if field.IsStringType() {
+		g.Printf(`, "\n")`)
+	}
+
 	g.Printf("\ndelete(proxy, `%s`)", field.YAMLName())
 }
 

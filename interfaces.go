@@ -18,7 +18,7 @@ type OpenAPI struct {
 //+object
 // Info provides metadata about the API.
 type Info struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	title          string   `required:"yes"`
 	description    string   `yaml:",omitempty"`
@@ -33,7 +33,7 @@ type Info struct {
 //+object
 // Contact information for the exposed API.
 type Contact struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	name  string `yaml:",omitempty"`
 	url   string `yaml:",omitempty" format:"url"`
@@ -45,7 +45,7 @@ type Contact struct {
 //+object
 // License information for the exposed API.
 type License struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	name string `required:"yes"`
 	url  string `yaml:",omitempty" format:"url"`
@@ -56,7 +56,7 @@ type License struct {
 //+object
 // Server is an object representing a Server.
 type Server struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	url         string                     `required:"yes" format:"url,template"`
 	description string                     `yaml:",omitempty"`
@@ -68,7 +68,7 @@ type Server struct {
 //+object
 // ServerVariable is an object representing a Server Variable for serverURL template substitution.
 type ServerVariable struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	enum        []string `yaml:",omitempty"`
 	default_    string   `required:"yes" yaml:"default"` //nolint[golint]
@@ -80,7 +80,7 @@ type ServerVariable struct {
 //+object
 // Components holds a set of reusable objects for different aspects of the OAS.
 type Components struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	schemas         map[string]*Schema         `yaml:",omitempty"`
 	responses       map[string]*Response       `yaml:",omitempty"`
@@ -98,7 +98,7 @@ type Components struct {
 //+object
 // Paths holds the relative paths to the individual endpoints and their operations.
 type Paths struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	paths map[string]*PathItem `yaml:",inline" format:"prefix,/"`
 
@@ -108,7 +108,7 @@ type Paths struct {
 //+object
 // PathItem describes the operations available on a single path.
 type PathItem struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	summary     string       `yaml:",omitempty"`
 	description string       `yaml:",omitempty"`
@@ -129,7 +129,7 @@ type PathItem struct {
 //+object
 // Operation describes a single API operation on a path.
 type Operation struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	tags         []string               `yaml:",omitempty"`
 	summary      string                 `yaml:",omitempty"`
@@ -150,7 +150,7 @@ type Operation struct {
 //+object
 // ExternalDocumentation allows referencing an external resource for extended documentation.
 type ExternalDocumentation struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	description string `yaml:",omitempty"`
 	url         string `required:"yes" format:"url"`
@@ -161,7 +161,7 @@ type ExternalDocumentation struct {
 //+object
 // Parameter describes a single operation parameter.
 type Parameter struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	name            string                `required:"yes"`
 	in              string                `required:"yes" oneof:"query,header,path,cookie"`
@@ -186,7 +186,7 @@ type Parameter struct {
 //+object
 // RequestBody describes a single request body.
 type RequestBody struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	description string                `yaml:",omitempty"`
 	content     map[string]*MediaType `required:"yes"`
@@ -201,7 +201,7 @@ type RequestBody struct {
 //+object
 // MediaType provides schema and examples for the media type identified by its key.
 type MediaType struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	schema   *Schema              `yaml:",omitempty"`
 	example  interface{}          `yaml:",omitempty"`
@@ -214,7 +214,7 @@ type MediaType struct {
 //+object
 // Encoding is a single encoding definition applied to a single schema property.
 type Encoding struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	contentType   string             `yaml:",omitempty"`
 	headers       map[string]*Header `yaml:",omitempty"`
@@ -228,7 +228,7 @@ type Encoding struct {
 //+object
 // Responses is a container for the expected responses of an operation.
 type Responses struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	responses map[string]*Response `yaml:",omitempty,inline" format:"regexp,^[1-5]([0-9][0-9]|XX)|default$"`
 
@@ -240,7 +240,7 @@ type Responses struct {
 //+object
 // static links to operations based on the response.
 type Response struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	description string                `required:"yes"`
 	headers     map[string]*Header    `yaml:",omitempty"`
@@ -256,7 +256,7 @@ type Response struct {
 //+object
 // Callback is a map of possible out-of band callbacks relatedd to the parent operation.
 type Callback struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	callback map[string]*PathItem `yaml:",omitempty,inline" format:"runtime"`
 
@@ -269,7 +269,7 @@ type Callback struct {
 //+object
 // Example object represents an example.
 type Example struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	summary       string      `yaml:",omitempty"`
 	description   string      `yaml:",omitempty"`
@@ -285,7 +285,7 @@ type Example struct {
 //+object
 // Link represents a possible design-time link for a response.
 type Link struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	operationRef string                 `yaml:",omitempty"`
 	operationID  string                 `yaml:"operationId,omitempty"`
@@ -303,7 +303,7 @@ type Link struct {
 //+object
 // Header object
 type Header struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	description     string                `yaml:",omitempty"`
 	required        bool                  `yaml:",omitempty"`
@@ -326,7 +326,7 @@ type Header struct {
 //+object
 // Tag adds metadata to a single tag that is used by the Operation Object.
 type Tag struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	name         string                 `required:"yes"`
 	description  string                 `yaml:",omitempty"`
@@ -338,7 +338,7 @@ type Tag struct {
 //+object
 // Schema allows the definition of input and output data types.
 type Schema struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	title            string   `yaml:",omitempty"`
 	multipleOf       int      `yaml:",omitempty"`
@@ -386,7 +386,7 @@ type Schema struct {
 //+object
 // Discriminator object.
 type Discriminator struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	propertyName string            `yaml:",omitempty"`
 	mapping      map[string]string `yaml:",omitempty"`
@@ -395,7 +395,7 @@ type Discriminator struct {
 //+object
 // XML is a metadata object that allows for more fine-tuned XML model definitions.
 type XML struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	name      string `yaml:",omitempty"`
 	namespace string `yaml:",omitempty"`
@@ -409,7 +409,7 @@ type XML struct {
 //+object
 // SecuritySchema defines a security scheme that can be used by the operations.
 type SecurityScheme struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	type_            string      `yaml:"type,omitempty" oneof:"apiKey,http,oauth2,openIdConnect"` //nolint[golint]
 	description      string      `yaml:",omitempty"`
@@ -429,7 +429,7 @@ type SecurityScheme struct {
 //+object
 // OAuthFlows allows configuration of the supported OAuthFlows.
 type OAuthFlows struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	implicit          *OAuthFlow `yaml:",omitempty"`
 	password          *OAuthFlow `yaml:",omitempty"`
@@ -442,7 +442,7 @@ type OAuthFlows struct {
 //+object
 // OAuthFlow is configuration details for a supported OAuth Flow.
 type OAuthFlow struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	authorizationURL string            `yaml:"authorizationUrl,omitempty" format:"url"`
 	tokenURL         string            `yaml:"tokenUrl,omitempty" format:"url"`
@@ -455,7 +455,7 @@ type OAuthFlow struct {
 //+object
 // SecurityRequirements is lists the required security schemes to execute this operation.
 type SecurityRequirement struct {
-	root *OpenAPI `yaml:"-"`
+	root *OpenAPI `yaml:"-" tracedeq:"ignore"`
 
 	securityRequirement map[string][]string `yaml:",inline"`
 }

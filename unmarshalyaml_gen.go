@@ -8,8 +8,6 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
-
-	yaml "github.com/goccy/go-yaml"
 )
 
 func q(b []byte) []byte {
@@ -22,88 +20,88 @@ func q(b []byte) []byte {
 	return b
 }
 
-func (v *OpenAPI) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *OpenAPI) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 
-	openapiBytes, ok := proxy["openapi"]
+	openapiUnmarshal, ok := proxy["openapi"]
 	if !ok {
 		return ErrRequired("openapi")
 	}
 	var openapiVal string
-	if err := yaml.Unmarshal(q(openapiBytes), &openapiVal); err != nil {
+	if err := openapiUnmarshal.unmarshal(&openapiVal); err != nil {
 		return err
 	}
-	v.openapi = openapiVal
+	v.openapi = strings.TrimSuffix(openapiVal, "\n")
 	delete(proxy, `openapi`)
 
 	if !isValidSemVer(v.openapi) {
 		return errors.New(`"openapi" field must be a valid semantic version but not`)
 	}
 
-	infoBytes, ok := proxy["info"]
+	infoUnmarshal, ok := proxy["info"]
 	if !ok {
 		return ErrRequired("info")
 	}
 	var infoVal Info
-	if err := yaml.Unmarshal(infoBytes, &infoVal); err != nil {
+	if err := infoUnmarshal.unmarshal(&infoVal); err != nil {
 		return err
 	}
 	v.info = &infoVal
 	delete(proxy, `info`)
 
-	if serversBytes, ok := proxy["servers"]; ok {
+	if serversUnmarshal, ok := proxy["servers"]; ok {
 		var serversVal []*Server
-		if err := yaml.Unmarshal(serversBytes, &serversVal); err != nil {
+		if err := serversUnmarshal.unmarshal(&serversVal); err != nil {
 			return err
 		}
 		v.servers = serversVal
 		delete(proxy, `servers`)
 	}
 
-	pathsBytes, ok := proxy["paths"]
+	pathsUnmarshal, ok := proxy["paths"]
 	if !ok {
 		return ErrRequired("paths")
 	}
 	var pathsVal Paths
-	if err := yaml.Unmarshal(pathsBytes, &pathsVal); err != nil {
+	if err := pathsUnmarshal.unmarshal(&pathsVal); err != nil {
 		return err
 	}
 	v.paths = &pathsVal
 	delete(proxy, `paths`)
 
-	if componentsBytes, ok := proxy["components"]; ok {
+	if componentsUnmarshal, ok := proxy["components"]; ok {
 		var componentsVal Components
-		if err := yaml.Unmarshal(componentsBytes, &componentsVal); err != nil {
+		if err := componentsUnmarshal.unmarshal(&componentsVal); err != nil {
 			return err
 		}
 		v.components = &componentsVal
 		delete(proxy, `components`)
 	}
 
-	if securityBytes, ok := proxy["security"]; ok {
+	if securityUnmarshal, ok := proxy["security"]; ok {
 		var securityVal []*SecurityRequirement
-		if err := yaml.Unmarshal(securityBytes, &securityVal); err != nil {
+		if err := securityUnmarshal.unmarshal(&securityVal); err != nil {
 			return err
 		}
 		v.security = securityVal
 		delete(proxy, `security`)
 	}
 
-	if tagsBytes, ok := proxy["tags"]; ok {
+	if tagsUnmarshal, ok := proxy["tags"]; ok {
 		var tagsVal []*Tag
-		if err := yaml.Unmarshal(tagsBytes, &tagsVal); err != nil {
+		if err := tagsUnmarshal.unmarshal(&tagsVal); err != nil {
 			return err
 		}
 		v.tags = tagsVal
 		delete(proxy, `tags`)
 	}
 
-	if externalDocsBytes, ok := proxy["externalDocs"]; ok {
+	if externalDocsUnmarshal, ok := proxy["externalDocs"]; ok {
 		var externalDocsVal ExternalDocumentation
-		if err := yaml.Unmarshal(externalDocsBytes, &externalDocsVal); err != nil {
+		if err := externalDocsUnmarshal.unmarshal(&externalDocsVal); err != nil {
 			return err
 		}
 		v.externalDocs = &externalDocsVal
@@ -115,7 +113,7 @@ func (v *OpenAPI) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -133,38 +131,38 @@ func (v *OpenAPI) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *Info) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *Info) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 
-	titleBytes, ok := proxy["title"]
+	titleUnmarshal, ok := proxy["title"]
 	if !ok {
 		return ErrRequired("title")
 	}
 	var titleVal string
-	if err := yaml.Unmarshal(q(titleBytes), &titleVal); err != nil {
+	if err := titleUnmarshal.unmarshal(&titleVal); err != nil {
 		return err
 	}
-	v.title = titleVal
+	v.title = strings.TrimSuffix(titleVal, "\n")
 	delete(proxy, `title`)
 
-	if descriptionBytes, ok := proxy["description"]; ok {
+	if descriptionUnmarshal, ok := proxy["description"]; ok {
 		var descriptionVal string
-		if err := yaml.Unmarshal(q(descriptionBytes), &descriptionVal); err != nil {
+		if err := descriptionUnmarshal.unmarshal(&descriptionVal); err != nil {
 			return err
 		}
-		v.description = descriptionVal
+		v.description = strings.TrimSuffix(descriptionVal, "\n")
 		delete(proxy, `description`)
 	}
 
-	if termsOfServiceBytes, ok := proxy["termsOfService"]; ok {
+	if termsOfServiceUnmarshal, ok := proxy["termsOfService"]; ok {
 		var termsOfServiceVal string
-		if err := yaml.Unmarshal(q(termsOfServiceBytes), &termsOfServiceVal); err != nil {
+		if err := termsOfServiceUnmarshal.unmarshal(&termsOfServiceVal); err != nil {
 			return err
 		}
-		v.termsOfService = termsOfServiceVal
+		v.termsOfService = strings.TrimSuffix(termsOfServiceVal, "\n")
 		delete(proxy, `termsOfService`)
 	}
 
@@ -174,33 +172,33 @@ func (v *Info) UnmarshalYAML(b []byte) error {
 		}
 	}
 
-	if contactBytes, ok := proxy["contact"]; ok {
+	if contactUnmarshal, ok := proxy["contact"]; ok {
 		var contactVal Contact
-		if err := yaml.Unmarshal(contactBytes, &contactVal); err != nil {
+		if err := contactUnmarshal.unmarshal(&contactVal); err != nil {
 			return err
 		}
 		v.contact = &contactVal
 		delete(proxy, `contact`)
 	}
 
-	if licenseBytes, ok := proxy["license"]; ok {
+	if licenseUnmarshal, ok := proxy["license"]; ok {
 		var licenseVal License
-		if err := yaml.Unmarshal(licenseBytes, &licenseVal); err != nil {
+		if err := licenseUnmarshal.unmarshal(&licenseVal); err != nil {
 			return err
 		}
 		v.license = &licenseVal
 		delete(proxy, `license`)
 	}
 
-	versionBytes, ok := proxy["version"]
+	versionUnmarshal, ok := proxy["version"]
 	if !ok {
 		return ErrRequired("version")
 	}
 	var versionVal string
-	if err := yaml.Unmarshal(q(versionBytes), &versionVal); err != nil {
+	if err := versionUnmarshal.unmarshal(&versionVal); err != nil {
 		return err
 	}
-	v.version = versionVal
+	v.version = strings.TrimSuffix(versionVal, "\n")
 	delete(proxy, `version`)
 	extension := map[string]interface{}{}
 	for key, val := range proxy {
@@ -208,7 +206,7 @@ func (v *Info) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -225,27 +223,27 @@ func (v *Info) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *Contact) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *Contact) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 
-	if nameBytes, ok := proxy["name"]; ok {
+	if nameUnmarshal, ok := proxy["name"]; ok {
 		var nameVal string
-		if err := yaml.Unmarshal(q(nameBytes), &nameVal); err != nil {
+		if err := nameUnmarshal.unmarshal(&nameVal); err != nil {
 			return err
 		}
-		v.name = nameVal
+		v.name = strings.TrimSuffix(nameVal, "\n")
 		delete(proxy, `name`)
 	}
 
-	if urlBytes, ok := proxy["url"]; ok {
+	if urlUnmarshal, ok := proxy["url"]; ok {
 		var urlVal string
-		if err := yaml.Unmarshal(q(urlBytes), &urlVal); err != nil {
+		if err := urlUnmarshal.unmarshal(&urlVal); err != nil {
 			return err
 		}
-		v.url = urlVal
+		v.url = strings.TrimSuffix(urlVal, "\n")
 		delete(proxy, `url`)
 	}
 
@@ -255,12 +253,12 @@ func (v *Contact) UnmarshalYAML(b []byte) error {
 		}
 	}
 
-	if emailBytes, ok := proxy["email"]; ok {
+	if emailUnmarshal, ok := proxy["email"]; ok {
 		var emailVal string
-		if err := yaml.Unmarshal(q(emailBytes), &emailVal); err != nil {
+		if err := emailUnmarshal.unmarshal(&emailVal); err != nil {
 			return err
 		}
-		v.email = emailVal
+		v.email = strings.TrimSuffix(emailVal, "\n")
 		delete(proxy, `email`)
 	}
 
@@ -275,7 +273,7 @@ func (v *Contact) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -292,29 +290,29 @@ func (v *Contact) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *License) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *License) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 
-	nameBytes, ok := proxy["name"]
+	nameUnmarshal, ok := proxy["name"]
 	if !ok {
 		return ErrRequired("name")
 	}
 	var nameVal string
-	if err := yaml.Unmarshal(q(nameBytes), &nameVal); err != nil {
+	if err := nameUnmarshal.unmarshal(&nameVal); err != nil {
 		return err
 	}
-	v.name = nameVal
+	v.name = strings.TrimSuffix(nameVal, "\n")
 	delete(proxy, `name`)
 
-	if urlBytes, ok := proxy["url"]; ok {
+	if urlUnmarshal, ok := proxy["url"]; ok {
 		var urlVal string
-		if err := yaml.Unmarshal(q(urlBytes), &urlVal); err != nil {
+		if err := urlUnmarshal.unmarshal(&urlVal); err != nil {
 			return err
 		}
-		v.url = urlVal
+		v.url = strings.TrimSuffix(urlVal, "\n")
 		delete(proxy, `url`)
 	}
 
@@ -329,7 +327,7 @@ func (v *License) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -346,39 +344,39 @@ func (v *License) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *Server) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *Server) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 
-	urlBytes, ok := proxy["url"]
+	urlUnmarshal, ok := proxy["url"]
 	if !ok {
 		return ErrRequired("url")
 	}
 	var urlVal string
-	if err := yaml.Unmarshal(q(urlBytes), &urlVal); err != nil {
+	if err := urlUnmarshal.unmarshal(&urlVal); err != nil {
 		return err
 	}
-	v.url = urlVal
+	v.url = strings.TrimSuffix(urlVal, "\n")
 	delete(proxy, `url`)
 
 	if err := validateURLTemplate(v.url); err != nil {
 		return err
 	}
 
-	if descriptionBytes, ok := proxy["description"]; ok {
+	if descriptionUnmarshal, ok := proxy["description"]; ok {
 		var descriptionVal string
-		if err := yaml.Unmarshal(q(descriptionBytes), &descriptionVal); err != nil {
+		if err := descriptionUnmarshal.unmarshal(&descriptionVal); err != nil {
 			return err
 		}
-		v.description = descriptionVal
+		v.description = strings.TrimSuffix(descriptionVal, "\n")
 		delete(proxy, `description`)
 	}
 
-	if variablesBytes, ok := proxy["variables"]; ok {
+	if variablesUnmarshal, ok := proxy["variables"]; ok {
 		var variablesVal map[string]*ServerVariable
-		if err := yaml.Unmarshal(variablesBytes, &variablesVal); err != nil {
+		if err := variablesUnmarshal.unmarshal(&variablesVal); err != nil {
 			return err
 		}
 		v.variables = variablesVal
@@ -390,7 +388,7 @@ func (v *Server) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -407,38 +405,38 @@ func (v *Server) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *ServerVariable) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *ServerVariable) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 
-	if enumBytes, ok := proxy["enum"]; ok {
+	if enumUnmarshal, ok := proxy["enum"]; ok {
 		var enumVal []string
-		if err := yaml.Unmarshal(enumBytes, &enumVal); err != nil {
+		if err := enumUnmarshal.unmarshal(&enumVal); err != nil {
 			return err
 		}
 		v.enum = enumVal
 		delete(proxy, `enum`)
 	}
 
-	default_Bytes, ok := proxy["default"]
+	default_Unmarshal, ok := proxy["default"]
 	if !ok {
 		return ErrRequired("default")
 	}
 	var default_Val string
-	if err := yaml.Unmarshal(q(default_Bytes), &default_Val); err != nil {
+	if err := default_Unmarshal.unmarshal(&default_Val); err != nil {
 		return err
 	}
-	v.default_ = default_Val
+	v.default_ = strings.TrimSuffix(default_Val, "\n")
 	delete(proxy, `default`)
 
-	if descriptionBytes, ok := proxy["description"]; ok {
+	if descriptionUnmarshal, ok := proxy["description"]; ok {
 		var descriptionVal string
-		if err := yaml.Unmarshal(q(descriptionBytes), &descriptionVal); err != nil {
+		if err := descriptionUnmarshal.unmarshal(&descriptionVal); err != nil {
 			return err
 		}
-		v.description = descriptionVal
+		v.description = strings.TrimSuffix(descriptionVal, "\n")
 		delete(proxy, `description`)
 	}
 	extension := map[string]interface{}{}
@@ -447,7 +445,7 @@ func (v *ServerVariable) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -464,87 +462,87 @@ func (v *ServerVariable) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *Components) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *Components) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 
-	if schemasBytes, ok := proxy["schemas"]; ok {
+	if schemasUnmarshal, ok := proxy["schemas"]; ok {
 		var schemasVal map[string]*Schema
-		if err := yaml.Unmarshal(schemasBytes, &schemasVal); err != nil {
+		if err := schemasUnmarshal.unmarshal(&schemasVal); err != nil {
 			return err
 		}
 		v.schemas = schemasVal
 		delete(proxy, `schemas`)
 	}
 
-	if responsesBytes, ok := proxy["responses"]; ok {
+	if responsesUnmarshal, ok := proxy["responses"]; ok {
 		var responsesVal map[string]*Response
-		if err := yaml.Unmarshal(responsesBytes, &responsesVal); err != nil {
+		if err := responsesUnmarshal.unmarshal(&responsesVal); err != nil {
 			return err
 		}
 		v.responses = responsesVal
 		delete(proxy, `responses`)
 	}
 
-	if parametersBytes, ok := proxy["parameters"]; ok {
+	if parametersUnmarshal, ok := proxy["parameters"]; ok {
 		var parametersVal map[string]*Parameter
-		if err := yaml.Unmarshal(parametersBytes, &parametersVal); err != nil {
+		if err := parametersUnmarshal.unmarshal(&parametersVal); err != nil {
 			return err
 		}
 		v.parameters = parametersVal
 		delete(proxy, `parameters`)
 	}
 
-	if examplesBytes, ok := proxy["examples"]; ok {
+	if examplesUnmarshal, ok := proxy["examples"]; ok {
 		var examplesVal map[string]*Example
-		if err := yaml.Unmarshal(examplesBytes, &examplesVal); err != nil {
+		if err := examplesUnmarshal.unmarshal(&examplesVal); err != nil {
 			return err
 		}
 		v.examples = examplesVal
 		delete(proxy, `examples`)
 	}
 
-	if requestBodiesBytes, ok := proxy["requestBodies"]; ok {
+	if requestBodiesUnmarshal, ok := proxy["requestBodies"]; ok {
 		var requestBodiesVal map[string]*RequestBody
-		if err := yaml.Unmarshal(requestBodiesBytes, &requestBodiesVal); err != nil {
+		if err := requestBodiesUnmarshal.unmarshal(&requestBodiesVal); err != nil {
 			return err
 		}
 		v.requestBodies = requestBodiesVal
 		delete(proxy, `requestBodies`)
 	}
 
-	if headersBytes, ok := proxy["headers"]; ok {
+	if headersUnmarshal, ok := proxy["headers"]; ok {
 		var headersVal map[string]*Header
-		if err := yaml.Unmarshal(headersBytes, &headersVal); err != nil {
+		if err := headersUnmarshal.unmarshal(&headersVal); err != nil {
 			return err
 		}
 		v.headers = headersVal
 		delete(proxy, `headers`)
 	}
 
-	if securitySchemesBytes, ok := proxy["securitySchemes"]; ok {
+	if securitySchemesUnmarshal, ok := proxy["securitySchemes"]; ok {
 		var securitySchemesVal map[string]*SecurityScheme
-		if err := yaml.Unmarshal(securitySchemesBytes, &securitySchemesVal); err != nil {
+		if err := securitySchemesUnmarshal.unmarshal(&securitySchemesVal); err != nil {
 			return err
 		}
 		v.securitySchemes = securitySchemesVal
 		delete(proxy, `securitySchemes`)
 	}
 
-	if linksBytes, ok := proxy["links"]; ok {
+	if linksUnmarshal, ok := proxy["links"]; ok {
 		var linksVal map[string]*Link
-		if err := yaml.Unmarshal(linksBytes, &linksVal); err != nil {
+		if err := linksUnmarshal.unmarshal(&linksVal); err != nil {
 			return err
 		}
 		v.links = linksVal
 		delete(proxy, `links`)
 	}
 
-	if callbacksBytes, ok := proxy["callbacks"]; ok {
+	if callbacksUnmarshal, ok := proxy["callbacks"]; ok {
 		var callbacksVal map[string]*Callback
-		if err := yaml.Unmarshal(callbacksBytes, &callbacksVal); err != nil {
+		if err := callbacksUnmarshal.unmarshal(&callbacksVal); err != nil {
 			return err
 		}
 		v.callbacks = callbacksVal
@@ -556,7 +554,7 @@ func (v *Components) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -573,9 +571,9 @@ func (v *Components) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *Paths) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *Paths) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 	paths := map[string]*PathItem{}
@@ -584,7 +582,7 @@ func (v *Paths) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var pathsv PathItem
-		if err := yaml.Unmarshal(val, &pathsv); err != nil {
+		if err := val.unmarshal(&pathsv); err != nil {
 			return err
 		}
 		paths[key] = &pathsv
@@ -599,7 +597,7 @@ func (v *Paths) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -616,114 +614,114 @@ func (v *Paths) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *PathItem) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *PathItem) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 
-	if summaryBytes, ok := proxy["summary"]; ok {
+	if summaryUnmarshal, ok := proxy["summary"]; ok {
 		var summaryVal string
-		if err := yaml.Unmarshal(q(summaryBytes), &summaryVal); err != nil {
+		if err := summaryUnmarshal.unmarshal(&summaryVal); err != nil {
 			return err
 		}
-		v.summary = summaryVal
+		v.summary = strings.TrimSuffix(summaryVal, "\n")
 		delete(proxy, `summary`)
 	}
 
-	if descriptionBytes, ok := proxy["description"]; ok {
+	if descriptionUnmarshal, ok := proxy["description"]; ok {
 		var descriptionVal string
-		if err := yaml.Unmarshal(q(descriptionBytes), &descriptionVal); err != nil {
+		if err := descriptionUnmarshal.unmarshal(&descriptionVal); err != nil {
 			return err
 		}
-		v.description = descriptionVal
+		v.description = strings.TrimSuffix(descriptionVal, "\n")
 		delete(proxy, `description`)
 	}
 
-	if getBytes, ok := proxy["get"]; ok {
+	if getUnmarshal, ok := proxy["get"]; ok {
 		var getVal Operation
-		if err := yaml.Unmarshal(getBytes, &getVal); err != nil {
+		if err := getUnmarshal.unmarshal(&getVal); err != nil {
 			return err
 		}
 		v.get = &getVal
 		delete(proxy, `get`)
 	}
 
-	if putBytes, ok := proxy["put"]; ok {
+	if putUnmarshal, ok := proxy["put"]; ok {
 		var putVal Operation
-		if err := yaml.Unmarshal(putBytes, &putVal); err != nil {
+		if err := putUnmarshal.unmarshal(&putVal); err != nil {
 			return err
 		}
 		v.put = &putVal
 		delete(proxy, `put`)
 	}
 
-	if postBytes, ok := proxy["post"]; ok {
+	if postUnmarshal, ok := proxy["post"]; ok {
 		var postVal Operation
-		if err := yaml.Unmarshal(postBytes, &postVal); err != nil {
+		if err := postUnmarshal.unmarshal(&postVal); err != nil {
 			return err
 		}
 		v.post = &postVal
 		delete(proxy, `post`)
 	}
 
-	if deleteBytes, ok := proxy["delete"]; ok {
+	if deleteUnmarshal, ok := proxy["delete"]; ok {
 		var deleteVal Operation
-		if err := yaml.Unmarshal(deleteBytes, &deleteVal); err != nil {
+		if err := deleteUnmarshal.unmarshal(&deleteVal); err != nil {
 			return err
 		}
 		v.delete = &deleteVal
 		delete(proxy, `delete`)
 	}
 
-	if optionsBytes, ok := proxy["options"]; ok {
+	if optionsUnmarshal, ok := proxy["options"]; ok {
 		var optionsVal Operation
-		if err := yaml.Unmarshal(optionsBytes, &optionsVal); err != nil {
+		if err := optionsUnmarshal.unmarshal(&optionsVal); err != nil {
 			return err
 		}
 		v.options = &optionsVal
 		delete(proxy, `options`)
 	}
 
-	if headBytes, ok := proxy["head"]; ok {
+	if headUnmarshal, ok := proxy["head"]; ok {
 		var headVal Operation
-		if err := yaml.Unmarshal(headBytes, &headVal); err != nil {
+		if err := headUnmarshal.unmarshal(&headVal); err != nil {
 			return err
 		}
 		v.head = &headVal
 		delete(proxy, `head`)
 	}
 
-	if patchBytes, ok := proxy["patch"]; ok {
+	if patchUnmarshal, ok := proxy["patch"]; ok {
 		var patchVal Operation
-		if err := yaml.Unmarshal(patchBytes, &patchVal); err != nil {
+		if err := patchUnmarshal.unmarshal(&patchVal); err != nil {
 			return err
 		}
 		v.patch = &patchVal
 		delete(proxy, `patch`)
 	}
 
-	if traceBytes, ok := proxy["trace"]; ok {
+	if traceUnmarshal, ok := proxy["trace"]; ok {
 		var traceVal Operation
-		if err := yaml.Unmarshal(traceBytes, &traceVal); err != nil {
+		if err := traceUnmarshal.unmarshal(&traceVal); err != nil {
 			return err
 		}
 		v.trace = &traceVal
 		delete(proxy, `trace`)
 	}
 
-	if serversBytes, ok := proxy["servers"]; ok {
+	if serversUnmarshal, ok := proxy["servers"]; ok {
 		var serversVal []*Server
-		if err := yaml.Unmarshal(serversBytes, &serversVal); err != nil {
+		if err := serversUnmarshal.unmarshal(&serversVal); err != nil {
 			return err
 		}
 		v.servers = serversVal
 		delete(proxy, `servers`)
 	}
 
-	if parametersBytes, ok := proxy["parameters"]; ok {
+	if parametersUnmarshal, ok := proxy["parameters"]; ok {
 		var parametersVal []*Parameter
-		if err := yaml.Unmarshal(parametersBytes, &parametersVal); err != nil {
+		if err := parametersUnmarshal.unmarshal(&parametersVal); err != nil {
 			return err
 		}
 		v.parameters = parametersVal
@@ -735,7 +733,7 @@ func (v *PathItem) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -752,116 +750,116 @@ func (v *PathItem) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *Operation) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *Operation) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 
-	if tagsBytes, ok := proxy["tags"]; ok {
+	if tagsUnmarshal, ok := proxy["tags"]; ok {
 		var tagsVal []string
-		if err := yaml.Unmarshal(tagsBytes, &tagsVal); err != nil {
+		if err := tagsUnmarshal.unmarshal(&tagsVal); err != nil {
 			return err
 		}
 		v.tags = tagsVal
 		delete(proxy, `tags`)
 	}
 
-	if summaryBytes, ok := proxy["summary"]; ok {
+	if summaryUnmarshal, ok := proxy["summary"]; ok {
 		var summaryVal string
-		if err := yaml.Unmarshal(q(summaryBytes), &summaryVal); err != nil {
+		if err := summaryUnmarshal.unmarshal(&summaryVal); err != nil {
 			return err
 		}
-		v.summary = summaryVal
+		v.summary = strings.TrimSuffix(summaryVal, "\n")
 		delete(proxy, `summary`)
 	}
 
-	if descriptionBytes, ok := proxy["description"]; ok {
+	if descriptionUnmarshal, ok := proxy["description"]; ok {
 		var descriptionVal string
-		if err := yaml.Unmarshal(q(descriptionBytes), &descriptionVal); err != nil {
+		if err := descriptionUnmarshal.unmarshal(&descriptionVal); err != nil {
 			return err
 		}
-		v.description = descriptionVal
+		v.description = strings.TrimSuffix(descriptionVal, "\n")
 		delete(proxy, `description`)
 	}
 
-	if externalDocsBytes, ok := proxy["externalDocs"]; ok {
+	if externalDocsUnmarshal, ok := proxy["externalDocs"]; ok {
 		var externalDocsVal ExternalDocumentation
-		if err := yaml.Unmarshal(externalDocsBytes, &externalDocsVal); err != nil {
+		if err := externalDocsUnmarshal.unmarshal(&externalDocsVal); err != nil {
 			return err
 		}
 		v.externalDocs = &externalDocsVal
 		delete(proxy, `externalDocs`)
 	}
 
-	if operationIDBytes, ok := proxy["operationId"]; ok {
+	if operationIDUnmarshal, ok := proxy["operationId"]; ok {
 		var operationIDVal string
-		if err := yaml.Unmarshal(q(operationIDBytes), &operationIDVal); err != nil {
+		if err := operationIDUnmarshal.unmarshal(&operationIDVal); err != nil {
 			return err
 		}
-		v.operationID = operationIDVal
+		v.operationID = strings.TrimSuffix(operationIDVal, "\n")
 		delete(proxy, `operationId`)
 	}
 
-	if parametersBytes, ok := proxy["parameters"]; ok {
+	if parametersUnmarshal, ok := proxy["parameters"]; ok {
 		var parametersVal []*Parameter
-		if err := yaml.Unmarshal(parametersBytes, &parametersVal); err != nil {
+		if err := parametersUnmarshal.unmarshal(&parametersVal); err != nil {
 			return err
 		}
 		v.parameters = parametersVal
 		delete(proxy, `parameters`)
 	}
 
-	if requestBodyBytes, ok := proxy["requestBody"]; ok {
+	if requestBodyUnmarshal, ok := proxy["requestBody"]; ok {
 		var requestBodyVal RequestBody
-		if err := yaml.Unmarshal(requestBodyBytes, &requestBodyVal); err != nil {
+		if err := requestBodyUnmarshal.unmarshal(&requestBodyVal); err != nil {
 			return err
 		}
 		v.requestBody = &requestBodyVal
 		delete(proxy, `requestBody`)
 	}
 
-	responsesBytes, ok := proxy["responses"]
+	responsesUnmarshal, ok := proxy["responses"]
 	if !ok {
 		return ErrRequired("responses")
 	}
 	var responsesVal Responses
-	if err := yaml.Unmarshal(responsesBytes, &responsesVal); err != nil {
+	if err := responsesUnmarshal.unmarshal(&responsesVal); err != nil {
 		return err
 	}
 	v.responses = &responsesVal
 	delete(proxy, `responses`)
 
-	if callbacksBytes, ok := proxy["callbacks"]; ok {
+	if callbacksUnmarshal, ok := proxy["callbacks"]; ok {
 		var callbacksVal map[string]*Callback
-		if err := yaml.Unmarshal(callbacksBytes, &callbacksVal); err != nil {
+		if err := callbacksUnmarshal.unmarshal(&callbacksVal); err != nil {
 			return err
 		}
 		v.callbacks = callbacksVal
 		delete(proxy, `callbacks`)
 	}
 
-	if deprecatedBytes, ok := proxy["deprecated"]; ok {
+	if deprecatedUnmarshal, ok := proxy["deprecated"]; ok {
 		var deprecatedVal bool
-		if err := yaml.Unmarshal(deprecatedBytes, &deprecatedVal); err != nil {
+		if err := deprecatedUnmarshal.unmarshal(&deprecatedVal); err != nil {
 			return err
 		}
 		v.deprecated = deprecatedVal
 		delete(proxy, `deprecated`)
 	}
 
-	if securityBytes, ok := proxy["security"]; ok {
+	if securityUnmarshal, ok := proxy["security"]; ok {
 		var securityVal []*SecurityRequirement
-		if err := yaml.Unmarshal(securityBytes, &securityVal); err != nil {
+		if err := securityUnmarshal.unmarshal(&securityVal); err != nil {
 			return err
 		}
 		v.security = securityVal
 		delete(proxy, `security`)
 	}
 
-	if serversBytes, ok := proxy["servers"]; ok {
+	if serversUnmarshal, ok := proxy["servers"]; ok {
 		var serversVal []*Server
-		if err := yaml.Unmarshal(serversBytes, &serversVal); err != nil {
+		if err := serversUnmarshal.unmarshal(&serversVal); err != nil {
 			return err
 		}
 		v.servers = serversVal
@@ -873,7 +871,7 @@ func (v *Operation) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -890,30 +888,30 @@ func (v *Operation) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *ExternalDocumentation) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *ExternalDocumentation) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 
-	if descriptionBytes, ok := proxy["description"]; ok {
+	if descriptionUnmarshal, ok := proxy["description"]; ok {
 		var descriptionVal string
-		if err := yaml.Unmarshal(q(descriptionBytes), &descriptionVal); err != nil {
+		if err := descriptionUnmarshal.unmarshal(&descriptionVal); err != nil {
 			return err
 		}
-		v.description = descriptionVal
+		v.description = strings.TrimSuffix(descriptionVal, "\n")
 		delete(proxy, `description`)
 	}
 
-	urlBytes, ok := proxy["url"]
+	urlUnmarshal, ok := proxy["url"]
 	if !ok {
 		return ErrRequired("url")
 	}
 	var urlVal string
-	if err := yaml.Unmarshal(q(urlBytes), &urlVal); err != nil {
+	if err := urlUnmarshal.unmarshal(&urlVal); err != nil {
 		return err
 	}
-	v.url = urlVal
+	v.url = strings.TrimSuffix(urlVal, "\n")
 	delete(proxy, `url`)
 
 	if _, err := url.ParseRequestURI(v.url); err != nil {
@@ -925,7 +923,7 @@ func (v *ExternalDocumentation) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -942,14 +940,14 @@ func (v *ExternalDocumentation) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *Parameter) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *Parameter) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
-	if referenceBytes, ok := proxy["$ref"]; ok {
+	if p, ok := proxy["$ref"]; ok {
 		var referenceVal string
-		if err := yaml.Unmarshal(q(referenceBytes), &referenceVal); err != nil {
+		if err := p.unmarshal(&referenceVal); err != nil {
 			return err
 		}
 		v.reference = referenceVal
@@ -957,125 +955,125 @@ func (v *Parameter) UnmarshalYAML(b []byte) error {
 		return nil
 	}
 
-	nameBytes, ok := proxy["name"]
+	nameUnmarshal, ok := proxy["name"]
 	if !ok {
 		return ErrRequired("name")
 	}
 	var nameVal string
-	if err := yaml.Unmarshal(q(nameBytes), &nameVal); err != nil {
+	if err := nameUnmarshal.unmarshal(&nameVal); err != nil {
 		return err
 	}
-	v.name = nameVal
+	v.name = strings.TrimSuffix(nameVal, "\n")
 	delete(proxy, `name`)
 
-	inBytes, ok := proxy["in"]
+	inUnmarshal, ok := proxy["in"]
 	if !ok {
 		return ErrRequired("in")
 	}
 	var inVal string
-	if err := yaml.Unmarshal(q(inBytes), &inVal); err != nil {
+	if err := inUnmarshal.unmarshal(&inVal); err != nil {
 		return err
 	}
-	v.in = inVal
+	v.in = strings.TrimSuffix(inVal, "\n")
 	delete(proxy, `in`)
 
 	if !isOneOf(v.in, []string{"query", "header", "path", "cookie"}) {
 		return errors.New(`"in" field must be one of ["query", "header", "path", "cookie"]`)
 	}
 
-	if descriptionBytes, ok := proxy["description"]; ok {
+	if descriptionUnmarshal, ok := proxy["description"]; ok {
 		var descriptionVal string
-		if err := yaml.Unmarshal(q(descriptionBytes), &descriptionVal); err != nil {
+		if err := descriptionUnmarshal.unmarshal(&descriptionVal); err != nil {
 			return err
 		}
-		v.description = descriptionVal
+		v.description = strings.TrimSuffix(descriptionVal, "\n")
 		delete(proxy, `description`)
 	}
 
-	if requiredBytes, ok := proxy["required"]; ok {
+	if requiredUnmarshal, ok := proxy["required"]; ok {
 		var requiredVal bool
-		if err := yaml.Unmarshal(requiredBytes, &requiredVal); err != nil {
+		if err := requiredUnmarshal.unmarshal(&requiredVal); err != nil {
 			return err
 		}
 		v.required = requiredVal
 		delete(proxy, `required`)
 	}
 
-	if deprecatedBytes, ok := proxy["deprecated"]; ok {
+	if deprecatedUnmarshal, ok := proxy["deprecated"]; ok {
 		var deprecatedVal bool
-		if err := yaml.Unmarshal(deprecatedBytes, &deprecatedVal); err != nil {
+		if err := deprecatedUnmarshal.unmarshal(&deprecatedVal); err != nil {
 			return err
 		}
 		v.deprecated = deprecatedVal
 		delete(proxy, `deprecated`)
 	}
 
-	if allowEmptyValueBytes, ok := proxy["allowEmptyValue"]; ok {
+	if allowEmptyValueUnmarshal, ok := proxy["allowEmptyValue"]; ok {
 		var allowEmptyValueVal bool
-		if err := yaml.Unmarshal(allowEmptyValueBytes, &allowEmptyValueVal); err != nil {
+		if err := allowEmptyValueUnmarshal.unmarshal(&allowEmptyValueVal); err != nil {
 			return err
 		}
 		v.allowEmptyValue = allowEmptyValueVal
 		delete(proxy, `allowEmptyValue`)
 	}
 
-	if styleBytes, ok := proxy["style"]; ok {
+	if styleUnmarshal, ok := proxy["style"]; ok {
 		var styleVal string
-		if err := yaml.Unmarshal(q(styleBytes), &styleVal); err != nil {
+		if err := styleUnmarshal.unmarshal(&styleVal); err != nil {
 			return err
 		}
-		v.style = styleVal
+		v.style = strings.TrimSuffix(styleVal, "\n")
 		delete(proxy, `style`)
 	}
 
-	if explodeBytes, ok := proxy["explode"]; ok {
+	if explodeUnmarshal, ok := proxy["explode"]; ok {
 		var explodeVal bool
-		if err := yaml.Unmarshal(explodeBytes, &explodeVal); err != nil {
+		if err := explodeUnmarshal.unmarshal(&explodeVal); err != nil {
 			return err
 		}
 		v.explode = explodeVal
 		delete(proxy, `explode`)
 	}
 
-	if allowReservedBytes, ok := proxy["allowReserved"]; ok {
+	if allowReservedUnmarshal, ok := proxy["allowReserved"]; ok {
 		var allowReservedVal bool
-		if err := yaml.Unmarshal(allowReservedBytes, &allowReservedVal); err != nil {
+		if err := allowReservedUnmarshal.unmarshal(&allowReservedVal); err != nil {
 			return err
 		}
 		v.allowReserved = allowReservedVal
 		delete(proxy, `allowReserved`)
 	}
 
-	if schemaBytes, ok := proxy["schema"]; ok {
+	if schemaUnmarshal, ok := proxy["schema"]; ok {
 		var schemaVal Schema
-		if err := yaml.Unmarshal(schemaBytes, &schemaVal); err != nil {
+		if err := schemaUnmarshal.unmarshal(&schemaVal); err != nil {
 			return err
 		}
 		v.schema = &schemaVal
 		delete(proxy, `schema`)
 	}
 
-	if exampleBytes, ok := proxy["example"]; ok {
+	if exampleUnmarshal, ok := proxy["example"]; ok {
 		var exampleVal interface{}
-		if err := yaml.Unmarshal(exampleBytes, &exampleVal); err != nil {
+		if err := exampleUnmarshal.unmarshal(&exampleVal); err != nil {
 			return err
 		}
 		v.example = exampleVal
 		delete(proxy, `example`)
 	}
 
-	if examplesBytes, ok := proxy["examples"]; ok {
+	if examplesUnmarshal, ok := proxy["examples"]; ok {
 		var examplesVal map[string]*Example
-		if err := yaml.Unmarshal(examplesBytes, &examplesVal); err != nil {
+		if err := examplesUnmarshal.unmarshal(&examplesVal); err != nil {
 			return err
 		}
 		v.examples = examplesVal
 		delete(proxy, `examples`)
 	}
 
-	if contentBytes, ok := proxy["content"]; ok {
+	if contentUnmarshal, ok := proxy["content"]; ok {
 		var contentVal map[string]*MediaType
-		if err := yaml.Unmarshal(contentBytes, &contentVal); err != nil {
+		if err := contentUnmarshal.unmarshal(&contentVal); err != nil {
 			return err
 		}
 		v.content = contentVal
@@ -1087,7 +1085,7 @@ func (v *Parameter) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -1104,14 +1102,14 @@ func (v *Parameter) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *RequestBody) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *RequestBody) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
-	if referenceBytes, ok := proxy["$ref"]; ok {
+	if p, ok := proxy["$ref"]; ok {
 		var referenceVal string
-		if err := yaml.Unmarshal(q(referenceBytes), &referenceVal); err != nil {
+		if err := p.unmarshal(&referenceVal); err != nil {
 			return err
 		}
 		v.reference = referenceVal
@@ -1119,29 +1117,29 @@ func (v *RequestBody) UnmarshalYAML(b []byte) error {
 		return nil
 	}
 
-	if descriptionBytes, ok := proxy["description"]; ok {
+	if descriptionUnmarshal, ok := proxy["description"]; ok {
 		var descriptionVal string
-		if err := yaml.Unmarshal(q(descriptionBytes), &descriptionVal); err != nil {
+		if err := descriptionUnmarshal.unmarshal(&descriptionVal); err != nil {
 			return err
 		}
-		v.description = descriptionVal
+		v.description = strings.TrimSuffix(descriptionVal, "\n")
 		delete(proxy, `description`)
 	}
 
-	contentBytes, ok := proxy["content"]
+	contentUnmarshal, ok := proxy["content"]
 	if !ok {
 		return ErrRequired("content")
 	}
 	var contentVal map[string]*MediaType
-	if err := yaml.Unmarshal(contentBytes, &contentVal); err != nil {
+	if err := contentUnmarshal.unmarshal(&contentVal); err != nil {
 		return err
 	}
 	v.content = contentVal
 	delete(proxy, `content`)
 
-	if requiredBytes, ok := proxy["required"]; ok {
+	if requiredUnmarshal, ok := proxy["required"]; ok {
 		var requiredVal bool
-		if err := yaml.Unmarshal(requiredBytes, &requiredVal); err != nil {
+		if err := requiredUnmarshal.unmarshal(&requiredVal); err != nil {
 			return err
 		}
 		v.required = requiredVal
@@ -1153,7 +1151,7 @@ func (v *RequestBody) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -1170,42 +1168,42 @@ func (v *RequestBody) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *MediaType) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *MediaType) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 
-	if schemaBytes, ok := proxy["schema"]; ok {
+	if schemaUnmarshal, ok := proxy["schema"]; ok {
 		var schemaVal Schema
-		if err := yaml.Unmarshal(schemaBytes, &schemaVal); err != nil {
+		if err := schemaUnmarshal.unmarshal(&schemaVal); err != nil {
 			return err
 		}
 		v.schema = &schemaVal
 		delete(proxy, `schema`)
 	}
 
-	if exampleBytes, ok := proxy["example"]; ok {
+	if exampleUnmarshal, ok := proxy["example"]; ok {
 		var exampleVal interface{}
-		if err := yaml.Unmarshal(exampleBytes, &exampleVal); err != nil {
+		if err := exampleUnmarshal.unmarshal(&exampleVal); err != nil {
 			return err
 		}
 		v.example = exampleVal
 		delete(proxy, `example`)
 	}
 
-	if examplesBytes, ok := proxy["examples"]; ok {
+	if examplesUnmarshal, ok := proxy["examples"]; ok {
 		var examplesVal map[string]*Example
-		if err := yaml.Unmarshal(examplesBytes, &examplesVal); err != nil {
+		if err := examplesUnmarshal.unmarshal(&examplesVal); err != nil {
 			return err
 		}
 		v.examples = examplesVal
 		delete(proxy, `examples`)
 	}
 
-	if encodingBytes, ok := proxy["encoding"]; ok {
+	if encodingUnmarshal, ok := proxy["encoding"]; ok {
 		var encodingVal map[string]*Encoding
-		if err := yaml.Unmarshal(encodingBytes, &encodingVal); err != nil {
+		if err := encodingUnmarshal.unmarshal(&encodingVal); err != nil {
 			return err
 		}
 		v.encoding = encodingVal
@@ -1217,7 +1215,7 @@ func (v *MediaType) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -1234,51 +1232,51 @@ func (v *MediaType) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *Encoding) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *Encoding) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 
-	if contentTypeBytes, ok := proxy["contentType"]; ok {
+	if contentTypeUnmarshal, ok := proxy["contentType"]; ok {
 		var contentTypeVal string
-		if err := yaml.Unmarshal(q(contentTypeBytes), &contentTypeVal); err != nil {
+		if err := contentTypeUnmarshal.unmarshal(&contentTypeVal); err != nil {
 			return err
 		}
-		v.contentType = contentTypeVal
+		v.contentType = strings.TrimSuffix(contentTypeVal, "\n")
 		delete(proxy, `contentType`)
 	}
 
-	if headersBytes, ok := proxy["headers"]; ok {
+	if headersUnmarshal, ok := proxy["headers"]; ok {
 		var headersVal map[string]*Header
-		if err := yaml.Unmarshal(headersBytes, &headersVal); err != nil {
+		if err := headersUnmarshal.unmarshal(&headersVal); err != nil {
 			return err
 		}
 		v.headers = headersVal
 		delete(proxy, `headers`)
 	}
 
-	if styleBytes, ok := proxy["style"]; ok {
+	if styleUnmarshal, ok := proxy["style"]; ok {
 		var styleVal string
-		if err := yaml.Unmarshal(q(styleBytes), &styleVal); err != nil {
+		if err := styleUnmarshal.unmarshal(&styleVal); err != nil {
 			return err
 		}
-		v.style = styleVal
+		v.style = strings.TrimSuffix(styleVal, "\n")
 		delete(proxy, `style`)
 	}
 
-	if explodeBytes, ok := proxy["explode"]; ok {
+	if explodeUnmarshal, ok := proxy["explode"]; ok {
 		var explodeVal bool
-		if err := yaml.Unmarshal(explodeBytes, &explodeVal); err != nil {
+		if err := explodeUnmarshal.unmarshal(&explodeVal); err != nil {
 			return err
 		}
 		v.explode = explodeVal
 		delete(proxy, `explode`)
 	}
 
-	if allowReservedBytes, ok := proxy["allowReserved"]; ok {
+	if allowReservedUnmarshal, ok := proxy["allowReserved"]; ok {
 		var allowReservedVal bool
-		if err := yaml.Unmarshal(allowReservedBytes, &allowReservedVal); err != nil {
+		if err := allowReservedUnmarshal.unmarshal(&allowReservedVal); err != nil {
 			return err
 		}
 		v.allowReserved = allowReservedVal
@@ -1290,7 +1288,7 @@ func (v *Encoding) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -1307,9 +1305,9 @@ func (v *Encoding) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *Responses) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *Responses) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 	responses := map[string]*Response{}
@@ -1319,7 +1317,7 @@ func (v *Responses) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var responsesv Response
-		if err := yaml.Unmarshal(val, &responsesv); err != nil {
+		if err := val.unmarshal(&responsesv); err != nil {
 			return err
 		}
 		responses[key] = &responsesv
@@ -1334,7 +1332,7 @@ func (v *Responses) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -1351,14 +1349,14 @@ func (v *Responses) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *Response) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *Response) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
-	if referenceBytes, ok := proxy["$ref"]; ok {
+	if p, ok := proxy["$ref"]; ok {
 		var referenceVal string
-		if err := yaml.Unmarshal(q(referenceBytes), &referenceVal); err != nil {
+		if err := p.unmarshal(&referenceVal); err != nil {
 			return err
 		}
 		v.reference = referenceVal
@@ -1366,38 +1364,38 @@ func (v *Response) UnmarshalYAML(b []byte) error {
 		return nil
 	}
 
-	descriptionBytes, ok := proxy["description"]
+	descriptionUnmarshal, ok := proxy["description"]
 	if !ok {
 		return ErrRequired("description")
 	}
 	var descriptionVal string
-	if err := yaml.Unmarshal(q(descriptionBytes), &descriptionVal); err != nil {
+	if err := descriptionUnmarshal.unmarshal(&descriptionVal); err != nil {
 		return err
 	}
-	v.description = descriptionVal
+	v.description = strings.TrimSuffix(descriptionVal, "\n")
 	delete(proxy, `description`)
 
-	if headersBytes, ok := proxy["headers"]; ok {
+	if headersUnmarshal, ok := proxy["headers"]; ok {
 		var headersVal map[string]*Header
-		if err := yaml.Unmarshal(headersBytes, &headersVal); err != nil {
+		if err := headersUnmarshal.unmarshal(&headersVal); err != nil {
 			return err
 		}
 		v.headers = headersVal
 		delete(proxy, `headers`)
 	}
 
-	if contentBytes, ok := proxy["content"]; ok {
+	if contentUnmarshal, ok := proxy["content"]; ok {
 		var contentVal map[string]*MediaType
-		if err := yaml.Unmarshal(contentBytes, &contentVal); err != nil {
+		if err := contentUnmarshal.unmarshal(&contentVal); err != nil {
 			return err
 		}
 		v.content = contentVal
 		delete(proxy, `content`)
 	}
 
-	if linksBytes, ok := proxy["links"]; ok {
+	if linksUnmarshal, ok := proxy["links"]; ok {
 		var linksVal map[string]*Link
-		if err := yaml.Unmarshal(linksBytes, &linksVal); err != nil {
+		if err := linksUnmarshal.unmarshal(&linksVal); err != nil {
 			return err
 		}
 		v.links = linksVal
@@ -1409,7 +1407,7 @@ func (v *Response) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -1426,14 +1424,14 @@ func (v *Response) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *Callback) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *Callback) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
-	if referenceBytes, ok := proxy["$ref"]; ok {
+	if p, ok := proxy["$ref"]; ok {
 		var referenceVal string
-		if err := yaml.Unmarshal(q(referenceBytes), &referenceVal); err != nil {
+		if err := p.unmarshal(&referenceVal); err != nil {
 			return err
 		}
 		v.reference = referenceVal
@@ -1446,7 +1444,7 @@ func (v *Callback) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var callbackv PathItem
-		if err := yaml.Unmarshal(val, &callbackv); err != nil {
+		if err := val.unmarshal(&callbackv); err != nil {
 			return err
 		}
 		callback[key] = &callbackv
@@ -1461,7 +1459,7 @@ func (v *Callback) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -1478,14 +1476,14 @@ func (v *Callback) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *Example) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *Example) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
-	if referenceBytes, ok := proxy["$ref"]; ok {
+	if p, ok := proxy["$ref"]; ok {
 		var referenceVal string
-		if err := yaml.Unmarshal(q(referenceBytes), &referenceVal); err != nil {
+		if err := p.unmarshal(&referenceVal); err != nil {
 			return err
 		}
 		v.reference = referenceVal
@@ -1493,39 +1491,39 @@ func (v *Example) UnmarshalYAML(b []byte) error {
 		return nil
 	}
 
-	if summaryBytes, ok := proxy["summary"]; ok {
+	if summaryUnmarshal, ok := proxy["summary"]; ok {
 		var summaryVal string
-		if err := yaml.Unmarshal(q(summaryBytes), &summaryVal); err != nil {
+		if err := summaryUnmarshal.unmarshal(&summaryVal); err != nil {
 			return err
 		}
-		v.summary = summaryVal
+		v.summary = strings.TrimSuffix(summaryVal, "\n")
 		delete(proxy, `summary`)
 	}
 
-	if descriptionBytes, ok := proxy["description"]; ok {
+	if descriptionUnmarshal, ok := proxy["description"]; ok {
 		var descriptionVal string
-		if err := yaml.Unmarshal(q(descriptionBytes), &descriptionVal); err != nil {
+		if err := descriptionUnmarshal.unmarshal(&descriptionVal); err != nil {
 			return err
 		}
-		v.description = descriptionVal
+		v.description = strings.TrimSuffix(descriptionVal, "\n")
 		delete(proxy, `description`)
 	}
 
-	if valueBytes, ok := proxy["value"]; ok {
+	if valueUnmarshal, ok := proxy["value"]; ok {
 		var valueVal interface{}
-		if err := yaml.Unmarshal(valueBytes, &valueVal); err != nil {
+		if err := valueUnmarshal.unmarshal(&valueVal); err != nil {
 			return err
 		}
 		v.value = valueVal
 		delete(proxy, `value`)
 	}
 
-	if externalValueBytes, ok := proxy["externalValue"]; ok {
+	if externalValueUnmarshal, ok := proxy["externalValue"]; ok {
 		var externalValueVal string
-		if err := yaml.Unmarshal(q(externalValueBytes), &externalValueVal); err != nil {
+		if err := externalValueUnmarshal.unmarshal(&externalValueVal); err != nil {
 			return err
 		}
-		v.externalValue = externalValueVal
+		v.externalValue = strings.TrimSuffix(externalValueVal, "\n")
 		delete(proxy, `externalValue`)
 	}
 	extension := map[string]interface{}{}
@@ -1534,7 +1532,7 @@ func (v *Example) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -1551,14 +1549,14 @@ func (v *Example) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *Link) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *Link) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
-	if referenceBytes, ok := proxy["$ref"]; ok {
+	if p, ok := proxy["$ref"]; ok {
 		var referenceVal string
-		if err := yaml.Unmarshal(q(referenceBytes), &referenceVal); err != nil {
+		if err := p.unmarshal(&referenceVal); err != nil {
 			return err
 		}
 		v.reference = referenceVal
@@ -1566,54 +1564,54 @@ func (v *Link) UnmarshalYAML(b []byte) error {
 		return nil
 	}
 
-	if operationRefBytes, ok := proxy["operationRef"]; ok {
+	if operationRefUnmarshal, ok := proxy["operationRef"]; ok {
 		var operationRefVal string
-		if err := yaml.Unmarshal(q(operationRefBytes), &operationRefVal); err != nil {
+		if err := operationRefUnmarshal.unmarshal(&operationRefVal); err != nil {
 			return err
 		}
-		v.operationRef = operationRefVal
+		v.operationRef = strings.TrimSuffix(operationRefVal, "\n")
 		delete(proxy, `operationRef`)
 	}
 
-	if operationIDBytes, ok := proxy["operationId"]; ok {
+	if operationIDUnmarshal, ok := proxy["operationId"]; ok {
 		var operationIDVal string
-		if err := yaml.Unmarshal(q(operationIDBytes), &operationIDVal); err != nil {
+		if err := operationIDUnmarshal.unmarshal(&operationIDVal); err != nil {
 			return err
 		}
-		v.operationID = operationIDVal
+		v.operationID = strings.TrimSuffix(operationIDVal, "\n")
 		delete(proxy, `operationId`)
 	}
 
-	if parametersBytes, ok := proxy["parameters"]; ok {
+	if parametersUnmarshal, ok := proxy["parameters"]; ok {
 		var parametersVal map[string]interface{}
-		if err := yaml.Unmarshal(parametersBytes, &parametersVal); err != nil {
+		if err := parametersUnmarshal.unmarshal(&parametersVal); err != nil {
 			return err
 		}
 		v.parameters = parametersVal
 		delete(proxy, `parameters`)
 	}
 
-	if requestBodyBytes, ok := proxy["requestBody"]; ok {
+	if requestBodyUnmarshal, ok := proxy["requestBody"]; ok {
 		var requestBodyVal interface{}
-		if err := yaml.Unmarshal(requestBodyBytes, &requestBodyVal); err != nil {
+		if err := requestBodyUnmarshal.unmarshal(&requestBodyVal); err != nil {
 			return err
 		}
 		v.requestBody = requestBodyVal
 		delete(proxy, `requestBody`)
 	}
 
-	if descriptionBytes, ok := proxy["description"]; ok {
+	if descriptionUnmarshal, ok := proxy["description"]; ok {
 		var descriptionVal string
-		if err := yaml.Unmarshal(q(descriptionBytes), &descriptionVal); err != nil {
+		if err := descriptionUnmarshal.unmarshal(&descriptionVal); err != nil {
 			return err
 		}
-		v.description = descriptionVal
+		v.description = strings.TrimSuffix(descriptionVal, "\n")
 		delete(proxy, `description`)
 	}
 
-	if serverBytes, ok := proxy["server"]; ok {
+	if serverUnmarshal, ok := proxy["server"]; ok {
 		var serverVal Server
-		if err := yaml.Unmarshal(serverBytes, &serverVal); err != nil {
+		if err := serverUnmarshal.unmarshal(&serverVal); err != nil {
 			return err
 		}
 		v.server = &serverVal
@@ -1625,7 +1623,7 @@ func (v *Link) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -1642,14 +1640,14 @@ func (v *Link) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *Header) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *Header) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
-	if referenceBytes, ok := proxy["$ref"]; ok {
+	if p, ok := proxy["$ref"]; ok {
 		var referenceVal string
-		if err := yaml.Unmarshal(q(referenceBytes), &referenceVal); err != nil {
+		if err := p.unmarshal(&referenceVal); err != nil {
 			return err
 		}
 		v.reference = referenceVal
@@ -1657,99 +1655,99 @@ func (v *Header) UnmarshalYAML(b []byte) error {
 		return nil
 	}
 
-	if descriptionBytes, ok := proxy["description"]; ok {
+	if descriptionUnmarshal, ok := proxy["description"]; ok {
 		var descriptionVal string
-		if err := yaml.Unmarshal(q(descriptionBytes), &descriptionVal); err != nil {
+		if err := descriptionUnmarshal.unmarshal(&descriptionVal); err != nil {
 			return err
 		}
-		v.description = descriptionVal
+		v.description = strings.TrimSuffix(descriptionVal, "\n")
 		delete(proxy, `description`)
 	}
 
-	if requiredBytes, ok := proxy["required"]; ok {
+	if requiredUnmarshal, ok := proxy["required"]; ok {
 		var requiredVal bool
-		if err := yaml.Unmarshal(requiredBytes, &requiredVal); err != nil {
+		if err := requiredUnmarshal.unmarshal(&requiredVal); err != nil {
 			return err
 		}
 		v.required = requiredVal
 		delete(proxy, `required`)
 	}
 
-	if deprecatedBytes, ok := proxy["deprecated"]; ok {
+	if deprecatedUnmarshal, ok := proxy["deprecated"]; ok {
 		var deprecatedVal bool
-		if err := yaml.Unmarshal(deprecatedBytes, &deprecatedVal); err != nil {
+		if err := deprecatedUnmarshal.unmarshal(&deprecatedVal); err != nil {
 			return err
 		}
 		v.deprecated = deprecatedVal
 		delete(proxy, `deprecated`)
 	}
 
-	if allowEmptyValueBytes, ok := proxy["allowEmptyValue"]; ok {
+	if allowEmptyValueUnmarshal, ok := proxy["allowEmptyValue"]; ok {
 		var allowEmptyValueVal bool
-		if err := yaml.Unmarshal(allowEmptyValueBytes, &allowEmptyValueVal); err != nil {
+		if err := allowEmptyValueUnmarshal.unmarshal(&allowEmptyValueVal); err != nil {
 			return err
 		}
 		v.allowEmptyValue = allowEmptyValueVal
 		delete(proxy, `allowEmptyValue`)
 	}
 
-	if styleBytes, ok := proxy["style"]; ok {
+	if styleUnmarshal, ok := proxy["style"]; ok {
 		var styleVal string
-		if err := yaml.Unmarshal(q(styleBytes), &styleVal); err != nil {
+		if err := styleUnmarshal.unmarshal(&styleVal); err != nil {
 			return err
 		}
-		v.style = styleVal
+		v.style = strings.TrimSuffix(styleVal, "\n")
 		delete(proxy, `style`)
 	}
 
-	if explodeBytes, ok := proxy["explode"]; ok {
+	if explodeUnmarshal, ok := proxy["explode"]; ok {
 		var explodeVal bool
-		if err := yaml.Unmarshal(explodeBytes, &explodeVal); err != nil {
+		if err := explodeUnmarshal.unmarshal(&explodeVal); err != nil {
 			return err
 		}
 		v.explode = explodeVal
 		delete(proxy, `explode`)
 	}
 
-	if allowReservedBytes, ok := proxy["allowReserved"]; ok {
+	if allowReservedUnmarshal, ok := proxy["allowReserved"]; ok {
 		var allowReservedVal bool
-		if err := yaml.Unmarshal(allowReservedBytes, &allowReservedVal); err != nil {
+		if err := allowReservedUnmarshal.unmarshal(&allowReservedVal); err != nil {
 			return err
 		}
 		v.allowReserved = allowReservedVal
 		delete(proxy, `allowReserved`)
 	}
 
-	if schemaBytes, ok := proxy["schema"]; ok {
+	if schemaUnmarshal, ok := proxy["schema"]; ok {
 		var schemaVal Schema
-		if err := yaml.Unmarshal(schemaBytes, &schemaVal); err != nil {
+		if err := schemaUnmarshal.unmarshal(&schemaVal); err != nil {
 			return err
 		}
 		v.schema = &schemaVal
 		delete(proxy, `schema`)
 	}
 
-	if exampleBytes, ok := proxy["example"]; ok {
+	if exampleUnmarshal, ok := proxy["example"]; ok {
 		var exampleVal interface{}
-		if err := yaml.Unmarshal(exampleBytes, &exampleVal); err != nil {
+		if err := exampleUnmarshal.unmarshal(&exampleVal); err != nil {
 			return err
 		}
 		v.example = exampleVal
 		delete(proxy, `example`)
 	}
 
-	if examplesBytes, ok := proxy["examples"]; ok {
+	if examplesUnmarshal, ok := proxy["examples"]; ok {
 		var examplesVal map[string]*Example
-		if err := yaml.Unmarshal(examplesBytes, &examplesVal); err != nil {
+		if err := examplesUnmarshal.unmarshal(&examplesVal); err != nil {
 			return err
 		}
 		v.examples = examplesVal
 		delete(proxy, `examples`)
 	}
 
-	if contentBytes, ok := proxy["content"]; ok {
+	if contentUnmarshal, ok := proxy["content"]; ok {
 		var contentVal map[string]*MediaType
-		if err := yaml.Unmarshal(contentBytes, &contentVal); err != nil {
+		if err := contentUnmarshal.unmarshal(&contentVal); err != nil {
 			return err
 		}
 		v.content = contentVal
@@ -1761,7 +1759,7 @@ func (v *Header) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -1778,35 +1776,35 @@ func (v *Header) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *Tag) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *Tag) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 
-	nameBytes, ok := proxy["name"]
+	nameUnmarshal, ok := proxy["name"]
 	if !ok {
 		return ErrRequired("name")
 	}
 	var nameVal string
-	if err := yaml.Unmarshal(q(nameBytes), &nameVal); err != nil {
+	if err := nameUnmarshal.unmarshal(&nameVal); err != nil {
 		return err
 	}
-	v.name = nameVal
+	v.name = strings.TrimSuffix(nameVal, "\n")
 	delete(proxy, `name`)
 
-	if descriptionBytes, ok := proxy["description"]; ok {
+	if descriptionUnmarshal, ok := proxy["description"]; ok {
 		var descriptionVal string
-		if err := yaml.Unmarshal(q(descriptionBytes), &descriptionVal); err != nil {
+		if err := descriptionUnmarshal.unmarshal(&descriptionVal); err != nil {
 			return err
 		}
-		v.description = descriptionVal
+		v.description = strings.TrimSuffix(descriptionVal, "\n")
 		delete(proxy, `description`)
 	}
 
-	if externalDocsBytes, ok := proxy["externalDocs"]; ok {
+	if externalDocsUnmarshal, ok := proxy["externalDocs"]; ok {
 		var externalDocsVal ExternalDocumentation
-		if err := yaml.Unmarshal(externalDocsBytes, &externalDocsVal); err != nil {
+		if err := externalDocsUnmarshal.unmarshal(&externalDocsVal); err != nil {
 			return err
 		}
 		v.externalDocs = &externalDocsVal
@@ -1818,7 +1816,7 @@ func (v *Tag) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -1835,14 +1833,14 @@ func (v *Tag) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *Schema) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *Schema) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
-	if referenceBytes, ok := proxy["$ref"]; ok {
+	if p, ok := proxy["$ref"]; ok {
 		var referenceVal string
-		if err := yaml.Unmarshal(q(referenceBytes), &referenceVal); err != nil {
+		if err := p.unmarshal(&referenceVal); err != nil {
 			return err
 		}
 		v.reference = referenceVal
@@ -1850,306 +1848,306 @@ func (v *Schema) UnmarshalYAML(b []byte) error {
 		return nil
 	}
 
-	if titleBytes, ok := proxy["title"]; ok {
+	if titleUnmarshal, ok := proxy["title"]; ok {
 		var titleVal string
-		if err := yaml.Unmarshal(q(titleBytes), &titleVal); err != nil {
+		if err := titleUnmarshal.unmarshal(&titleVal); err != nil {
 			return err
 		}
-		v.title = titleVal
+		v.title = strings.TrimSuffix(titleVal, "\n")
 		delete(proxy, `title`)
 	}
 
-	if multipleOfBytes, ok := proxy["multipleOf"]; ok {
+	if multipleOfUnmarshal, ok := proxy["multipleOf"]; ok {
 		var multipleOfVal int
-		if err := yaml.Unmarshal(multipleOfBytes, &multipleOfVal); err != nil {
+		if err := multipleOfUnmarshal.unmarshal(&multipleOfVal); err != nil {
 			return err
 		}
 		v.multipleOf = multipleOfVal
 		delete(proxy, `multipleOf`)
 	}
 
-	if maximumBytes, ok := proxy["maximum"]; ok {
+	if maximumUnmarshal, ok := proxy["maximum"]; ok {
 		var maximumVal int
-		if err := yaml.Unmarshal(maximumBytes, &maximumVal); err != nil {
+		if err := maximumUnmarshal.unmarshal(&maximumVal); err != nil {
 			return err
 		}
 		v.maximum = maximumVal
 		delete(proxy, `maximum`)
 	}
 
-	if exclusiveMaximumBytes, ok := proxy["exclusiveMaximum"]; ok {
+	if exclusiveMaximumUnmarshal, ok := proxy["exclusiveMaximum"]; ok {
 		var exclusiveMaximumVal bool
-		if err := yaml.Unmarshal(exclusiveMaximumBytes, &exclusiveMaximumVal); err != nil {
+		if err := exclusiveMaximumUnmarshal.unmarshal(&exclusiveMaximumVal); err != nil {
 			return err
 		}
 		v.exclusiveMaximum = exclusiveMaximumVal
 		delete(proxy, `exclusiveMaximum`)
 	}
 
-	if minimumBytes, ok := proxy["minimum"]; ok {
+	if minimumUnmarshal, ok := proxy["minimum"]; ok {
 		var minimumVal int
-		if err := yaml.Unmarshal(minimumBytes, &minimumVal); err != nil {
+		if err := minimumUnmarshal.unmarshal(&minimumVal); err != nil {
 			return err
 		}
 		v.minimum = minimumVal
 		delete(proxy, `minimum`)
 	}
 
-	if exclusiveMinimumBytes, ok := proxy["exclusiveMinimum"]; ok {
+	if exclusiveMinimumUnmarshal, ok := proxy["exclusiveMinimum"]; ok {
 		var exclusiveMinimumVal bool
-		if err := yaml.Unmarshal(exclusiveMinimumBytes, &exclusiveMinimumVal); err != nil {
+		if err := exclusiveMinimumUnmarshal.unmarshal(&exclusiveMinimumVal); err != nil {
 			return err
 		}
 		v.exclusiveMinimum = exclusiveMinimumVal
 		delete(proxy, `exclusiveMinimum`)
 	}
 
-	if maxLengthBytes, ok := proxy["maxLength"]; ok {
+	if maxLengthUnmarshal, ok := proxy["maxLength"]; ok {
 		var maxLengthVal int
-		if err := yaml.Unmarshal(maxLengthBytes, &maxLengthVal); err != nil {
+		if err := maxLengthUnmarshal.unmarshal(&maxLengthVal); err != nil {
 			return err
 		}
 		v.maxLength = maxLengthVal
 		delete(proxy, `maxLength`)
 	}
 
-	if minLengthBytes, ok := proxy["minLength"]; ok {
+	if minLengthUnmarshal, ok := proxy["minLength"]; ok {
 		var minLengthVal int
-		if err := yaml.Unmarshal(minLengthBytes, &minLengthVal); err != nil {
+		if err := minLengthUnmarshal.unmarshal(&minLengthVal); err != nil {
 			return err
 		}
 		v.minLength = minLengthVal
 		delete(proxy, `minLength`)
 	}
 
-	if patternBytes, ok := proxy["pattern"]; ok {
+	if patternUnmarshal, ok := proxy["pattern"]; ok {
 		var patternVal string
-		if err := yaml.Unmarshal(q(patternBytes), &patternVal); err != nil {
+		if err := patternUnmarshal.unmarshal(&patternVal); err != nil {
 			return err
 		}
-		v.pattern = patternVal
+		v.pattern = strings.TrimSuffix(patternVal, "\n")
 		delete(proxy, `pattern`)
 	}
 
-	if maxItemsBytes, ok := proxy["maxItems"]; ok {
+	if maxItemsUnmarshal, ok := proxy["maxItems"]; ok {
 		var maxItemsVal int
-		if err := yaml.Unmarshal(maxItemsBytes, &maxItemsVal); err != nil {
+		if err := maxItemsUnmarshal.unmarshal(&maxItemsVal); err != nil {
 			return err
 		}
 		v.maxItems = maxItemsVal
 		delete(proxy, `maxItems`)
 	}
 
-	if minItemsBytes, ok := proxy["minItems"]; ok {
+	if minItemsUnmarshal, ok := proxy["minItems"]; ok {
 		var minItemsVal int
-		if err := yaml.Unmarshal(minItemsBytes, &minItemsVal); err != nil {
+		if err := minItemsUnmarshal.unmarshal(&minItemsVal); err != nil {
 			return err
 		}
 		v.minItems = minItemsVal
 		delete(proxy, `minItems`)
 	}
 
-	if maxPropertiesBytes, ok := proxy["maxProperties"]; ok {
+	if maxPropertiesUnmarshal, ok := proxy["maxProperties"]; ok {
 		var maxPropertiesVal int
-		if err := yaml.Unmarshal(maxPropertiesBytes, &maxPropertiesVal); err != nil {
+		if err := maxPropertiesUnmarshal.unmarshal(&maxPropertiesVal); err != nil {
 			return err
 		}
 		v.maxProperties = maxPropertiesVal
 		delete(proxy, `maxProperties`)
 	}
 
-	if minPropertiesBytes, ok := proxy["minProperties"]; ok {
+	if minPropertiesUnmarshal, ok := proxy["minProperties"]; ok {
 		var minPropertiesVal int
-		if err := yaml.Unmarshal(minPropertiesBytes, &minPropertiesVal); err != nil {
+		if err := minPropertiesUnmarshal.unmarshal(&minPropertiesVal); err != nil {
 			return err
 		}
 		v.minProperties = minPropertiesVal
 		delete(proxy, `minProperties`)
 	}
 
-	if requiredBytes, ok := proxy["required"]; ok {
+	if requiredUnmarshal, ok := proxy["required"]; ok {
 		var requiredVal []string
-		if err := yaml.Unmarshal(requiredBytes, &requiredVal); err != nil {
+		if err := requiredUnmarshal.unmarshal(&requiredVal); err != nil {
 			return err
 		}
 		v.required = requiredVal
 		delete(proxy, `required`)
 	}
 
-	if enumBytes, ok := proxy["enum"]; ok {
+	if enumUnmarshal, ok := proxy["enum"]; ok {
 		var enumVal []string
-		if err := yaml.Unmarshal(enumBytes, &enumVal); err != nil {
+		if err := enumUnmarshal.unmarshal(&enumVal); err != nil {
 			return err
 		}
 		v.enum = enumVal
 		delete(proxy, `enum`)
 	}
 
-	if type_Bytes, ok := proxy["type"]; ok {
+	if type_Unmarshal, ok := proxy["type"]; ok {
 		var type_Val string
-		if err := yaml.Unmarshal(q(type_Bytes), &type_Val); err != nil {
+		if err := type_Unmarshal.unmarshal(&type_Val); err != nil {
 			return err
 		}
-		v.type_ = type_Val
+		v.type_ = strings.TrimSuffix(type_Val, "\n")
 		delete(proxy, `type`)
 	}
 
-	if allOfBytes, ok := proxy["allOf"]; ok {
+	if allOfUnmarshal, ok := proxy["allOf"]; ok {
 		var allOfVal []*Schema
-		if err := yaml.Unmarshal(allOfBytes, &allOfVal); err != nil {
+		if err := allOfUnmarshal.unmarshal(&allOfVal); err != nil {
 			return err
 		}
 		v.allOf = allOfVal
 		delete(proxy, `allOf`)
 	}
 
-	if oneOfBytes, ok := proxy["oneOf"]; ok {
+	if oneOfUnmarshal, ok := proxy["oneOf"]; ok {
 		var oneOfVal []*Schema
-		if err := yaml.Unmarshal(oneOfBytes, &oneOfVal); err != nil {
+		if err := oneOfUnmarshal.unmarshal(&oneOfVal); err != nil {
 			return err
 		}
 		v.oneOf = oneOfVal
 		delete(proxy, `oneOf`)
 	}
 
-	if anyOfBytes, ok := proxy["anyOf"]; ok {
+	if anyOfUnmarshal, ok := proxy["anyOf"]; ok {
 		var anyOfVal []*Schema
-		if err := yaml.Unmarshal(anyOfBytes, &anyOfVal); err != nil {
+		if err := anyOfUnmarshal.unmarshal(&anyOfVal); err != nil {
 			return err
 		}
 		v.anyOf = anyOfVal
 		delete(proxy, `anyOf`)
 	}
 
-	if notBytes, ok := proxy["not"]; ok {
+	if notUnmarshal, ok := proxy["not"]; ok {
 		var notVal Schema
-		if err := yaml.Unmarshal(notBytes, &notVal); err != nil {
+		if err := notUnmarshal.unmarshal(&notVal); err != nil {
 			return err
 		}
 		v.not = &notVal
 		delete(proxy, `not`)
 	}
 
-	if itemsBytes, ok := proxy["items"]; ok {
+	if itemsUnmarshal, ok := proxy["items"]; ok {
 		var itemsVal Schema
-		if err := yaml.Unmarshal(itemsBytes, &itemsVal); err != nil {
+		if err := itemsUnmarshal.unmarshal(&itemsVal); err != nil {
 			return err
 		}
 		v.items = &itemsVal
 		delete(proxy, `items`)
 	}
 
-	if propertiesBytes, ok := proxy["properties"]; ok {
+	if propertiesUnmarshal, ok := proxy["properties"]; ok {
 		var propertiesVal map[string]*Schema
-		if err := yaml.Unmarshal(propertiesBytes, &propertiesVal); err != nil {
+		if err := propertiesUnmarshal.unmarshal(&propertiesVal); err != nil {
 			return err
 		}
 		v.properties = propertiesVal
 		delete(proxy, `properties`)
 	}
 
-	if additionalPropertiesBytes, ok := proxy["additionalProperties"]; ok {
+	if additionalPropertiesUnmarshal, ok := proxy["additionalProperties"]; ok {
 		var additionalPropertiesVal Schema
-		if err := yaml.Unmarshal(additionalPropertiesBytes, &additionalPropertiesVal); err != nil {
+		if err := additionalPropertiesUnmarshal.unmarshal(&additionalPropertiesVal); err != nil {
 			return err
 		}
 		v.additionalProperties = &additionalPropertiesVal
 		delete(proxy, `additionalProperties`)
 	}
 
-	if descriptionBytes, ok := proxy["description"]; ok {
+	if descriptionUnmarshal, ok := proxy["description"]; ok {
 		var descriptionVal string
-		if err := yaml.Unmarshal(q(descriptionBytes), &descriptionVal); err != nil {
+		if err := descriptionUnmarshal.unmarshal(&descriptionVal); err != nil {
 			return err
 		}
-		v.description = descriptionVal
+		v.description = strings.TrimSuffix(descriptionVal, "\n")
 		delete(proxy, `description`)
 	}
 
-	if formatBytes, ok := proxy["format"]; ok {
+	if formatUnmarshal, ok := proxy["format"]; ok {
 		var formatVal string
-		if err := yaml.Unmarshal(q(formatBytes), &formatVal); err != nil {
+		if err := formatUnmarshal.unmarshal(&formatVal); err != nil {
 			return err
 		}
-		v.format = formatVal
+		v.format = strings.TrimSuffix(formatVal, "\n")
 		delete(proxy, `format`)
 	}
 
-	if default_Bytes, ok := proxy["default"]; ok {
+	if default_Unmarshal, ok := proxy["default"]; ok {
 		var default_Val string
-		if err := yaml.Unmarshal(q(default_Bytes), &default_Val); err != nil {
+		if err := default_Unmarshal.unmarshal(&default_Val); err != nil {
 			return err
 		}
-		v.default_ = default_Val
+		v.default_ = strings.TrimSuffix(default_Val, "\n")
 		delete(proxy, `default`)
 	}
 
-	if nullableBytes, ok := proxy["nullable"]; ok {
+	if nullableUnmarshal, ok := proxy["nullable"]; ok {
 		var nullableVal bool
-		if err := yaml.Unmarshal(nullableBytes, &nullableVal); err != nil {
+		if err := nullableUnmarshal.unmarshal(&nullableVal); err != nil {
 			return err
 		}
 		v.nullable = nullableVal
 		delete(proxy, `nullable`)
 	}
 
-	if discriminatorBytes, ok := proxy["discriminator"]; ok {
+	if discriminatorUnmarshal, ok := proxy["discriminator"]; ok {
 		var discriminatorVal Discriminator
-		if err := yaml.Unmarshal(discriminatorBytes, &discriminatorVal); err != nil {
+		if err := discriminatorUnmarshal.unmarshal(&discriminatorVal); err != nil {
 			return err
 		}
 		v.discriminator = &discriminatorVal
 		delete(proxy, `discriminator`)
 	}
 
-	if readOnlyBytes, ok := proxy["readOnly"]; ok {
+	if readOnlyUnmarshal, ok := proxy["readOnly"]; ok {
 		var readOnlyVal bool
-		if err := yaml.Unmarshal(readOnlyBytes, &readOnlyVal); err != nil {
+		if err := readOnlyUnmarshal.unmarshal(&readOnlyVal); err != nil {
 			return err
 		}
 		v.readOnly = readOnlyVal
 		delete(proxy, `readOnly`)
 	}
 
-	if writeOnlyBytes, ok := proxy["writeOnly"]; ok {
+	if writeOnlyUnmarshal, ok := proxy["writeOnly"]; ok {
 		var writeOnlyVal bool
-		if err := yaml.Unmarshal(writeOnlyBytes, &writeOnlyVal); err != nil {
+		if err := writeOnlyUnmarshal.unmarshal(&writeOnlyVal); err != nil {
 			return err
 		}
 		v.writeOnly = writeOnlyVal
 		delete(proxy, `writeOnly`)
 	}
 
-	if xmlBytes, ok := proxy["xml"]; ok {
+	if xmlUnmarshal, ok := proxy["xml"]; ok {
 		var xmlVal XML
-		if err := yaml.Unmarshal(xmlBytes, &xmlVal); err != nil {
+		if err := xmlUnmarshal.unmarshal(&xmlVal); err != nil {
 			return err
 		}
 		v.xml = &xmlVal
 		delete(proxy, `xml`)
 	}
 
-	if externalDocsBytes, ok := proxy["externalDocs"]; ok {
+	if externalDocsUnmarshal, ok := proxy["externalDocs"]; ok {
 		var externalDocsVal ExternalDocumentation
-		if err := yaml.Unmarshal(externalDocsBytes, &externalDocsVal); err != nil {
+		if err := externalDocsUnmarshal.unmarshal(&externalDocsVal); err != nil {
 			return err
 		}
 		v.externalDocs = &externalDocsVal
 		delete(proxy, `externalDocs`)
 	}
 
-	if exampleBytes, ok := proxy["example"]; ok {
+	if exampleUnmarshal, ok := proxy["example"]; ok {
 		var exampleVal interface{}
-		if err := yaml.Unmarshal(exampleBytes, &exampleVal); err != nil {
+		if err := exampleUnmarshal.unmarshal(&exampleVal); err != nil {
 			return err
 		}
 		v.example = exampleVal
 		delete(proxy, `example`)
 	}
 
-	if deprecatedBytes, ok := proxy["deprecated"]; ok {
+	if deprecatedUnmarshal, ok := proxy["deprecated"]; ok {
 		var deprecatedVal bool
-		if err := yaml.Unmarshal(deprecatedBytes, &deprecatedVal); err != nil {
+		if err := deprecatedUnmarshal.unmarshal(&deprecatedVal); err != nil {
 			return err
 		}
 		v.deprecated = deprecatedVal
@@ -2161,7 +2159,7 @@ func (v *Schema) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -2178,24 +2176,24 @@ func (v *Schema) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *Discriminator) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *Discriminator) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 
-	if propertyNameBytes, ok := proxy["propertyName"]; ok {
+	if propertyNameUnmarshal, ok := proxy["propertyName"]; ok {
 		var propertyNameVal string
-		if err := yaml.Unmarshal(q(propertyNameBytes), &propertyNameVal); err != nil {
+		if err := propertyNameUnmarshal.unmarshal(&propertyNameVal); err != nil {
 			return err
 		}
-		v.propertyName = propertyNameVal
+		v.propertyName = strings.TrimSuffix(propertyNameVal, "\n")
 		delete(proxy, `propertyName`)
 	}
 
-	if mappingBytes, ok := proxy["mapping"]; ok {
+	if mappingUnmarshal, ok := proxy["mapping"]; ok {
 		var mappingVal map[string]string
-		if err := yaml.Unmarshal(mappingBytes, &mappingVal); err != nil {
+		if err := mappingUnmarshal.unmarshal(&mappingVal); err != nil {
 			return err
 		}
 		v.mapping = mappingVal
@@ -2209,51 +2207,51 @@ func (v *Discriminator) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *XML) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *XML) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 
-	if nameBytes, ok := proxy["name"]; ok {
+	if nameUnmarshal, ok := proxy["name"]; ok {
 		var nameVal string
-		if err := yaml.Unmarshal(q(nameBytes), &nameVal); err != nil {
+		if err := nameUnmarshal.unmarshal(&nameVal); err != nil {
 			return err
 		}
-		v.name = nameVal
+		v.name = strings.TrimSuffix(nameVal, "\n")
 		delete(proxy, `name`)
 	}
 
-	if namespaceBytes, ok := proxy["namespace"]; ok {
+	if namespaceUnmarshal, ok := proxy["namespace"]; ok {
 		var namespaceVal string
-		if err := yaml.Unmarshal(q(namespaceBytes), &namespaceVal); err != nil {
+		if err := namespaceUnmarshal.unmarshal(&namespaceVal); err != nil {
 			return err
 		}
-		v.namespace = namespaceVal
+		v.namespace = strings.TrimSuffix(namespaceVal, "\n")
 		delete(proxy, `namespace`)
 	}
 
-	if prefixBytes, ok := proxy["prefix"]; ok {
+	if prefixUnmarshal, ok := proxy["prefix"]; ok {
 		var prefixVal string
-		if err := yaml.Unmarshal(q(prefixBytes), &prefixVal); err != nil {
+		if err := prefixUnmarshal.unmarshal(&prefixVal); err != nil {
 			return err
 		}
-		v.prefix = prefixVal
+		v.prefix = strings.TrimSuffix(prefixVal, "\n")
 		delete(proxy, `prefix`)
 	}
 
-	if attributeBytes, ok := proxy["attribute"]; ok {
+	if attributeUnmarshal, ok := proxy["attribute"]; ok {
 		var attributeVal bool
-		if err := yaml.Unmarshal(attributeBytes, &attributeVal); err != nil {
+		if err := attributeUnmarshal.unmarshal(&attributeVal); err != nil {
 			return err
 		}
 		v.attribute = attributeVal
 		delete(proxy, `attribute`)
 	}
 
-	if wrappedBytes, ok := proxy["wrapped"]; ok {
+	if wrappedUnmarshal, ok := proxy["wrapped"]; ok {
 		var wrappedVal bool
-		if err := yaml.Unmarshal(wrappedBytes, &wrappedVal); err != nil {
+		if err := wrappedUnmarshal.unmarshal(&wrappedVal); err != nil {
 			return err
 		}
 		v.wrapped = wrappedVal
@@ -2265,7 +2263,7 @@ func (v *XML) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -2282,14 +2280,14 @@ func (v *XML) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *SecurityScheme) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *SecurityScheme) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
-	if referenceBytes, ok := proxy["$ref"]; ok {
+	if p, ok := proxy["$ref"]; ok {
 		var referenceVal string
-		if err := yaml.Unmarshal(q(referenceBytes), &referenceVal); err != nil {
+		if err := p.unmarshal(&referenceVal); err != nil {
 			return err
 		}
 		v.reference = referenceVal
@@ -2297,12 +2295,12 @@ func (v *SecurityScheme) UnmarshalYAML(b []byte) error {
 		return nil
 	}
 
-	if type_Bytes, ok := proxy["type"]; ok {
+	if type_Unmarshal, ok := proxy["type"]; ok {
 		var type_Val string
-		if err := yaml.Unmarshal(q(type_Bytes), &type_Val); err != nil {
+		if err := type_Unmarshal.unmarshal(&type_Val); err != nil {
 			return err
 		}
-		v.type_ = type_Val
+		v.type_ = strings.TrimSuffix(type_Val, "\n")
 		delete(proxy, `type`)
 	}
 
@@ -2312,30 +2310,30 @@ func (v *SecurityScheme) UnmarshalYAML(b []byte) error {
 		}
 	}
 
-	if descriptionBytes, ok := proxy["description"]; ok {
+	if descriptionUnmarshal, ok := proxy["description"]; ok {
 		var descriptionVal string
-		if err := yaml.Unmarshal(q(descriptionBytes), &descriptionVal); err != nil {
+		if err := descriptionUnmarshal.unmarshal(&descriptionVal); err != nil {
 			return err
 		}
-		v.description = descriptionVal
+		v.description = strings.TrimSuffix(descriptionVal, "\n")
 		delete(proxy, `description`)
 	}
 
-	if nameBytes, ok := proxy["name"]; ok {
+	if nameUnmarshal, ok := proxy["name"]; ok {
 		var nameVal string
-		if err := yaml.Unmarshal(q(nameBytes), &nameVal); err != nil {
+		if err := nameUnmarshal.unmarshal(&nameVal); err != nil {
 			return err
 		}
-		v.name = nameVal
+		v.name = strings.TrimSuffix(nameVal, "\n")
 		delete(proxy, `name`)
 	}
 
-	if inBytes, ok := proxy["in"]; ok {
+	if inUnmarshal, ok := proxy["in"]; ok {
 		var inVal string
-		if err := yaml.Unmarshal(q(inBytes), &inVal); err != nil {
+		if err := inUnmarshal.unmarshal(&inVal); err != nil {
 			return err
 		}
-		v.in = inVal
+		v.in = strings.TrimSuffix(inVal, "\n")
 		delete(proxy, `in`)
 	}
 
@@ -2345,39 +2343,39 @@ func (v *SecurityScheme) UnmarshalYAML(b []byte) error {
 		}
 	}
 
-	if schemeBytes, ok := proxy["scheme"]; ok {
+	if schemeUnmarshal, ok := proxy["scheme"]; ok {
 		var schemeVal string
-		if err := yaml.Unmarshal(q(schemeBytes), &schemeVal); err != nil {
+		if err := schemeUnmarshal.unmarshal(&schemeVal); err != nil {
 			return err
 		}
-		v.scheme = schemeVal
+		v.scheme = strings.TrimSuffix(schemeVal, "\n")
 		delete(proxy, `scheme`)
 	}
 
-	if bearerFormatBytes, ok := proxy["bearerFormat"]; ok {
+	if bearerFormatUnmarshal, ok := proxy["bearerFormat"]; ok {
 		var bearerFormatVal string
-		if err := yaml.Unmarshal(q(bearerFormatBytes), &bearerFormatVal); err != nil {
+		if err := bearerFormatUnmarshal.unmarshal(&bearerFormatVal); err != nil {
 			return err
 		}
-		v.bearerFormat = bearerFormatVal
+		v.bearerFormat = strings.TrimSuffix(bearerFormatVal, "\n")
 		delete(proxy, `bearerFormat`)
 	}
 
-	if flowsBytes, ok := proxy["flows"]; ok {
+	if flowsUnmarshal, ok := proxy["flows"]; ok {
 		var flowsVal OAuthFlows
-		if err := yaml.Unmarshal(flowsBytes, &flowsVal); err != nil {
+		if err := flowsUnmarshal.unmarshal(&flowsVal); err != nil {
 			return err
 		}
 		v.flows = &flowsVal
 		delete(proxy, `flows`)
 	}
 
-	if openIDConnectURLBytes, ok := proxy["openIdConnectUrl"]; ok {
+	if openIDConnectURLUnmarshal, ok := proxy["openIdConnectUrl"]; ok {
 		var openIDConnectURLVal string
-		if err := yaml.Unmarshal(q(openIDConnectURLBytes), &openIDConnectURLVal); err != nil {
+		if err := openIDConnectURLUnmarshal.unmarshal(&openIDConnectURLVal); err != nil {
 			return err
 		}
-		v.openIDConnectURL = openIDConnectURLVal
+		v.openIDConnectURL = strings.TrimSuffix(openIDConnectURLVal, "\n")
 		delete(proxy, `openIdConnectUrl`)
 	}
 
@@ -2392,7 +2390,7 @@ func (v *SecurityScheme) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -2409,42 +2407,42 @@ func (v *SecurityScheme) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *OAuthFlows) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *OAuthFlows) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 
-	if implicitBytes, ok := proxy["implicit"]; ok {
+	if implicitUnmarshal, ok := proxy["implicit"]; ok {
 		var implicitVal OAuthFlow
-		if err := yaml.Unmarshal(implicitBytes, &implicitVal); err != nil {
+		if err := implicitUnmarshal.unmarshal(&implicitVal); err != nil {
 			return err
 		}
 		v.implicit = &implicitVal
 		delete(proxy, `implicit`)
 	}
 
-	if passwordBytes, ok := proxy["password"]; ok {
+	if passwordUnmarshal, ok := proxy["password"]; ok {
 		var passwordVal OAuthFlow
-		if err := yaml.Unmarshal(passwordBytes, &passwordVal); err != nil {
+		if err := passwordUnmarshal.unmarshal(&passwordVal); err != nil {
 			return err
 		}
 		v.password = &passwordVal
 		delete(proxy, `password`)
 	}
 
-	if clientCredentialsBytes, ok := proxy["clientCredentials"]; ok {
+	if clientCredentialsUnmarshal, ok := proxy["clientCredentials"]; ok {
 		var clientCredentialsVal OAuthFlow
-		if err := yaml.Unmarshal(clientCredentialsBytes, &clientCredentialsVal); err != nil {
+		if err := clientCredentialsUnmarshal.unmarshal(&clientCredentialsVal); err != nil {
 			return err
 		}
 		v.clientCredentials = &clientCredentialsVal
 		delete(proxy, `clientCredentials`)
 	}
 
-	if authorizationCodeBytes, ok := proxy["authorizationCode"]; ok {
+	if authorizationCodeUnmarshal, ok := proxy["authorizationCode"]; ok {
 		var authorizationCodeVal OAuthFlow
-		if err := yaml.Unmarshal(authorizationCodeBytes, &authorizationCodeVal); err != nil {
+		if err := authorizationCodeUnmarshal.unmarshal(&authorizationCodeVal); err != nil {
 			return err
 		}
 		v.authorizationCode = &authorizationCodeVal
@@ -2456,7 +2454,7 @@ func (v *OAuthFlows) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -2473,18 +2471,18 @@ func (v *OAuthFlows) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *OAuthFlow) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *OAuthFlow) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 
-	if authorizationURLBytes, ok := proxy["authorizationUrl"]; ok {
+	if authorizationURLUnmarshal, ok := proxy["authorizationUrl"]; ok {
 		var authorizationURLVal string
-		if err := yaml.Unmarshal(q(authorizationURLBytes), &authorizationURLVal); err != nil {
+		if err := authorizationURLUnmarshal.unmarshal(&authorizationURLVal); err != nil {
 			return err
 		}
-		v.authorizationURL = authorizationURLVal
+		v.authorizationURL = strings.TrimSuffix(authorizationURLVal, "\n")
 		delete(proxy, `authorizationUrl`)
 	}
 
@@ -2494,12 +2492,12 @@ func (v *OAuthFlow) UnmarshalYAML(b []byte) error {
 		}
 	}
 
-	if tokenURLBytes, ok := proxy["tokenUrl"]; ok {
+	if tokenURLUnmarshal, ok := proxy["tokenUrl"]; ok {
 		var tokenURLVal string
-		if err := yaml.Unmarshal(q(tokenURLBytes), &tokenURLVal); err != nil {
+		if err := tokenURLUnmarshal.unmarshal(&tokenURLVal); err != nil {
 			return err
 		}
-		v.tokenURL = tokenURLVal
+		v.tokenURL = strings.TrimSuffix(tokenURLVal, "\n")
 		delete(proxy, `tokenUrl`)
 	}
 
@@ -2509,12 +2507,12 @@ func (v *OAuthFlow) UnmarshalYAML(b []byte) error {
 		}
 	}
 
-	if refreshURLBytes, ok := proxy["refreshUrl"]; ok {
+	if refreshURLUnmarshal, ok := proxy["refreshUrl"]; ok {
 		var refreshURLVal string
-		if err := yaml.Unmarshal(q(refreshURLBytes), &refreshURLVal); err != nil {
+		if err := refreshURLUnmarshal.unmarshal(&refreshURLVal); err != nil {
 			return err
 		}
-		v.refreshURL = refreshURLVal
+		v.refreshURL = strings.TrimSuffix(refreshURLVal, "\n")
 		delete(proxy, `refreshUrl`)
 	}
 
@@ -2524,9 +2522,9 @@ func (v *OAuthFlow) UnmarshalYAML(b []byte) error {
 		}
 	}
 
-	if scopesBytes, ok := proxy["scopes"]; ok {
+	if scopesUnmarshal, ok := proxy["scopes"]; ok {
 		var scopesVal map[string]string
-		if err := yaml.Unmarshal(scopesBytes, &scopesVal); err != nil {
+		if err := scopesUnmarshal.unmarshal(&scopesVal); err != nil {
 			return err
 		}
 		v.scopes = scopesVal
@@ -2538,7 +2536,7 @@ func (v *OAuthFlow) UnmarshalYAML(b []byte) error {
 			continue
 		}
 		var extensionv interface{}
-		if err := yaml.Unmarshal(val, &extensionv); err != nil {
+		if err := val.unmarshal(&extensionv); err != nil {
 			return err
 		}
 		extension[key] = extensionv
@@ -2555,15 +2553,15 @@ func (v *OAuthFlow) UnmarshalYAML(b []byte) error {
 	return nil
 }
 
-func (v *SecurityRequirement) UnmarshalYAML(b []byte) error {
-	var proxy map[string]raw
-	if err := yaml.Unmarshal(b, &proxy); err != nil {
+func (v *SecurityRequirement) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var proxy map[string]rawMessage
+	if err := unmarshal(&proxy); err != nil {
 		return err
 	}
 	securityRequirement := map[string][]string{}
 	for key, val := range proxy {
 		var securityRequirementv []string
-		if err := yaml.Unmarshal(val, &securityRequirementv); err != nil {
+		if err := val.unmarshal(&securityRequirementv); err != nil {
 			return err
 		}
 		securityRequirement[key] = securityRequirementv

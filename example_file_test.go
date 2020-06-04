@@ -101,7 +101,8 @@ func TestAPIWithExample(t *testing.T) {
          ]
      }
  ]
-}`,
+}
+`,
 												},
 											},
 										},
@@ -1169,17 +1170,9 @@ func TestUspto(t *testing.T) {
 			},
 		},
 		info: &Info{
-			description: `The Data Set API (DSAPI) allows the public users to discover and search
-USPTO exported data sets. This is a generic API that allows USPTO users to
-make any CSV based data files searchable through API. With the help of GET
-call, it returns the list of data fields that are searchable. With the help
-of POST call, data can be fetched based on the filters on the field names.
-Please note that POST call is used to search the actual data. The reason for
-the POST call is that it allows users to specify any complex search criteria
-without worry about the GET size limitations as well as encoding of the
-input parameters.`,
-			version: "1.0.0",
-			title:   "USPTO Data Set API",
+			description: `The Data Set API (DSAPI) allows the public users to discover and search USPTO exported data sets. This is a generic API that allows USPTO users to make any CSV based data files searchable through API. With the help of GET call, it returns the list of data fields that are searchable. With the help of POST call, data can be fetched based on the filters on the field names. Please note that POST call is used to search the actual data. The reason for the POST call is that it allows users to specify any complex search criteria without worry about the GET size limitations as well as encoding of the input parameters.`,
+			version:     "1.0.0",
+			title:       "USPTO Data Set API",
 			contact: &Contact{
 				name:  "Open Data Portal",
 				url:   "https://developer.uspto.gov",
@@ -1238,13 +1231,9 @@ input parameters.`,
 				},
 				"/{dataset}/{version}/fields": {
 					get: &Operation{
-						tags: []string{"metadata"},
-						summary: `Provides the general information about the API and the list of fields
-that can be used to query the dataset.`,
-						description: `This GET API returns the list of all the searchable field names that are
-in the oa_citations. Please see the 'fields' attribute which returns an
-array of field names. Each field or a combination of fields can be
-searched using the syntax options shown below.`,
+						tags:        []string{"metadata"},
+						summary:     `Provides the general information about the API and the list of fields that can be used to query the dataset.`,
+						description: `This GET API returns the list of all the searchable field names that are in the oa_citations. Please see the 'fields' attribute which returns an array of field names. Each field or a combination of fields can be searched using the syntax options shown below.`,
 						operationID: "list-searchable-fields",
 						parameters: []*Parameter{
 							{
@@ -1271,8 +1260,7 @@ searched using the syntax options shown below.`,
 						responses: &Responses{
 							responses: map[string]*Response{
 								"200": {
-									description: `The dataset API for the given version is found and it is accessible
-to consume.`,
+									description: `The dataset API for the given version is found and it is accessible to consume.`,
 									content: map[string]*MediaType{
 										"application/json": {
 											schema: &Schema{
@@ -1282,8 +1270,7 @@ to consume.`,
 									},
 								},
 								"404": {
-									description: `The combination of dataset name and version is not found in the
-system or it is not published yet to be consumed by public.`,
+									description: `The combination of dataset name and version is not found in the system or it is not published yet to be consumed by public.`,
 									content: map[string]*MediaType{
 										"application/json": {
 											schema: &Schema{
@@ -1298,17 +1285,9 @@ system or it is not published yet to be consumed by public.`,
 				},
 				"/{dataset}/{version}/records": {
 					post: &Operation{
-						tags: []string{"search"},
-						summary: `Provides search capability for the data set with the given search
-criteria.`,
-						description: `This API is based on Solr/Lucense Search. The data is indexed using
-SOLR. This GET API returns the list of all the searchable field names
-that are in the Solr Index. Please see the 'fields' attribute which
-returns an array of field names. Each field or a combination of fields
-can be searched using the Solr/Lucene Syntax. Please refer
-https://lucene.apache.org/core/3_6_2/queryparsersyntax.html#Overview for
-the query syntax. List of field names that are searchable can be
-determined using above GET api.`,
+						tags:        []string{"search"},
+						summary:     `Provides search capability for the data set with the given search criteria.`,
+						description: `This API is based on Solr/Lucense Search. The data is indexed using SOLR. This GET API returns the list of all the searchable field names that are in the Solr Index. Please see the 'fields' attribute which returns an array of field names. Each field or a combination of fields can be searched using the Solr/Lucene Syntax. Please refer https://lucene.apache.org/core/3_6_2/queryparsersyntax.html#Overview for the query syntax. List of field names that are searchable can be determined using above GET api.`,
 						operationID: "perform-search",
 						parameters: []*Parameter{
 							{
@@ -1363,13 +1342,7 @@ determined using above GET api.`,
 										properties: map[string]*Schema{
 
 											"criteria": {
-												description: `Uses Lucene Query Syntax in the format of
-propertyName:value, propertyName:[num1 TO num2] and date
-range format: propertyName:[yyyyMMdd TO yyyyMMdd]. In the
-response please see the 'docs' element which has the list of
-record objects. Each record structure would consist of all
-the fields and their corresponding values.`,
-												type_:    "string",
+												description: `Uses Lucene Query Syntax in the format of propertyName:value, propertyName:[num1 TO num2] and date range format: propertyName:[yyyyMMdd TO yyyyMMdd]. In the response please see the 'docs' element which has the list of record objects. Each record structure would consist of all the fields and their corresponding values.`, type_: "string",
 												default_: "*:*",
 											},
 											"start": {
@@ -1377,14 +1350,7 @@ the fields and their corresponding values.`,
 												type_:       "integer",
 												default_:    "0",
 											},
-											"rows": {
-												description: `Specify number of rows to be returned. If you run the search
-with default values, in the response you will see 'numFound'
-attribute which will tell the number of records available in
-the dataset.`,
-												type_:    "integer",
-												default_: "100",
-											},
+											"rows": {description: `Specify number of rows to be returned. If you run the search with default values, in the response you will see 'numFound' attribute which will tell the number of records available in the dataset.`, type_: "integer", default_: "100"},
 										},
 										required: []string{"criteria"},
 									},

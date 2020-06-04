@@ -10,14 +10,6 @@ var (
 	emailRegexp = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$") //nolint[lll]
 )
 
-type raw []byte
-
-func (v *raw) UnmarshalYAML(b []byte) error {
-	*v = b
-
-	return nil
-}
-
 func isOneOf(s string, list []string) bool {
 	for _, t := range list {
 		if t == s {
@@ -26,4 +18,13 @@ func isOneOf(s string, list []string) bool {
 	}
 
 	return false
+}
+
+type rawMessage struct {
+	unmarshal func(interface{}) error
+}
+
+func (msg *rawMessage) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	msg.unmarshal = unmarshal
+	return nil
 }
