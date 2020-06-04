@@ -9,6 +9,8 @@ OpenAPI Specification object model
 
 **This package is still under development, so the API will be changed without any notification**
 
+**working progress fully rewriting. See [PR #3](https://github.com/nasa9084/go-openapi/pull/3)**
+
 ## Overview
 
 This is an implementation of [OpenAPI Specification 3.0](https://github.com/OAI/OpenAPI-Specification) object model with some usable functions.
