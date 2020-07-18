@@ -191,14 +191,10 @@ func generateUnmarshalField(g *generator.Generator, field astutil.OpenAPIObjectF
 
 	g.Printf("\nvar %sVal %s", field.Name, strings.TrimPrefix(field.TypeString(), "*"))
 
-	if field.IsStringType() {
-		g.Printf("\nif err := %sUnmarshal.unmarshal(&%[1]sVal); err != nil {", field.Name)
-	} else {
-		g.Printf("\nif err := %sUnmarshal.unmarshal(&%[1]sVal); err != nil {", field.Name)
-	}
-
+	g.Printf("\nif err := %sUnmarshal.unmarshal(&%[1]sVal); err != nil {", field.Name)
 	g.Printf("\nreturn err")
 	g.Printf("\n}")
+
 	g.Printf("\nv.%s = ", field.Name)
 
 	if field.IsPointerType() {
