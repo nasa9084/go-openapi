@@ -3,22 +3,11 @@
 package openapi
 
 import (
-	"bytes"
 	"errors"
 	"net/url"
 	"regexp"
 	"strings"
 )
-
-func q(b []byte) []byte {
-	if !bytes.HasPrefix(b, []byte("|")) {
-		if bytes.ContainsRune(b, '\'') {
-			return append([]byte{'"'}, append(b, '"')...)
-		}
-		return append([]byte{'\''}, append(b, '\'')...)
-	}
-	return b
-}
 
 func (v *OpenAPI) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var proxy map[string]rawMessage

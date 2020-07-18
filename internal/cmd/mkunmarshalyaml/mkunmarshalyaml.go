@@ -28,8 +28,6 @@ func generate(g *generator.Generator) error {
 		return err
 	}
 
-	generateQuote(g)
-
 	for _, object := range objects {
 		log.Printf("generate %s.Unmarshal()", object.Name)
 
@@ -43,19 +41,6 @@ func generate(g *generator.Generator) error {
 	}
 
 	return nil
-}
-
-func generateQuote(g *generator.Generator) {
-	g.Printf("\nfunc q(b []byte) []byte {")
-	g.Import("", "bytes")
-	g.Printf("\nif !bytes.HasPrefix(b, []byte(\"|\")) {")
-	g.Printf("\nif bytes.ContainsRune(b, '\\'') {")
-	g.Printf("\nreturn append([]byte{'\"'}, append(b, '\"')...)")
-	g.Printf("\n}")
-	g.Printf("\nreturn append([]byte{'\\''}, append(b, '\\'')...)")
-	g.Printf("\n}")
-	g.Printf("\nreturn b")
-	g.Printf("\n}")
 }
 
 func generateUnmarshalYAML(g *generator.Generator, object astutil.OpenAPIObject) error {
