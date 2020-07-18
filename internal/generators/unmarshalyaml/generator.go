@@ -1,8 +1,7 @@
-package main
+package unmarshalyaml
 
 import (
 	"errors"
-	"flag"
 	"go/ast"
 	"log"
 	"strconv"
@@ -12,38 +11,38 @@ import (
 	"github.com/nasa9084/go-openapi/internal/generator"
 )
 
-func main() {
-	flag.Parse()
+const (
+	generatorName = "UnmarshalYAMLGenerator"
+	saveTo        = "unmarshalyaml_gen.go"
+)
 
-	g := generator.New("mkunmarshalyaml.go")
+type Generator struct {
+	*generator.Generator
 
-	if err := generate(g); err != nil {
-		log.Fatal(err)
+	objects []astutil.OpenAPIObject
+}
+
+func NewGenerator(objects []astutil.OpenAPIObject) *Generator {
+	return &Generator{
+		Generator: generator.New(generatorName),
+
+		objects: objects,
 	}
 }
 
-func generate(g *generator.Generator) error {
-	objects, err := astutil.ParseOpenAPIObjects("interfaces.go")
-	if err != nil {
-		return err
-	}
-
-	for _, object := range objects {
+func (g *Generator) Generate() error {
+	for _, object := range g.objects {
 		log.Printf("generate %s.Unmarshal()", object.Name)
 
-		if err := generateUnmarshalYAML(g, object); err != nil {
+		if err := g.generateUnmarshalYAML(object); err != nil {
 			return err
 		}
 	}
 
-	if err := g.Save("unmarshalyaml_gen.go"); err != nil {
-		return err
-	}
-
-	return nil
+	return g.Save(saveTo)
 }
 
-func generateUnmarshalYAML(g *generator.Generator, object astutil.OpenAPIObject) error {
+func (g *Generator) generateUnmarshalYAML(object astutil.OpenAPIObject) error {
 	g.Printf("\n\nfunc (v *%s) UnmarshalYAML(unmarshal func(interface{}) error) error {", object.Name)
 	g.Printf("\nvar proxy map[string]rawMessage")
 	g.Printf("\nif err := unmarshal(&proxy); err != nil {")
@@ -52,7 +51,7 @@ func generateUnmarshalYAML(g *generator.Generator, object astutil.OpenAPIObject)
 
 	for _, field := range object.Fields {
 		if field.YAMLName() == "$ref" {
-			generateReferenceUnmarshal(g)
+			g.generateReferenceUnmarshal()
 			break
 		}
 	}
@@ -65,7 +64,7 @@ func generateUnmarshalYAML(g *generator.Generator, object astutil.OpenAPIObject)
 		}
 
 		if isInline(field.Tags) {
-			if generateInlineUnmarshal(g, field) {
+			if g.generateInlineUnmarshal(field) {
 				// only overwrites when true
 				noUnknown = true
 			}
@@ -74,9 +73,9 @@ func generateUnmarshalYAML(g *generator.Generator, object astutil.OpenAPIObject)
 		}
 
 		g.Printf("\n\n")
-		generateUnmarshalField(g, field)
+		g.generateUnmarshalField(field)
 
-		if err := generateFormatValidation(g, field); err != nil {
+		if err := g.generateFormatValidation(field); err != nil {
 			return err
 		}
 	}
@@ -99,7 +98,7 @@ func generateUnmarshalYAML(g *generator.Generator, object astutil.OpenAPIObject)
 	return nil
 }
 
-func generateReferenceUnmarshal(g *generator.Generator) {
+func (g *Generator) generateReferenceUnmarshal() {
 	g.Printf("\nif p, ok := proxy[\"$ref\"]; ok {")
 	g.Printf("\nvar referenceVal string")
 	g.Printf("\nif err := p.unmarshal(&referenceVal); err != nil {")
@@ -111,7 +110,7 @@ func generateReferenceUnmarshal(g *generator.Generator) {
 	g.Printf("\n}")
 }
 
-func generateInlineUnmarshal(g *generator.Generator, field astutil.OpenAPIObjectField) (noUnknown bool) {
+func (g *Generator) generateInlineUnmarshal(field astutil.OpenAPIObjectField) (noUnknown bool) {
 	ft, ok := field.Type.(*ast.MapType)
 	if !ok {
 		log.Fatalf("expected map for inline %s but %s", field.YAMLName(), field.Type)
@@ -163,7 +162,7 @@ func generateInlineUnmarshal(g *generator.Generator, field astutil.OpenAPIObject
 	return noUnknown
 }
 
-func generateUnmarshalField(g *generator.Generator, field astutil.OpenAPIObjectField) {
+func (g *Generator) generateUnmarshalField(field astutil.OpenAPIObjectField) {
 	if field.IsRequired() {
 		g.Printf("%sUnmarshal, ok := proxy[\"%s\"]", field.Name, field.YAMLName())
 		g.Printf("\nif !ok {")
@@ -199,7 +198,7 @@ func generateUnmarshalField(g *generator.Generator, field astutil.OpenAPIObjectF
 	g.Printf("\ndelete(proxy, `%s`)", field.YAMLName())
 }
 
-func generateFormatValidation(g *generator.Generator, field astutil.OpenAPIObjectField) error {
+func (g *Generator) generateFormatValidation(field astutil.OpenAPIObjectField) error {
 	switch field.Tags.Get("format") {
 	case "semver":
 		g.Printf("\n\nif !isValidSemVer(v.%s) {", field.Name)
@@ -207,9 +206,9 @@ func generateFormatValidation(g *generator.Generator, field astutil.OpenAPIObjec
 		g.Printf("\nreturn errors.New(`\"%s\" field must be a valid semantic version but not`)", field.YAMLName())
 		g.Printf("\n}")
 	case "url":
-		generateURLValidation(g, field)
+		g.generateURLValidation(field)
 	case "email":
-		generateEmailValidation(g, field)
+		g.generateEmailValidation(field)
 	case "runtime":
 		if _, ok := field.Type.(*ast.MapType); !ok {
 			return errors.New("`runtime` validation constraints can only be used for map value")
@@ -236,13 +235,13 @@ func generateFormatValidation(g *generator.Generator, field astutil.OpenAPIObjec
 	}
 
 	if list, ok := field.Tags["oneof"]; ok {
-		generateOneOfValidation(g, field, list)
+		g.generateOneOfValidation(field, list)
 	}
 
 	return nil
 }
 
-func generateURLValidation(g *generator.Generator, field astutil.OpenAPIObjectField) {
+func (g *Generator) generateURLValidation(field astutil.OpenAPIObjectField) {
 	g.Printf("\n")
 
 	if !field.IsRequired() {
@@ -262,7 +261,7 @@ func generateURLValidation(g *generator.Generator, field astutil.OpenAPIObjectFi
 	g.Printf("\n}")
 }
 
-func generateEmailValidation(g *generator.Generator, field astutil.OpenAPIObjectField) {
+func (g *Generator) generateEmailValidation(field astutil.OpenAPIObjectField) {
 	g.Printf("\n")
 
 	if !field.IsRequired() {
@@ -276,7 +275,7 @@ func generateEmailValidation(g *generator.Generator, field astutil.OpenAPIObject
 	g.Printf("\n}")
 }
 
-func generateOneOfValidation(g *generator.Generator, field astutil.OpenAPIObjectField, list []string) {
+func (g *Generator) generateOneOfValidation(field astutil.OpenAPIObjectField, list []string) {
 	g.Printf("\n")
 
 	if !field.IsRequired() {

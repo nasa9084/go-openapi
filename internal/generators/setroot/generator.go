@@ -1,7 +1,6 @@
-package main
+package setroot
 
 import (
-	"flag"
 	"go/ast"
 	"log"
 	"reflect"
@@ -10,30 +9,37 @@ import (
 	"github.com/nasa9084/go-openapi/internal/generator"
 )
 
+const (
+	generatorName = "SetRootGenerator"
+	saveTo        = "setroot_gen.go"
+)
+
 var ignoreFields = []string{"resolved"}
 
-func main() {
-	flag.Parse()
+type Generator struct {
+	*generator.Generator
 
-	g := generator.New("mksetroot.go")
+	objects []astutil.OpenAPIObject
+}
 
-	objects, err := astutil.ParseOpenAPIObjects("interfaces.go")
+func NewGenerator(objects []astutil.OpenAPIObject) *Generator {
+	return &Generator{
+		Generator: generator.New(generatorName),
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, object := range objects {
-		log.Printf("generate %s.setRoot()", object.Name)
-		mkSetRoot(g, object)
-	}
-
-	if err := g.Save("setroot_gen.go"); err != nil {
-		log.Fatal(err)
+		objects: objects,
 	}
 }
 
-func mkSetRoot(g *generator.Generator, object astutil.OpenAPIObject) {
+func (g *Generator) Generate() error {
+	for _, object := range g.objects {
+		log.Printf("generate %s.setRoot()", object.Name)
+		g.mkSetRoot(object)
+	}
+
+	return g.Save(saveTo)
+}
+
+func (g *Generator) mkSetRoot(object astutil.OpenAPIObject) {
 	g.Printf("\n\nfunc (v *%s) setRoot(root *OpenAPI) {", object.Name)
 
 	for _, field := range object.Fields {

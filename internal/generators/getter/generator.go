@@ -1,7 +1,6 @@
-package main
+package getter
 
 import (
-	"flag"
 	"fmt"
 	"go/ast"
 	"log"
@@ -12,33 +11,39 @@ import (
 	"github.com/nasa9084/go-openapi/internal/generator"
 )
 
-func main() {
-	flag.Parse()
+const (
+	generatorName = "GetterGenerator"
+	saveTo        = "getter_gen.go"
+)
 
-	g := generator.New("mkgetter.go")
+type Generator struct {
+	*generator.Generator
 
-	objects, err := astutil.ParseOpenAPIObjects("interfaces.go")
-	if err != nil {
-		log.Fatal(err)
-	}
+	objects []astutil.OpenAPIObject
+}
 
-	for _, object := range objects {
-		log.Printf("generate getters for %s", object.Name)
+func NewGenerator(objects []astutil.OpenAPIObject) *Generator {
+	return &Generator{
+		Generator: generator.New(generatorName),
 
-		if err := generateGetters(g, object); err != nil {
-			log.Fatal(err)
-		}
-	}
-
-	if err := g.Save("getter_gen.go"); err != nil {
-		log.Fatal(err)
+		objects: objects,
 	}
 }
 
-func generateGetters(g *generator.Generator, object astutil.OpenAPIObject) error {
+func (g *Generator) Generate() error {
+	for _, object := range g.objects {
+		if err := g.generateGetters(object); err != nil {
+			return err
+		}
+	}
+
+	return g.Save(saveTo)
+}
+
+func (g *Generator) generateGetters(object astutil.OpenAPIObject) error {
 	for _, field := range object.Fields {
 		if object.Name == expose(field.Name) && (object.Name != "OpenAPI" && field.Name != "openapi") {
-			if err := generateMapGetter(g, field, "Get"); err != nil {
+			if err := g.generateMapGetter(field, "Get"); err != nil {
 				return err
 			}
 
@@ -46,14 +51,14 @@ func generateGetters(g *generator.Generator, object astutil.OpenAPIObject) error
 		}
 
 		if field.Name == "extension" {
-			if err := generateMapGetter(g, field, "Extension"); err != nil {
+			if err := g.generateMapGetter(field, "Extension"); err != nil {
 				return err
 			}
 
 			continue
 		}
 
-		if err := generateGetter(g, field); err != nil {
+		if err := g.generateGetter(field); err != nil {
 			return err
 		}
 	}
@@ -61,8 +66,8 @@ func generateGetters(g *generator.Generator, object astutil.OpenAPIObject) error
 	return nil
 }
 
-func generateGetter(g *generator.Generator, field astutil.OpenAPIObjectField) error {
-	log.Printf("  generate %s.%s()", field.ParentObject.Name, expose(field.Name))
+func (g *Generator) generateGetter(field astutil.OpenAPIObjectField) error {
+	log.Printf("generate %s.%s()", field.ParentObject.Name, expose(field.Name))
 
 	fieldType := astutil.TypeString(field.Type)
 
@@ -84,8 +89,8 @@ func generateGetter(g *generator.Generator, field astutil.OpenAPIObjectField) er
 	return nil
 }
 
-func generateMapGetter(g *generator.Generator, field astutil.OpenAPIObjectField, fnName string) error {
-	log.Printf("  generate %s.%s()", field.ParentObject.Name, fnName)
+func (g *Generator) generateMapGetter(field astutil.OpenAPIObjectField, fnName string) error {
+	log.Printf("generate %s.%s()", field.ParentObject.Name, fnName)
 
 	var (
 		keyType, valType string
@@ -129,7 +134,7 @@ func generateMapGetter(g *generator.Generator, field astutil.OpenAPIObjectField,
 	return nil
 }
 
-func resolveReference(g *generator.Generator) {
+func resolveReference(g *Generator) {
 	g.Printf("\nif v.reference != \"\" {")
 	g.Printf("\nresolved, err := v.resolve()")
 	g.Printf("\nif err != nil {")

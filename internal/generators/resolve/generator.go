@@ -1,7 +1,6 @@
-package main
+package resolve
 
 import (
-	"flag"
 	"log"
 	"unicode"
 
@@ -9,31 +8,39 @@ import (
 	"github.com/nasa9084/go-openapi/internal/generator"
 )
 
-func main() {
-	flag.Parse()
+const (
+	generatorName = "ResolveGenerator"
+	saveTo        = "resolve_gen.go"
+)
 
-	g := generator.New("mkresolver.go")
+type Generator struct {
+	*generator.Generator
 
-	objects, err := astutil.ParseOpenAPIObjects("interfaces.go")
-	if err != nil {
-		log.Fatal(err)
+	objects []astutil.OpenAPIObject
+}
+
+func NewGenerator(objects []astutil.OpenAPIObject) *Generator {
+	return &Generator{
+		Generator: generator.New(generatorName),
+
+		objects: objects,
 	}
+}
 
-	for _, object := range objects {
+func (g *Generator) Generate() error {
+	for _, object := range g.objects {
 		if !object.HasReference {
 			continue
 		}
 
-		generateResolve(g, object)
-		generateResolveLocal(g, object)
+		g.generateResolve(object)
+		g.generateResolveLocal(object)
 	}
 
-	if err := g.Save("resolve_gen.go"); err != nil {
-		log.Fatal(err)
-	}
+	return g.Save(saveTo)
 }
 
-func generateResolve(g *generator.Generator, object astutil.OpenAPIObject) {
+func (g *Generator) generateResolve(object astutil.OpenAPIObject) {
 	log.Printf("generate %s.resolve()", object.Name)
 
 	g.Printf("\n\nfunc (v *%s) resolve() (*%[1]s, error) {", object.Name)
@@ -53,7 +60,7 @@ func generateResolve(g *generator.Generator, object astutil.OpenAPIObject) {
 	g.Printf("\n\nreturn nil, ErrCannotResolved(v.reference, `not supported reference type`)")
 }
 
-func generateResolveLocal(g *generator.Generator, object astutil.OpenAPIObject) {
+func (g *Generator) generateResolveLocal(object astutil.OpenAPIObject) {
 	log.Printf("  generate %s.resolveLocal()", object.Name)
 
 	g.Printf("\n\nfunc (v *%s) resolveLocal() (*%[1]s, error) {", object.Name)
