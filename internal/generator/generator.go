@@ -35,7 +35,6 @@ type Generator struct {
 	showSource bool
 }
 
-//nolint:golint // suggested `import` but it is reserved
 type import_ struct {
 	name string
 	path string
