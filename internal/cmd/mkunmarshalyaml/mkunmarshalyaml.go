@@ -53,7 +53,7 @@ func generateUnmarshalYAML(g *generator.Generator, object astutil.OpenAPIObject)
 	for _, field := range object.Fields {
 		if field.YAMLName() == "$ref" {
 			generateReferenceUnmarshal(g)
-			continue
+			break
 		}
 	}
 
