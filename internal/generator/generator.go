@@ -100,6 +100,13 @@ func (imports imports) String() string {
 		return ""
 	}
 
+	if len(imports.stdpkg)+len(imports.thirdparty) == 1 {
+		if len(imports.stdpkg) == 1 {
+			return imports.stdpkg[0].String()
+		}
+
+		return imports.thirdparty[0].String()
+	}
 
 	buf := pool.GetBytesBuffer()
 	defer pool.Put(buf)
@@ -108,35 +115,31 @@ func (imports imports) String() string {
 		fmt.Fprintf(buf, format, args...)
 	}
 
-	fmt.Fprintf(buf, "\nimport (")
+	outf("\nimport (")
 
-	for i := range imports.stdpkg {
-		fmt.Fprintf(buf, "\n")
-
-		if imports.stdpkg[i].name != "" {
-			fmt.Fprintf(buf, "%s ", imports.stdpkg[i].name)
-		}
-
-		fmt.Fprintf(buf, "%s", strconv.Quote(imports.stdpkg[i].path))
+	for _, i := range imports.stdpkg {
+		outf("\n%s", i.String())
 	}
 
-	if len(imports.stdpkg) != 0 {
-		fmt.Fprintf(buf, "\n")
-	}
-
-	for i := range imports.thirdparty {
+	if len(imports.stdpkg) != 0 && len(imports.thirdparty) != 0 {
 		outf("\n")
+	}
 
-		if imports.thirdparty[i].name != "" {
-			outf("%s ", imports.thirdparty[i].name)
-		}
-
-		outf("%s", strconv.Quote(imports.thirdparty[i].path))
+	for _, i := range imports.thirdparty {
+		outf("\n%s", i.String())
 	}
 
 	outf("\n)")
 
 	return buf.String()
+}
+
+func (i import_) String() string {
+	if i.name != "" {
+		return i.name + " " + strconv.Quote(i.path)
+	}
+
+	return strconv.Quote(i.path)
 }
 
 func printSource(src []byte) {
