@@ -24,7 +24,7 @@ func TestLoadFile(t *testing.T) {
 }
 
 func testTestSpec(t *testing.T) {
-	doc, err := openapi.LoadFile("test/testspec.yaml")
+	doc, err := openapi.LoadFile("testdata/testspec.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -110,7 +110,7 @@ components:
 }
 
 func testPetStore(t *testing.T) {
-	doc, err := openapi.LoadFile("test/petstore.yaml")
+	doc, err := openapi.LoadFile("testdata/petstore.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -287,7 +287,7 @@ func testPetStore(t *testing.T) {
 }
 
 func testPetStoreExpanded(t *testing.T) {
-	doc, err := openapi.LoadFile("test/petstore-expanded.yaml")
+	doc, err := openapi.LoadFile("testdata/petstore-expanded.yaml")
 	if err != nil {
 		t.Fatal(err)
 		return
@@ -536,7 +536,7 @@ Sed tempus felis lobortis leo pulvinar rutrum. Nam mattis velit nisl, eu condime
 }
 
 func testCallBackExample(t *testing.T) {
-	doc, err := openapi.LoadFile("test/callback-example.yaml")
+	doc, err := openapi.LoadFile("testdata/callback-example.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -641,7 +641,7 @@ in further updates
 }
 
 func testLinkExample(t *testing.T) {
-	doc, err := openapi.LoadFile("test/link-example.yaml")
+	doc, err := openapi.LoadFile("testdata/link-example.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -983,7 +983,7 @@ func testLinkExample(t *testing.T) {
 }
 
 func testAPIWithExample(t *testing.T) {
-	doc, err := openapi.LoadFile("test/api-with-example.yaml")
+	doc, err := openapi.LoadFile("testdata/api-with-example.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1194,7 +1194,7 @@ func testAPIWithExample(t *testing.T) {
 }
 
 func testUspto(t *testing.T) {
-	doc, err := openapi.LoadFile("test/uspto.yaml")
+	doc, err := openapi.LoadFile("testdata/uspto.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}

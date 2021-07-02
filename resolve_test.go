@@ -8,7 +8,7 @@ import (
 )
 
 func TestResolveSchema(t *testing.T) {
-	doc, err := openapi.LoadFile("test/testspec.yaml")
+	doc, err := openapi.LoadFile("testdata/testspec.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,7 +32,7 @@ func TestResolveSchema(t *testing.T) {
 }
 
 func TestResolveResponse(t *testing.T) {
-	doc, err := openapi.LoadFile("test/testspec.yaml")
+	doc, err := openapi.LoadFile("testdata/testspec.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,7 +61,7 @@ func TestResolveResponse(t *testing.T) {
 }
 
 func TestResolveParameter(t *testing.T) {
-	doc, err := openapi.LoadFile("test/testspec.yaml")
+	doc, err := openapi.LoadFile("testdata/testspec.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,7 +101,7 @@ func TestResolveParameter(t *testing.T) {
 }
 
 func TestResolveExample(t *testing.T) {
-	doc, err := openapi.LoadFile("test/testspec.yaml")
+	doc, err := openapi.LoadFile("testdata/testspec.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -126,7 +126,7 @@ func TestResolveExample(t *testing.T) {
 }
 
 func TestResolveRequestBody(t *testing.T) {
-	doc, err := openapi.LoadFile("test/testspec.yaml")
+	doc, err := openapi.LoadFile("testdata/testspec.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -173,7 +173,7 @@ func TestResolveRequestBody(t *testing.T) {
 }
 
 func TestResolveHeader(t *testing.T) {
-	doc, err := openapi.LoadFile("test/testspec.yaml")
+	doc, err := openapi.LoadFile("testdata/testspec.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -201,7 +201,7 @@ func TestResolveHeader(t *testing.T) {
 }
 
 func TestResolveSecurityScheme(t *testing.T) {
-	doc, err := openapi.LoadFile("test/testspec.yaml")
+	doc, err := openapi.LoadFile("testdata/testspec.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -225,7 +225,7 @@ func TestResolveSecurityScheme(t *testing.T) {
 }
 
 func TestResolveLink(t *testing.T) {
-	doc, err := openapi.LoadFile("test/testspec.yaml")
+	doc, err := openapi.LoadFile("testdata/testspec.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -245,7 +245,7 @@ func TestResolveLink(t *testing.T) {
 }
 
 func TestResolveCallback(t *testing.T) {
-	doc, err := openapi.LoadFile("test/testspec.yaml")
+	doc, err := openapi.LoadFile("testdata/testspec.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
