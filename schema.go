@@ -35,7 +35,7 @@ type Schema struct {
 	AdditionalProperties *Schema `yaml:"additionalProperties"`
 	Description          string
 	Format               string
-	Default              string
+	Default              interface{}
 
 	Nullable      bool
 	Discriminator *Discriminator

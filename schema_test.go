@@ -40,6 +40,21 @@ x-extension: val`,
 				},
 			},
 		},
+		{
+			data: `---
+type: array
+items:
+  type: string
+default:
+  - foo
+  - bar`,
+			want: &openapi.Schema{
+				Type: "array",
+				Items: &openapi.Schema{
+					Type: "string",
+				},
+			},
+		},
 	}
 	for i, tt := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {

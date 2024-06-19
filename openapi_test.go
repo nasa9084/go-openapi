@@ -1392,12 +1392,12 @@ func testUspto(t *testing.T) {
 									"start": &openapi.Schema{
 										Description: "Starting record number. Default value is 0.",
 										Type:        "integer",
-										Default:     "0",
+										Default:     0,
 									},
 									"rows": &openapi.Schema{
 										Description: `Specify number of rows to be returned. If you run the search with default values, in the response you will see 'numFound' attribute which will tell the number of records available in the dataset.`,
 										Type:        "integer",
-										Default:     "100",
+										Default:     100,
 									},
 								},
 								Required: []string{"criteria"},
